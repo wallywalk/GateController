@@ -16,7 +16,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -27,21 +26,9 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 
 @Composable
 fun AuthScreen(
-    viewModel: AuthViewModel = hiltViewModel(),
-    onLoginSuccess: () -> Unit,
-    showSnackbar: (String) -> Unit
+    viewModel: AuthViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
-
-    LaunchedEffect(viewModel.sideEffect) {
-        viewModel.sideEffect.collect { effect ->
-            when (effect) {
-                is AuthSideEffect.ShowSnackbar -> showSnackbar(effect.message)
-                AuthSideEffect.NavigateToMonitoring -> onLoginSuccess()
-            }
-        }
-    }
-
     AuthContent(
         uiState = uiState,
         onIntent = viewModel::handleIntent

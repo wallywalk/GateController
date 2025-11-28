@@ -24,6 +24,7 @@ class AuthViewModel @Inject constructor(
 
     fun handleIntent(intent: AuthIntent) {
         when (intent) {
+            AuthIntent.CheckCurrentUser -> checkCurrentUser()
             is AuthIntent.EmailChanged -> _uiState.update { it.copy(email = intent.email) }
             is AuthIntent.PasswordChanged -> _uiState.update { it.copy(password = intent.password) }
             AuthIntent.SubmitLogin -> login()
@@ -32,12 +33,20 @@ class AuthViewModel @Inject constructor(
         }
     }
 
+    private fun checkCurrentUser() {
+        if (authRepository.getCurrentUser() != null) {
+            viewModelScope.launch {
+                _sideEffect.send(AuthSideEffect.NavigateToMain)
+            }
+        }
+    }
+
     private fun login() {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
             val result = authRepository.login(uiState.value.email, uiState.value.password)
             result.onSuccess {
-                _sideEffect.send(AuthSideEffect.NavigateToMonitoring)
+                _sideEffect.send(AuthSideEffect.NavigateToMain)
             }.onFailure {
                 _sideEffect.send(AuthSideEffect.ShowSnackbar(it.message ?: "Login failed"))
             }
@@ -69,7 +78,11 @@ class AuthViewModel @Inject constructor(
             result.onSuccess {
                 _sideEffect.send(AuthSideEffect.ShowSnackbar("Password reset email sent."))
             }.onFailure {
-                _sideEffect.send(AuthSideEffect.ShowSnackbar(it.message ?: "Failed to send reset email."))
+                _sideEffect.send(
+                    AuthSideEffect.ShowSnackbar(
+                        it.message ?: "Failed to send reset email."
+                    )
+                )
             }
             _uiState.update { it.copy(isLoading = false) }
         }

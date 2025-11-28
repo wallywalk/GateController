@@ -1,6 +1,7 @@
 package com.cm.gatecontroller.auth
 
 sealed interface AuthIntent {
+    data object CheckCurrentUser : AuthIntent
     data class EmailChanged(val email: String) : AuthIntent
     data class PasswordChanged(val password: String) : AuthIntent
     data object SubmitLogin : AuthIntent
@@ -16,5 +17,5 @@ data class AuthUiState(
 
 sealed interface AuthSideEffect {
     data class ShowSnackbar(val message: String) : AuthSideEffect
-    data object NavigateToMonitoring : AuthSideEffect
+    data object NavigateToMain : AuthSideEffect
 }

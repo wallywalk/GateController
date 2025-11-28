@@ -43,4 +43,16 @@ class AuthRepositoryImpl @Inject constructor(
     override fun logout() {
         firebaseAuth.signOut()
     }
+
+    override suspend fun reloadUser(): Result<Unit> {
+        return try {
+            firebaseAuth.currentUser?.reload()?.await()
+            if (firebaseAuth.currentUser == null) {
+                throw IllegalStateException("User is no longer signed in.")
+            }
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
 }
