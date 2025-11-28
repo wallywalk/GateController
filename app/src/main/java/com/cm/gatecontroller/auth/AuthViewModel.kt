@@ -72,6 +72,7 @@ class AuthViewModel @Inject constructor(
             viewModelScope.launch { _sideEffect.send(AuthSideEffect.ShowSnackbar("Please enter your email address.")) }
             return
         }
+
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
             val result = authRepository.sendPasswordResetEmail(uiState.value.email)
