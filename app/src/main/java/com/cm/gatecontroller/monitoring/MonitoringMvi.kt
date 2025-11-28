@@ -1,6 +1,6 @@
 package com.cm.gatecontroller.monitoring
 
-import com.cm.gatecontroller.core.serial.model.DeviceStatus
+import com.cm.gatecontroller.core.serial.model.GateControllerState
 
 sealed interface MonitoringIntent {
     data object RefreshStatus : MonitoringIntent
@@ -8,7 +8,7 @@ sealed interface MonitoringIntent {
 }
 
 data class MonitoringUiState(
-    val deviceStatus: DeviceStatus = DeviceStatus(),
+    val deviceStatus: GateControllerState = GateControllerState(),
     val isLoading: Boolean = true
 )
 

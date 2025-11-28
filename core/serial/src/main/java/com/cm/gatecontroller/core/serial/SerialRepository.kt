@@ -32,4 +32,14 @@ interface SerialRepository {
     suspend fun setRelay1Mode(mode: Int)
     suspend fun setRelay2Mode(mode: Int)
     suspend fun factoryReset(): Result<Unit>
+
+    // Board Test Commands
+    suspend fun setControlLamp(on: Boolean)
+    suspend fun setControlRelay1(on: Boolean)
+    suspend fun setControlRelay2(on: Boolean)
+    suspend fun setControlLed(color: String)
+    suspend fun setControlPosition(position: String) // AT+STPOS
+    suspend fun openGateTest() // AT+OPEN
+    suspend fun closeGateTest() // AT+CLOSE
+    suspend fun stopGateTest() // AT+STOP
 }
