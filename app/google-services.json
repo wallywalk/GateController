@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "735604924960",
+    "project_id": "gatecontroller-cbfc5",
+    "storage_bucket": "gatecontroller-cbfc5.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:735604924960:android:e6ba13e1ec9892b9d89245",
+        "android_client_info": {
+          "package_name": "com.cm.gatecontroller"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBsezsTcls6uj3dS4zqiYuHznIA79bkx9k"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
