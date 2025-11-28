@@ -12,14 +12,6 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-data class UserUiState(
-    val userEmail: String = ""
-)
-
-sealed interface UserSideEffect {
-    data object NavigateToLogin : UserSideEffect
-}
-
 @HiltViewModel
 class UserViewModel @Inject constructor(
     private val authRepository: AuthRepository
