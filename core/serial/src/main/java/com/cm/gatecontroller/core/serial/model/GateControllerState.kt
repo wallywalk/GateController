@@ -11,6 +11,10 @@ enum class LampPosition { OPENING_START, OPENED_STOP, CLOSING_START, CLOSED_STOP
 typealias LedOpenPosition = LampPosition
 typealias LedClosePosition = LampPosition
 
+// Board Test States
+enum class PositionState { LEFT, RIGHT }
+enum class GateStage { OPENING, OPENED, CLOSING, CLOSED, STOP }
+
 data class GateControllerState(
     // Common
     val version: String = "N/A",
@@ -51,5 +55,25 @@ data class GateControllerState(
     val loopB_conf: UseState = UseState.UNUSE,
     val delayTime_conf: Int = 30,
     val relay1Mode: Int = 4,
-    val relay2Mode: Int = 10
+    val relay2Mode: Int = 10,
+
+    // Board Test State
+    val controlLamp: OnOff = OnOff.OFF,
+    val controlRelay1: OnOff = OnOff.OFF,
+    val controlRelay2: OnOff = OnOff.OFF,
+    val controlLed: LedColor = LedColor.OFF,
+    val controlPosition: PositionState = PositionState.LEFT,
+    val inPhoto1: OnOff = OnOff.OFF,
+    val inPhoto2: OnOff = OnOff.OFF,
+    val inLoopA: OnOff = OnOff.OFF,
+    val inLoopB: OnOff = OnOff.OFF,
+    val inOpen1: OnOff = OnOff.OFF,
+    val inOpen2: OnOff = OnOff.OFF,
+    val inOpen3: OnOff = OnOff.OFF,
+    val inClose1: OnOff = OnOff.OFF,
+    val inClose2: OnOff = OnOff.OFF,
+    val inClose3: OnOff = OnOff.OFF,
+    val swOpen: OnOff = OnOff.OFF,
+    val swClose: OnOff = OnOff.OFF,
+    val gateStage: GateStage = GateStage.STOP
 )

@@ -32,4 +32,5 @@ dependencies {
     kapt(libs.hilt.android.compiler)
 
     api(libs.usb.serial)
+    implementation(libs.kotlinx.serialization.json)
 }
