@@ -34,7 +34,7 @@ class LoginActivity : ComponentActivity() {
         setContent {
             GateControllerTheme {
                 val snackbarHostState = remember { SnackbarHostState() }
-                val scope = rememberCoroutineScope()
+                val scope = rememberCoroutineScope() // TODO: scope 필요 여부
 
                 LaunchedEffect(viewModel.sideEffect) {
                     viewModel.sideEffect.collect { effect ->
@@ -55,7 +55,7 @@ class LoginActivity : ComponentActivity() {
 
                 Scaffold(
                     snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
-                ) { padding ->
+                ) { padding -> // fixme
                     Surface(color = MaterialTheme.colorScheme.background) {
                         AuthScreen(
                             viewModel = viewModel

@@ -43,7 +43,7 @@ class AuthViewModel @Inject constructor(
 
     private fun login() {
         viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true) }
+            _uiState.update { it.copy(isLoading = true) } // TODO: isLoading 확장 함수
             val result = authRepository.login(uiState.value.email, uiState.value.password)
             result.onSuccess {
                 _sideEffect.send(AuthSideEffect.NavigateToMain)
