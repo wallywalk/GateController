@@ -1,427 +1,283 @@
 package com.cm.gatecontroller.configuration
 
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import android.widget.Toast
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Switch
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.ViewModel
-import com.cm.gatecontroller.core.serial.model.GateControllerState
-import com.cm.gatecontroller.core.serial.model.LampPosition
-import com.cm.gatecontroller.core.serial.model.LedColor
-import com.cm.gatecontroller.core.serial.model.UseState
-import com.cm.gatecontroller.ui.theme.GateControllerTheme
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.launch
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.navigation.NavHostController
+import com.cm.gatecontroller.configuration.model.LampStatus
+import com.cm.gatecontroller.configuration.model.UsageStatus
+import com.cm.gatecontroller.model.LedStatus
+import kotlinx.coroutines.flow.collectLatest
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ConfigurationScreen(
+    navController: NavHostController,
     viewModel: ConfigurationViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    val config = uiState.configState
-    val snackbarHostState = remember { SnackbarHostState() }
-    val scope = rememberCoroutineScope()
+    val context = LocalContext.current
 
-    LaunchedEffect(viewModel.sideEffect) {
-        viewModel.sideEffect.collect { effect ->
+    LaunchedEffect(Unit) {
+        viewModel.sideEffect.collectLatest { effect ->
             when (effect) {
-                is ConfigurationSideEffect.ShowSnackbar -> {
-                    scope.launch { snackbarHostState.showSnackbar(effect.message) }
+                is ConfigurationSideEffect.ShowToast -> {
+                    Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
                 }
-                is ConfigurationSideEffect.ShowConfirmDialog -> {
-                    // Show dialog logic here
-                    // For now, we'll just confirm directly for Factory Reset
-                    viewModel.confirmFactoryReset()
-                }
-                ConfigurationSideEffect.LaunchFilePicker -> {
-                    scope.launch { snackbarHostState.showSnackbar("Load Config: File picker not implemented") }
-                }
-                ConfigurationSideEffect.LaunchFileSaver -> {
-                    scope.launch { snackbarHostState.showSnackbar("Save Config: File saver not implemented") }
-                }
-                ConfigurationSideEffect.ShowRelayMapDialog -> {
-                    scope.launch { snackbarHostState.showSnackbar("Relay Map Dialog not implemented") }
+
+                is ConfigurationSideEffect.ShowRelayMapDialog -> {
+                    // TODO: Show Relay Map Dialog
                 }
             }
         }
     }
 
-    Scaffold(snackbarHost = { SnackbarHost(snackbarHostState) }) { padding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-                .padding(16.dp)
-                .verticalScroll(rememberScrollState()),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text("CONFIGURATION", fontSize = 24.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(bottom = 16.dp))
-
-            // Version Display
-            ConfigRow(
-                label = "Version",
-                content = {
-                    ConfigButton(
-                        text = config.version,
-                        isActive = true,
-                        activeColor = MaterialTheme.colorScheme.surfaceVariant,
-                        textColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                }
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Configuration") },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    titleContentColor = MaterialTheme.colorScheme.onPrimary
+                )
             )
-
-            // Open/Close Level
-            ConfigRow(
-                content = {
-                    ConfigButton(
-                        label = "Open speed",
-                        text = config.openLevel.toString(),
-                        isActive = true,
-                        activeColor = MaterialTheme.colorScheme.surfaceVariant,
-                        textColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.weight(1f)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    ConfigButton(
-                        label = "Close speed",
-                        text = config.closeLevel.toString(),
-                        isActive = true,
-                        activeColor = MaterialTheme.colorScheme.surfaceVariant,
-                        textColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.weight(1f)
-                    )
-                }
-            )
-
-            // LAMP, BUZZER
-            ConfigRow(
-                content = {
-                    ConfigToggleButton(
-                        label = "LAMP",
-                        currentState = config.lampUsage,
-                        onToggle = { viewModel.handleIntent(ConfigurationIntent.SetLampUsage(it)) },
-                        modifier = Modifier.weight(1f)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    ConfigToggleButton(
-                        label = "BUZZER",
-                        currentState = config.buzzerUsage,
-                        onToggle = { viewModel.handleIntent(ConfigurationIntent.SetBuzzerUsage(it)) },
-                        modifier = Modifier.weight(1f)
-                    )
-                }
-            )
-
-            // LAMP ON, LAMP OFF
-            ConfigRow(
-                content = {
-                    ConfigDropdownButton(
-                        label = "LAMP ON",
-                        currentValue = config.lampOnPosition,
-                        options = LampPosition.values().toList(),
-                        onValueChange = { viewModel.handleIntent(ConfigurationIntent.SetLampOnPosition(it)) },
-                        modifier = Modifier.weight(1f)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    ConfigDropdownButton(
-                        label = "LAMP OFF",
-                        currentValue = config.lampOffPosition,
-                        options = LampPosition.values().toList(),
-                        onValueChange = { viewModel.handleIntent(ConfigurationIntent.SetLampOffPosition(it)) },
-                        modifier = Modifier.weight(1f)
-                    )
-                }
-            )
-
-            // LED OPEN, LED CLOSE
-            ConfigRow(
-                content = {
-                    ConfigLedColorButton(
-                        label = "LED OPEN",
-                        currentColor = config.ledOpenColor,
-                        onColorSelected = { viewModel.handleIntent(ConfigurationIntent.SetLedOpenColor(it)) },
-                        modifier = Modifier.weight(1f)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    ConfigDropdownButton(
-                        label = "LED OPEN POS",
-                        currentValue = config.ledOpenPosition,
-                        options = LampPosition.values().toList(),
-                        onValueChange = { viewModel.handleIntent(ConfigurationIntent.SetLedOpenPosition(it)) },
-                        modifier = Modifier.weight(1f)
-                    )
-                }
-            )
-            ConfigRow(
-                content = {
-                    ConfigLedColorButton(
-                        label = "LED CLOSE",
-                        currentColor = config.ledCloseColor,
-                        onColorSelected = { viewModel.handleIntent(ConfigurationIntent.SetLedCloseColor(it)) },
-                        modifier = Modifier.weight(1f)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    ConfigDropdownButton(
-                        label = "LED CLOSE POS",
-                        currentValue = config.ledClosePosition,
-                        options = LampPosition.values().toList(),
-                        onValueChange = { viewModel.handleIntent(ConfigurationIntent.SetLedClosePosition(it)) },
-                        modifier = Modifier.weight(1f)
-                    )
-                }
-            )
-
-            // LOOP A, LOOP B
-            ConfigRow(
-                content = {
-                    ConfigToggleButton(
-                        label = "LOOP A",
-                        currentState = config.loopA_conf,
-                        onToggle = { viewModel.handleIntent(ConfigurationIntent.SetLoopAUsage(it)) },
-                        modifier = Modifier.weight(1f)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    ConfigToggleButton(
-                        label = "LOOP B",
-                        currentState = config.loopB_conf,
-                        onToggle = { viewModel.handleIntent(ConfigurationIntent.SetLoopBUsage(it)) },
-                        modifier = Modifier.weight(1f)
-                    )
-                }
-            )
-
-            // DELAY TIME
-            ConfigRow(
-                label = "DELAY TIME",
-                content = {
-                    ConfigButton(
-                        text = "${config.delayTime_conf}sec",
-                        isActive = true,
-                        activeColor = MaterialTheme.colorScheme.surfaceVariant,
-                        textColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                }
-            )
-
-            // RELAY1, RELAY2
-            ConfigRow(
-                content = {
-                    ConfigButton(
-                        label = "RELAY1",
-                        text = config.relay1Mode.toString(),
-                        isActive = true,
-                        activeColor = MaterialTheme.colorScheme.surfaceVariant,
-                        textColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.weight(1f)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    ConfigButton(
-                        label = "RELAY2",
-                        text = config.relay2Mode.toString(),
-                        isActive = true,
-                        activeColor = MaterialTheme.colorScheme.surfaceVariant,
-                        textColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.weight(1f)
-                    )
-                }
-            )
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            // Bottom Buttons
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly
+        }
+    ) { paddingValues ->
+        if (uiState.isLoading) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
             ) {
-                ConfigButton(
-                    text = "RELAY MAP",
-                    onClick = { viewModel.handleIntent(ConfigurationIntent.ShowRelayMap) },
-                    isActive = true,
-                    activeColor = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(60.dp)
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                ConfigButton(
-                    text = "LOAD CONFIG",
-                    onClick = { viewModel.handleIntent(ConfigurationIntent.LoadConfig) },
-                    isActive = true,
-                    activeColor = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(60.dp)
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                ConfigButton(
-                    text = "SAVE CONFIG",
-                    onClick = { viewModel.handleIntent(ConfigurationIntent.SaveConfig) },
-                    isActive = true,
-                    activeColor = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(60.dp)
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                ConfigButton(
-                    text = "FACTORY RESET",
-                    onClick = { viewModel.handleIntent(ConfigurationIntent.FactoryReset) },
-                    isActive = true,
-                    activeColor = MaterialTheme.colorScheme.error,
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(60.dp)
-                )
+                CircularProgressIndicator()
+            }
+        } else {
+            LazyColumn(
+                modifier = Modifier
+                    .padding(paddingValues)
+                    .fillMaxSize(),
+                contentPadding = PaddingValues(16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                item {
+                    DeviceSettingsCard(uiState = uiState, onIntent = viewModel::handleIntent)
+                }
+                item {
+                    ActionButtonsCard(onIntent = viewModel::handleIntent)
+                }
             }
         }
     }
 }
 
 @Composable
-fun ConfigRow(
-    label: String? = null,
-    content: @Composable RowScope.() -> Unit
+private fun DeviceSettingsCard(
+    uiState: ConfigurationUiState,
+    onIntent: (ConfigurationIntent) -> Unit
 ) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 4.dp),
-        verticalAlignment = Alignment.CenterVertically
+    SettingsCard(title = "Device Settings") {
+        Text("Version: ${uiState.version}", fontWeight = FontWeight.Bold)
+        Spacer(modifier = Modifier.height(16.dp))
+
+        IntDropdownSettingRow("Level Open", (1..5).toList(), uiState.levelOpen) {
+            onIntent(
+                ConfigurationIntent.SetLevelOpen(it)
+            )
+        }
+        IntDropdownSettingRow("Level Close", (1..5).toList(), uiState.levelClose) {
+            onIntent(
+                ConfigurationIntent.SetLevelClose(it)
+            )
+        }
+        Spacer(modifier = Modifier.height(8.dp))
+
+        SwitchSettingRow(
+            "Lamp",
+            uiState.lamp == UsageStatus.USE
+        ) { onIntent(ConfigurationIntent.SetLamp(if (it) UsageStatus.USE else UsageStatus.UNUSE)) }
+        SwitchSettingRow(
+            "Buzzer",
+            uiState.buzzer == UsageStatus.USE
+        ) { onIntent(ConfigurationIntent.SetBuzzer(if (it) UsageStatus.USE else UsageStatus.UNUSE)) }
+        Spacer(modifier = Modifier.height(8.dp))
+
+        EnumDropdownSettingRow(
+            "Lamp On Position",
+            LampStatus.entries.toTypedArray(),
+            uiState.lampPosOn
+        ) { onIntent(ConfigurationIntent.SetLampPosOn(it)) }
+        EnumDropdownSettingRow(
+            "Lamp Off Position",
+            LampStatus.entries.toTypedArray(),
+            uiState.lampPosOff
+        ) { onIntent(ConfigurationIntent.SetLampPosOff(it)) }
+        Spacer(modifier = Modifier.height(8.dp))
+
+        EnumDropdownSettingRow(
+            "LED Open Color",
+            LedStatus.entries.toTypedArray(),
+            uiState.ledOpenColor
+        ) { onIntent(ConfigurationIntent.SetLedOpen(it)) }
+        IntDropdownSettingRow("LED Open Position", (1..4).toList(), uiState.ledOpenPos) {
+            onIntent(
+                ConfigurationIntent.SetLedOpenPos(it)
+            )
+        }
+        EnumDropdownSettingRow(
+            "LED Close Color",
+            LedStatus.entries.toTypedArray(),
+            uiState.ledClose
+        ) { onIntent(ConfigurationIntent.SetLedClose(it)) }
+        IntDropdownSettingRow(
+            "LED Close Position",
+            (1..4).toList(),
+            uiState.ledClosePos
+        ) { onIntent(ConfigurationIntent.SetLedClosePos(it)) }
+        Spacer(modifier = Modifier.height(8.dp))
+
+        SwitchSettingRow(
+            "Loop A",
+            uiState.loopA == UsageStatus.USE
+        ) { onIntent(ConfigurationIntent.SetLoopA(if (it) UsageStatus.USE else UsageStatus.UNUSE)) }
+        SwitchSettingRow(
+            "Loop B",
+            uiState.loopB == UsageStatus.USE
+        ) { onIntent(ConfigurationIntent.SetLoopB(if (it) UsageStatus.USE else UsageStatus.UNUSE)) }
+        Spacer(modifier = Modifier.height(8.dp))
+
+        IntDropdownSettingRow(
+            "Delay Time (sec)",
+            listOf(0, 5, 10, 15, 30, 60),
+            uiState.delayTime
+        ) { onIntent(ConfigurationIntent.SetDelayTime(it)) }
+        Spacer(modifier = Modifier.height(8.dp))
+
+        SwitchSettingRow("Relay 1", uiState.relay1 == UsageStatus.USE) {
+            onIntent(
+                ConfigurationIntent.SetRelay1(if (it) UsageStatus.USE else UsageStatus.UNUSE)
+            )
+        }
+        SwitchSettingRow("Relay 2", uiState.relay2 == UsageStatus.USE) {
+            onIntent(
+                ConfigurationIntent.SetRelay2(if (it) UsageStatus.USE else UsageStatus.UNUSE)
+            )
+        }
+    }
+}
+
+@Composable
+private fun ActionButtonsCard(onIntent: (ConfigurationIntent) -> Unit) {
+    SettingsCard(title = "Actions") {
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
+            Button(onClick = { onIntent(ConfigurationIntent.SaveConfig) }) { Text("Save Config") }
+            Button(onClick = { onIntent(ConfigurationIntent.LoadConfig) }) { Text("Load Config") }
+        }
+        Spacer(modifier = Modifier.height(8.dp))
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
+            Button(onClick = { onIntent(ConfigurationIntent.FactoryReset) }) { Text("Factory Reset") }
+            Button(onClick = { onIntent(ConfigurationIntent.ShowRelayMap) }) { Text("Relay Map") }
+        }
+    }
+}
+
+@Composable
+private fun SettingsCard(
+    title: String,
+    content: @Composable () -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        elevation = CardDefaults.cardElevation(4.dp)
     ) {
-        if (label != null) {
+        Column(modifier = Modifier.padding(16.dp)) {
             Text(
-                text = label,
-                style = MaterialTheme.typography.bodyLarge,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.width(120.dp) // Fixed width for label
+                text = title,
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold
             )
-            Spacer(modifier = Modifier.width(8.dp))
-        }
-        Row(
-            modifier = Modifier.weight(1f),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
-            content = content
-        )
-    }
-}
-
-@Composable
-fun ConfigButton(
-    text: String,
-    label: String? = null,
-    isActive: Boolean,
-    activeColor: Color,
-    modifier: Modifier = Modifier,
-    onClick: (() -> Unit)? = null,
-    textColor: Color = Color.White
-) {
-    val buttonColors = ButtonDefaults.buttonColors(
-        containerColor = if (isActive) activeColor else Color.Gray,
-        contentColor = textColor
-    )
-    Button(
-        onClick = onClick ?: {},
-        enabled = onClick != null,
-        shape = RoundedCornerShape(8.dp),
-        colors = buttonColors,
-        modifier = modifier.height(50.dp)
-    ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            if (label != null) {
-                Text(label, fontSize = 12.sp, textAlign = TextAlign.Center)
-            }
-            Text(text, fontSize = 14.sp, textAlign = TextAlign.Center)
+            Spacer(modifier = Modifier.height(16.dp))
+            content()
         }
     }
 }
 
 @Composable
-fun ConfigToggleButton(
+private fun SwitchSettingRow(
     label: String,
-    currentState: UseState,
-    onToggle: (UseState) -> Unit,
-    modifier: Modifier = Modifier
+    isChecked: Boolean,
+    onCheckedChange: (Boolean) -> Unit
 ) {
     Row(
-        modifier = modifier,
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Text(label, style = MaterialTheme.typography.bodyLarge)
-        Spacer(modifier = Modifier.width(8.dp))
-        Row(modifier = Modifier.weight(1f)) {
-            ConfigButton(
-                text = "USE",
-                isActive = currentState == UseState.USE,
-                activeColor = MaterialTheme.colorScheme.primary,
-                onClick = { onToggle(UseState.USE) },
-                modifier = Modifier.weight(1f)
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            ConfigButton(
-                text = "UNUSE",
-                isActive = currentState == UseState.UNUSE,
-                activeColor = MaterialTheme.colorScheme.primary,
-                onClick = { onToggle(UseState.UNUSE) },
-                modifier = Modifier.weight(1f)
-            )
-        }
+        Text(label, fontSize = 16.sp)
+        Switch(checked = isChecked, onCheckedChange = onCheckedChange)
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun <T : Enum<T>> ConfigDropdownButton(
+private fun IntDropdownSettingRow(
     label: String,
-    currentValue: T,
-    options: List<T>,
-    onValueChange: (T) -> Unit,
-    modifier: Modifier = Modifier
+    options: List<Int>,
+    selectedValue: Int,
+    onValueChange: (Int) -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
 
     Row(
-        modifier = modifier,
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Text(label, style = MaterialTheme.typography.bodyLarge)
-        Spacer(modifier = Modifier.width(8.dp))
-        ExposedDropdownMenuBox(
-            expanded = expanded,
-            onExpandedChange = { expanded = !expanded },
-            modifier = Modifier.weight(1f)
-        ) {
-            OutlinedTextField(
-                value = currentValue.name.replace("_", " "),
-                onValueChange = {},
-                readOnly = true,
-                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-                modifier = Modifier.menuAnchor().fillMaxWidth()
-            )
-            ExposedDropdownMenu(
+        Text(label, fontSize = 16.sp)
+        Box {
+            Button(onClick = { expanded = true }) {
+                Text(selectedValue.toString())
+            }
+            DropdownMenu(
                 expanded = expanded,
                 onDismissRequest = { expanded = false }
             ) {
                 options.forEach { option ->
                     DropdownMenuItem(
-                        text = { Text(option.name.replace("_", " ")) },
+                        text = { Text(option.toString()) },
                         onClick = {
                             onValueChange(option)
                             expanded = false
@@ -433,122 +289,39 @@ fun <T : Enum<T>> ConfigDropdownButton(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ConfigLedColorButton(
+private fun <T : Enum<T>> EnumDropdownSettingRow(
     label: String,
-    currentColor: LedColor,
-    onColorSelected: (LedColor) -> Unit,
-    modifier: Modifier = Modifier
+    options: Array<T>,
+    selectedValue: T,
+    onValueChange: (T) -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
 
     Row(
-        modifier = modifier,
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Text(label, style = MaterialTheme.typography.bodyLarge)
-        Spacer(modifier = Modifier.width(8.dp))
-        ExposedDropdownMenuBox(
-            expanded = expanded,
-            onExpandedChange = { expanded = !expanded },
-            modifier = Modifier.weight(1f)
-        ) {
-            OutlinedTextField(
-                value = currentColor.name,
-                onValueChange = {},
-                readOnly = true,
-                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-                modifier = Modifier.menuAnchor().fillMaxWidth()
-            )
-            ExposedDropdownMenu(
+        Text(label, fontSize = 16.sp)
+        Box {
+            Button(onClick = { expanded = true }) {
+                Text(selectedValue.name)
+            }
+            DropdownMenu(
                 expanded = expanded,
                 onDismissRequest = { expanded = false }
             ) {
-                LedColor.values().forEach { color ->
+                options.forEach { option ->
                     DropdownMenuItem(
-                        text = { Text(color.name) },
+                        text = { Text(option.name) },
                         onClick = {
-                            onColorSelected(color)
+                            onValueChange(option)
                             expanded = false
                         }
                     )
                 }
             }
         }
-    }
-}
-
-// Mock ViewModel for Preview
-class MockConfigurationViewModel : ConfigurationViewModel(
-    object : com.cm.gatecontroller.core.serial.SerialRepository {
-        override val deviceStatus: StateFlow<GateControllerState> = MutableStateFlow(
-            GateControllerState(
-                version = "1.00JAN24",
-                openLevel = 3,
-                closeLevel = 2,
-                lampUsage = UseState.USE,
-                buzzerUsage = UseState.UNUSE,
-                lampOnPosition = LampPosition.OPENING_START,
-                lampOffPosition = LampPosition.CLOSED_STOP,
-                ledOpenColor = LedColor.BLUE,
-                ledOpenPosition = LampPosition.OPENED_STOP,
-                ledCloseColor = LedColor.RED,
-                ledClosePosition = LampPosition.CLOSING_START,
-                loopA_conf = UseState.USE,
-                loopB_conf = UseState.UNUSE,
-                delayTime_conf = 40,
-                relay1Mode = 7,
-                relay2Mode = 11
-            )
-        )
-
-        override suspend fun refreshStatus() {}
-        override suspend fun openGate() {}
-        override suspend fun closeGate() {}
-        override suspend fun stopGate() {}
-        override suspend fun toggleLamp() {}
-        override suspend fun setLedColor(color: String) {}
-        override suspend fun startTest() {}
-        override suspend fun stopTest() {}
-        override suspend fun refreshConfiguration() {}
-        override suspend fun setOpenLevel(level: Int) {}
-        override suspend fun setCloseLevel(level: Int) {}
-        override suspend fun setLampUsage(use: Boolean) {}
-        override suspend fun setBuzzerUsage(use: Boolean) {}
-        override suspend fun setLampOnPosition(position: String) {}
-        override suspend fun setLampOffPosition(position: String) {}
-        override suspend fun setLedOpenColor(color: String) {}
-        override suspend fun setLedOpenPosition(position: String) {}
-        override suspend fun setLedCloseColor(color: String) {}
-        override suspend fun setLedClosePosition(position: String) {}
-        override suspend fun setLoopAUsage(use: Boolean) {}
-        override suspend fun setLoopBUsage(use: Boolean) {}
-        override suspend fun setDelayTime(time: Int) {}
-        override suspend fun setRelay1Mode(mode: Int) {}
-        override suspend fun setRelay2Mode(mode: Int) {}
-        override suspend fun factoryReset(): Result<Unit> { return Result.success(Unit) }
-        override suspend fun setControlLamp(on: Boolean) {}
-        override suspend fun setControlRelay1(on: Boolean) {}
-        override suspend fun setControlRelay2(on: Boolean) {}
-        override suspend fun setControlLed(color: String) {}
-        override suspend fun setControlPosition(position: String) {}
-        override suspend fun openGateTest() {}
-        override suspend fun closeGateTest() {}
-        override suspend fun stopGateTest() {}
-    },
-    object : Context() {
-        override fun getApplicationContext(): Context = this
-        // Implement other Context methods if needed for the preview, or use mockk/mockito
-        // For now, a minimal mock context might suffice if not directly used by the ViewModel's init
-    }
-)
-
-@Preview(showBackground = true)
-@Composable
-fun ConfigurationScreenPreview() {
-    GateControllerTheme {
-        ConfigurationScreen(viewModel = MockConfigurationViewModel())
     }
 }

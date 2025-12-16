@@ -1,10 +1,9 @@
 package com.cm.gatecontroller.monitoring
 
 import androidx.compose.runtime.Immutable
-
-sealed interface MonitoringIntent {
-    data object ToggleTest : MonitoringIntent
-}
+import com.cm.gatecontroller.monitoring.model.GateStatus
+import com.cm.gatecontroller.model.LedStatus
+import com.cm.gatecontroller.monitoring.model.OnOffStatus
 
 @Immutable
 data class MonitoringUiState(
@@ -30,9 +29,9 @@ data class MonitoringUiState(
     val isTestRunning: Boolean = false
 )
 
-enum class GateStatus { OPEN, CLOSE }
-enum class OnOffStatus { ON, OFF }
-enum class LedStatus { OFF, BLUE, GREEN, RED, WHITE }
+sealed interface MonitoringIntent {
+    data object ToggleTest : MonitoringIntent
+}
 
 sealed interface MonitoringSideEffect {
     data class ShowToast(val message: String) : MonitoringSideEffect

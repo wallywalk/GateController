@@ -1,165 +1,152 @@
 package com.cm.gatecontroller.configuration
 
-import android.content.Context
-import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.cm.gatecontroller.configuration.model.LampStatus
+import com.cm.gatecontroller.configuration.model.UsageStatus
 import com.cm.gatecontroller.core.serial.SerialRepository
 import com.cm.gatecontroller.core.serial.model.GateControllerState
+import com.cm.gatecontroller.core.serial.model.LampPosition
+import com.cm.gatecontroller.core.serial.model.LedColor
 import com.cm.gatecontroller.core.serial.model.UseState
+import com.cm.gatecontroller.model.LedStatus
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.receiveAsFlow
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
-import java.io.BufferedReader
-import java.io.InputStreamReader
 import javax.inject.Inject
 
 @HiltViewModel
 class ConfigurationViewModel @Inject constructor(
-    private val serialRepository: SerialRepository,
-    @ApplicationContext private val context: Context
+    private val serialRepository: SerialRepository
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(ConfigurationUiState())
-    val uiState = _uiState.asStateFlow()
+    private val _sideEffect = MutableSharedFlow<ConfigurationSideEffect>()
+    val sideEffect = _sideEffect.asSharedFlow()
 
-    private val _sideEffect = Channel<ConfigurationSideEffect>()
-    val sideEffect = _sideEffect.receiveAsFlow()
+    val uiState = serialRepository.deviceStatus
+        .map { it.toConfigurationUiState() }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = ConfigurationUiState()
+        )
 
     init {
-        serialRepository.deviceStatus
-            .onEach { state ->
-                _uiState.update { it.copy(configState = state, isLoading = false) }
-            }
-            .catch { e ->
-                _sideEffect.send(ConfigurationSideEffect.ShowSnackbar("Error: ${e.message}"))
-                _uiState.update { it.copy(isLoading = false, errorMessage = e.message) }
-            }
-            .launchIn(viewModelScope)
-
-        refreshConfig()
+        refreshConfiguration()
     }
 
     fun handleIntent(intent: ConfigurationIntent) {
-        viewModelScope.launch {
-            when (intent) {
-                ConfigurationIntent.RefreshConfig -> refreshConfig()
-                is ConfigurationIntent.SetOpenLevel -> serialRepository.setOpenLevel(intent.level)
-                is ConfigurationIntent.SetCloseLevel -> serialRepository.setCloseLevel(intent.level)
-                is ConfigurationIntent.SetLampUsage -> serialRepository.setLampUsage(intent.use == UseState.USE)
-                is ConfigurationIntent.SetBuzzerUsage -> serialRepository.setBuzzerUsage(intent.use == UseState.USE)
-                is ConfigurationIntent.SetLampOnPosition -> serialRepository.setLampOnPosition(intent.position.name)
-                is ConfigurationIntent.SetLampOffPosition -> serialRepository.setLampOffPosition(intent.position.name)
-                is ConfigurationIntent.SetLedOpenColor -> serialRepository.setLedOpenColor(intent.color.name)
-                is ConfigurationIntent.SetLedOpenPosition -> serialRepository.setLedOpenPosition(intent.position.name)
-                is ConfigurationIntent.SetLedCloseColor -> serialRepository.setLedCloseColor(intent.color.name)
-                is ConfigurationIntent.SetLedClosePosition -> serialRepository.setLedClosePosition(intent.position.name)
-                is ConfigurationIntent.SetLoopAUsage -> serialRepository.setLoopAUsage(intent.use == UseState.USE)
-                is ConfigurationIntent.SetLoopBUsage -> serialRepository.setLoopBUsage(intent.use == UseState.USE)
-                is ConfigurationIntent.SetDelayTime -> serialRepository.setDelayTime(intent.time)
-                is ConfigurationIntent.SetRelay1Mode -> serialRepository.setRelay1Mode(intent.mode)
-                is ConfigurationIntent.SetRelay2Mode -> serialRepository.setRelay2Mode(intent.mode)
-                ConfigurationIntent.LoadConfig -> _sideEffect.send(ConfigurationSideEffect.LaunchFilePicker)
-                ConfigurationIntent.SaveConfig -> _sideEffect.send(ConfigurationSideEffect.LaunchFileSaver)
-                ConfigurationIntent.FactoryReset -> _sideEffect.send(ConfigurationSideEffect.ShowConfirmDialog("Are you sure you want to factory reset?", intent))
-                ConfigurationIntent.ShowRelayMap -> _sideEffect.send(ConfigurationSideEffect.ShowRelayMapDialog)
-                is ConfigurationIntent.FileSelectedForLoad -> loadConfigFromFile(intent.uri)
-                is ConfigurationIntent.FileSelectedForSave -> saveConfigToFile(intent.uri)
+        when (intent) {
+            is ConfigurationIntent.ShowRelayMap -> showRelayMap()
+            else -> viewModelScope.launch {
+                when (intent) {
+                    is ConfigurationIntent.LoadInitialConfig -> serialRepository.refreshConfiguration()
+                    is ConfigurationIntent.SetLevelOpen -> serialRepository.setOpenLevel(intent.level)
+                    is ConfigurationIntent.SetLevelClose -> serialRepository.setCloseLevel(intent.level)
+                    is ConfigurationIntent.SetLamp -> serialRepository.setLampUsage(intent.status == UsageStatus.USE)
+                    is ConfigurationIntent.SetBuzzer -> serialRepository.setBuzzerUsage(intent.status == UsageStatus.USE)
+                    is ConfigurationIntent.SetLampPosOn -> serialRepository.setLampOnPosition(intent.state.name)
+                    is ConfigurationIntent.SetLampPosOff -> serialRepository.setLampOffPosition(
+                        intent.state.name // fixme: Int 값이 아님
+                    )
+
+                    is ConfigurationIntent.SetLedOpen -> serialRepository.setLedOpenColor(intent.color.name)
+                    is ConfigurationIntent.SetLedOpenPos -> serialRepository.setLedOpenPosition(
+                        intent.position.toString() // fixme: Int 값이 아님
+                    )
+
+                    is ConfigurationIntent.SetLedClose -> serialRepository.setLedCloseColor(intent.color.name)
+                    is ConfigurationIntent.SetLedClosePos -> serialRepository.setLedClosePosition(
+                        intent.position.toString() // fixme: Int 값이 아님
+                    )
+
+                    is ConfigurationIntent.SetLoopA -> serialRepository.setLoopAUsage(intent.status == UsageStatus.USE)
+                    is ConfigurationIntent.SetLoopB -> serialRepository.setLoopBUsage(intent.status == UsageStatus.USE)
+                    is ConfigurationIntent.SetDelayTime -> serialRepository.setDelayTime(intent.time)
+                    is ConfigurationIntent.SetRelay1 -> serialRepository.setRelay1Mode(if (intent.status == UsageStatus.USE) 1 else 0)
+                    is ConfigurationIntent.SetRelay2 -> serialRepository.setRelay2Mode(if (intent.status == UsageStatus.USE) 1 else 0)
+                    is ConfigurationIntent.FactoryReset -> serialRepository.factoryReset()
+                    is ConfigurationIntent.SaveConfig -> { /* TODO: Implement file saving */
+                    }
+
+                    is ConfigurationIntent.LoadConfig -> { /* TODO: Implement file loading */
+                    }
+
+                    else -> Unit
+                }
             }
         }
     }
 
-    fun confirmFactoryReset() {
+    private fun refreshConfiguration() {
         viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true) }
-            val result = serialRepository.factoryReset()
-            if (result.isSuccess) {
-                _sideEffect.send(ConfigurationSideEffect.ShowSnackbar("Factory reset successful!"))
-            } else {
-                _sideEffect.send(ConfigurationSideEffect.ShowSnackbar("Factory reset failed: ${result.exceptionOrNull()?.message}"))
-            }
-            _uiState.update { it.copy(isLoading = false) }
-            refreshConfig()
+            serialRepository.refreshConfiguration()
         }
     }
 
-    private fun refreshConfig() {
+    private fun showRelayMap() {
         viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true) }
-            try {
-                serialRepository.refreshConfiguration()
-            } catch (e: Exception) {
-                _sideEffect.send(ConfigurationSideEffect.ShowSnackbar("Failed to refresh config: ${e.message}"))
-            } finally {
-                _uiState.update { it.copy(isLoading = false) }
-            }
+            _sideEffect.emit(ConfigurationSideEffect.ShowRelayMapDialog)
         }
     }
 
-    private fun loadConfigFromFile(uri: Uri) {
-        viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true) }
-            try {
-                context.contentResolver.openInputStream(uri)?.use { inputStream ->
-                    val reader = BufferedReader(InputStreamReader(inputStream))
-                    val jsonString = reader.readText()
-                    val loadedState = Json.decodeFromString<GateControllerState>(jsonString)
-
-                    // Apply loaded state to device
-                    applyConfigToDevice(loadedState)
-                    _sideEffect.send(ConfigurationSideEffect.ShowSnackbar("Configuration loaded and applied from file."))
-                } ?: _sideEffect.send(ConfigurationSideEffect.ShowSnackbar("Failed to open file for loading."))
-            } catch (e: Exception) {
-                _sideEffect.send(ConfigurationSideEffect.ShowSnackbar("Error loading config: ${e.message}"))
-            } finally {
-                _uiState.update { it.copy(isLoading = false) }
-            }
-        }
-    }
-
-    private fun saveConfigToFile(uri: Uri) {
-        viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true) }
-            try {
-                context.contentResolver.openOutputStream(uri)?.use { outputStream ->
-                    val jsonString = Json.encodeToString(uiState.value.configState)
-                    outputStream.write(jsonString.toByteArray())
-                    _sideEffect.send(ConfigurationSideEffect.ShowSnackbar("Configuration saved to file."))
-                } ?: _sideEffect.send(ConfigurationSideEffect.ShowSnackbar("Failed to open file for saving."))
-            } catch (e: Exception) {
-                _sideEffect.send(ConfigurationSideEffect.ShowSnackbar("Error saving config: ${e.message}"))
-            } finally {
-                _uiState.update { it.copy(isLoading = false) }
-            }
-        }
-    }
-
-    private suspend fun applyConfigToDevice(state: GateControllerState) {
-        serialRepository.setOpenLevel(state.openLevel)
-        serialRepository.setCloseLevel(state.closeLevel)
-        serialRepository.setLampUsage(state.lampUsage == UseState.USE)
-        serialRepository.setBuzzerUsage(state.buzzerUsage == UseState.USE)
-        serialRepository.setLampOnPosition(state.lampOnPosition.name)
-        serialRepository.setLampOffPosition(state.lampOffPosition.name)
-        serialRepository.setLedOpenColor(state.ledOpenColor.name)
-        serialRepository.setLedOpenPosition(state.ledOpenPosition.name)
-        serialRepository.setLedCloseColor(state.ledCloseColor.name)
-        serialRepository.setLedClosePosition(state.ledClosePosition.name)
-        serialRepository.setLoopAUsage(state.loopA_conf == UseState.USE)
-        serialRepository.setLoopBUsage(state.loopB_conf == UseState.USE)
-        serialRepository.setDelayTime(state.delayTime_conf)
-        serialRepository.setRelay1Mode(state.relay1Mode)
-        serialRepository.setRelay2Mode(state.relay2Mode)
-        serialRepository.refreshConfiguration()
+    private fun GateControllerState.toConfigurationUiState(): ConfigurationUiState {
+        return ConfigurationUiState(
+            version = this.version,
+            levelOpen = this.levelOpen,
+            levelClose = this.levelClose,
+            lamp = when (this.lampUsage) {
+                UseState.USE -> UsageStatus.USE
+                UseState.UNUSE -> UsageStatus.UNUSE
+            },
+            buzzer = when (this.buzzerUsage) {
+                UseState.USE -> UsageStatus.USE
+                UseState.UNUSE -> UsageStatus.UNUSE
+            },
+            lampPosOn = when (this.lampOnPosition) {
+                LampPosition.OPENING -> LampStatus.OPENING
+                LampPosition.OPENED -> LampStatus.OPENED
+                LampPosition.CLOSING -> LampStatus.CLOSING
+                LampPosition.CLOSED -> LampStatus.CLOSED
+            },
+            lampPosOff = when (this.lampOffPosition) {
+                LampPosition.OPENING -> LampStatus.OPENING
+                LampPosition.OPENED -> LampStatus.OPENED
+                LampPosition.CLOSING -> LampStatus.CLOSING
+                LampPosition.CLOSED -> LampStatus.CLOSED
+            },
+            ledOpenColor = when (this.ledOpenColor) {
+                LedColor.OFF -> LedStatus.OFF
+                LedColor.BLUE -> LedStatus.BLUE
+                LedColor.GREEN -> LedStatus.GREEN
+                LedColor.RED -> LedStatus.RED
+                LedColor.WHITE -> LedStatus.WHITE
+            },
+            ledOpenPos = this.ledOpenPosition.ordinal + 1,
+            ledClose = when (this.ledCloseColor) {
+                LedColor.OFF -> LedStatus.OFF
+                LedColor.BLUE -> LedStatus.BLUE
+                LedColor.GREEN -> LedStatus.GREEN
+                LedColor.RED -> LedStatus.RED
+                LedColor.WHITE -> LedStatus.WHITE
+            },
+            ledClosePos = this.ledClosePosition.ordinal + 1,
+            loopA = when (this.loopA_conf) {
+                UseState.USE -> UsageStatus.USE
+                UseState.UNUSE -> UsageStatus.UNUSE
+            },
+            loopB = when (this.loopB_conf) {
+                UseState.USE -> UsageStatus.USE
+                UseState.UNUSE -> UsageStatus.UNUSE
+            },
+            delayTime = this.delayTime_conf,
+            relay1 = if (this.relay1Mode != 0) UsageStatus.USE else UsageStatus.UNUSE,
+            relay2 = if (this.relay2Mode != 0) UsageStatus.USE else UsageStatus.UNUSE,
+            isLoading = false
+        )
     }
 }

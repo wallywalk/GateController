@@ -7,9 +7,7 @@ enum class LedColor { OFF, BLUE, GREEN, RED, WHITE }
 
 // Configuration States
 enum class UseState { USE, UNUSE }
-enum class LampPosition { OPENING_START, OPENED_STOP, CLOSING_START, CLOSED_STOP }
-typealias LedOpenPosition = LampPosition
-typealias LedClosePosition = LampPosition
+enum class LampPosition { OPENING, OPENED, CLOSING, CLOSED }
 
 // Board Test States
 enum class PositionState { LEFT, RIGHT }
@@ -41,16 +39,16 @@ data class GateControllerState(
     val isTestRunning: Boolean = false,
 
     // Configuration State
-    val openLevel: Int = 1,
-    val closeLevel: Int = 1,
+    val levelOpen: Int = 1,
+    val levelClose: Int = 1,
     val lampUsage: UseState = UseState.UNUSE,
     val buzzerUsage: UseState = UseState.UNUSE,
-    val lampOnPosition: LampPosition = LampPosition.OPENING_START,
-    val lampOffPosition: LampPosition = LampPosition.CLOSING_START,
+    val lampOnPosition: LampPosition = LampPosition.OPENING,
+    val lampOffPosition: LampPosition = LampPosition.CLOSING,
     val ledOpenColor: LedColor = LedColor.OFF,
-    val ledOpenPosition: LedOpenPosition = LedOpenPosition.OPENING_START,
+    val ledOpenPosition: LampPosition = LampPosition.OPENING,
     val ledCloseColor: LedColor = LedColor.OFF,
-    val ledClosePosition: LedClosePosition = LedClosePosition.CLOSING_START,
+    val ledClosePosition: LampPosition = LampPosition.CLOSING,
     val loopA_conf: UseState = UseState.UNUSE,
     val loopB_conf: UseState = UseState.UNUSE,
     val delayTime_conf: Int = 30,

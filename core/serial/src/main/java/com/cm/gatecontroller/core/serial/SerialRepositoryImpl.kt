@@ -52,18 +52,6 @@ class SerialRepositoryImpl @Inject constructor(
         serialClient.sendCommand("AT+STDELATTIME")
     }
 
-    override suspend fun openGate() {
-        serialClient.sendCommand("AT+OPEN")
-    }
-
-    override suspend fun closeGate() {
-        serialClient.sendCommand("AT+CLOSE")
-    }
-
-    override suspend fun stopGate() {
-        serialClient.sendCommand("AT+STOP")
-    }
-
     override suspend fun toggleLamp() {
 //        serialClient.sendCommand("AT+STLAMP=TOGGLE") // TODO: Example command
     }

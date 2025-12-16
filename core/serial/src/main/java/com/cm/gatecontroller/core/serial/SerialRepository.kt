@@ -1,14 +1,14 @@
 package com.cm.gatecontroller.core.serial
 
 import com.cm.gatecontroller.core.serial.model.GateControllerState
-import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.StateFlow
 
 interface SerialRepository {
-    val deviceStatus: Flow<GateControllerState>
+
+    val deviceStatus: StateFlow<GateControllerState>
+
+    // Monitoring Commands
     suspend fun refreshStatus()
-    suspend fun openGate()
-    suspend fun closeGate()
-    suspend fun stopGate()
     suspend fun toggleLamp()
     suspend fun setLedColor(color: String)
     suspend fun startTest()
@@ -38,8 +38,8 @@ interface SerialRepository {
     suspend fun setControlRelay1(on: Boolean)
     suspend fun setControlRelay2(on: Boolean)
     suspend fun setControlLed(color: String)
-    suspend fun setControlPosition(position: String) // AT+STPOS
-    suspend fun openGateTest() // AT+OPEN
-    suspend fun closeGateTest() // AT+CLOSE
-    suspend fun stopGateTest() // AT+STOP
+    suspend fun setControlPosition(position: String)
+    suspend fun openGateTest()
+    suspend fun closeGateTest()
+    suspend fun stopGateTest()
 }
