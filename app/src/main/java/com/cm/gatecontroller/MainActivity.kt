@@ -93,7 +93,10 @@ class MainActivity : ComponentActivity() {
                     }
                 }
 
-                MainScreen(userViewModel = userViewModel, configurationViewModel = configurationViewModel)
+                MainScreen( // TODO: NavHost + Route/Screen 구조로 Compose 안에서 분리
+                    userViewModel = userViewModel,
+                    configurationViewModel = configurationViewModel
+                )
             }
         }
     }
