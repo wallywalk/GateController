@@ -49,7 +49,7 @@ import kotlinx.coroutines.flow.collectLatest
 @Composable
 fun ConfigurationScreen(
     navController: NavHostController,
-    viewModel: ConfigurationViewModel = hiltViewModel()
+    viewModel: ConfigViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
@@ -57,11 +57,11 @@ fun ConfigurationScreen(
     LaunchedEffect(Unit) {
         viewModel.sideEffect.collectLatest { effect ->
             when (effect) {
-                is ConfigurationSideEffect.ShowToast -> {
+                is ConfigSideEffect.ShowToast -> {
                     Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
                 }
 
-                is ConfigurationSideEffect.ShowRelayMapDialog -> {
+                is ConfigSideEffect.ShowRelayMapDialog -> {
                     // TODO: Show Relay Map Dialog
                 }
             }
@@ -107,8 +107,8 @@ fun ConfigurationScreen(
 
 @Composable
 private fun DeviceSettingsCard(
-    uiState: ConfigurationUiState,
-    onIntent: (ConfigurationIntent) -> Unit
+    uiState: ConfigUiState,
+    onIntent: (ConfigIntent) -> Unit
 ) {
     SettingsCard(title = "Device Settings") {
         Text("Version: ${uiState.version}", fontWeight = FontWeight.Bold)
@@ -116,12 +116,12 @@ private fun DeviceSettingsCard(
 
         IntDropdownSettingRow("Level Open", (1..5).toList(), uiState.levelOpen) {
             onIntent(
-                ConfigurationIntent.SetLevelOpen(it)
+                ConfigIntent.SetLevelOpen(it)
             )
         }
         IntDropdownSettingRow("Level Close", (1..5).toList(), uiState.levelClose) {
             onIntent(
-                ConfigurationIntent.SetLevelClose(it)
+                ConfigIntent.SetLevelClose(it)
             )
         }
         Spacer(modifier = Modifier.height(8.dp))
@@ -129,88 +129,88 @@ private fun DeviceSettingsCard(
         SwitchSettingRow(
             "Lamp",
             uiState.lamp == UsageStatus.USE
-        ) { onIntent(ConfigurationIntent.SetLamp(if (it) UsageStatus.USE else UsageStatus.UNUSE)) }
+        ) { onIntent(ConfigIntent.SetLamp(if (it) UsageStatus.USE else UsageStatus.UNUSE)) }
         SwitchSettingRow(
             "Buzzer",
             uiState.buzzer == UsageStatus.USE
-        ) { onIntent(ConfigurationIntent.SetBuzzer(if (it) UsageStatus.USE else UsageStatus.UNUSE)) }
+        ) { onIntent(ConfigIntent.SetBuzzer(if (it) UsageStatus.USE else UsageStatus.UNUSE)) }
         Spacer(modifier = Modifier.height(8.dp))
 
         EnumDropdownSettingRow(
             "Lamp On Position",
             LampStatus.entries.toTypedArray(),
             uiState.lampPosOn
-        ) { onIntent(ConfigurationIntent.SetLampPosOn(it)) }
+        ) { onIntent(ConfigIntent.SetLampPosOn(it)) }
         EnumDropdownSettingRow(
             "Lamp Off Position",
             LampStatus.entries.toTypedArray(),
             uiState.lampPosOff
-        ) { onIntent(ConfigurationIntent.SetLampPosOff(it)) }
+        ) { onIntent(ConfigIntent.SetLampPosOff(it)) }
         Spacer(modifier = Modifier.height(8.dp))
 
         EnumDropdownSettingRow(
             "LED Open Color",
             LedStatus.entries.toTypedArray(),
             uiState.ledOpenColor
-        ) { onIntent(ConfigurationIntent.SetLedOpen(it)) }
+        ) { onIntent(ConfigIntent.SetLedOpen(it)) }
         IntDropdownSettingRow("LED Open Position", (1..4).toList(), uiState.ledOpenPos) {
             onIntent(
-                ConfigurationIntent.SetLedOpenPos(it)
+                ConfigIntent.SetLedOpenPos(it)
             )
         }
         EnumDropdownSettingRow(
             "LED Close Color",
             LedStatus.entries.toTypedArray(),
             uiState.ledClose
-        ) { onIntent(ConfigurationIntent.SetLedClose(it)) }
+        ) { onIntent(ConfigIntent.SetLedClose(it)) }
         IntDropdownSettingRow(
             "LED Close Position",
             (1..4).toList(),
             uiState.ledClosePos
-        ) { onIntent(ConfigurationIntent.SetLedClosePos(it)) }
+        ) { onIntent(ConfigIntent.SetLedClosePos(it)) }
         Spacer(modifier = Modifier.height(8.dp))
 
         SwitchSettingRow(
             "Loop A",
             uiState.loopA == UsageStatus.USE
-        ) { onIntent(ConfigurationIntent.SetLoopA(if (it) UsageStatus.USE else UsageStatus.UNUSE)) }
+        ) { onIntent(ConfigIntent.SetLoopA(if (it) UsageStatus.USE else UsageStatus.UNUSE)) }
         SwitchSettingRow(
             "Loop B",
             uiState.loopB == UsageStatus.USE
-        ) { onIntent(ConfigurationIntent.SetLoopB(if (it) UsageStatus.USE else UsageStatus.UNUSE)) }
+        ) { onIntent(ConfigIntent.SetLoopB(if (it) UsageStatus.USE else UsageStatus.UNUSE)) }
         Spacer(modifier = Modifier.height(8.dp))
 
         IntDropdownSettingRow(
             "Delay Time (sec)",
             listOf(0, 5, 10, 15, 30, 60),
             uiState.delayTime
-        ) { onIntent(ConfigurationIntent.SetDelayTime(it)) }
+        ) { onIntent(ConfigIntent.SetDelayTime(it)) }
         Spacer(modifier = Modifier.height(8.dp))
 
         SwitchSettingRow("Relay 1", uiState.relay1 == UsageStatus.USE) {
             onIntent(
-                ConfigurationIntent.SetRelay1(if (it) UsageStatus.USE else UsageStatus.UNUSE)
+                ConfigIntent.SetRelay1(if (it) UsageStatus.USE else UsageStatus.UNUSE)
             )
         }
         SwitchSettingRow("Relay 2", uiState.relay2 == UsageStatus.USE) {
             onIntent(
-                ConfigurationIntent.SetRelay2(if (it) UsageStatus.USE else UsageStatus.UNUSE)
+                ConfigIntent.SetRelay2(if (it) UsageStatus.USE else UsageStatus.UNUSE)
             )
         }
     }
 }
 
 @Composable
-private fun ActionButtonsCard(onIntent: (ConfigurationIntent) -> Unit) {
+private fun ActionButtonsCard(onIntent: (ConfigIntent) -> Unit) {
     SettingsCard(title = "Actions") {
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
-            Button(onClick = { onIntent(ConfigurationIntent.SaveConfig) }) { Text("Save Config") }
-            Button(onClick = { onIntent(ConfigurationIntent.LoadConfig) }) { Text("Load Config") }
+            Button(onClick = { onIntent(ConfigIntent.SaveConfig) }) { Text("Save Config") }
+            Button(onClick = { onIntent(ConfigIntent.LoadConfig) }) { Text("Load Config") }
         }
         Spacer(modifier = Modifier.height(8.dp))
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
-            Button(onClick = { onIntent(ConfigurationIntent.FactoryReset) }) { Text("Factory Reset") }
-            Button(onClick = { onIntent(ConfigurationIntent.ShowRelayMap) }) { Text("Relay Map") }
+            Button(onClick = { onIntent(ConfigIntent.FactoryReset) }) { Text("Factory Reset") }
+            Button(onClick = { onIntent(ConfigIntent.ShowRelayMap) }) { Text("Relay Map") }
         }
     }
 }

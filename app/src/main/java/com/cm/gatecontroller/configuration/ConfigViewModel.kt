@@ -20,11 +20,11 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class ConfigurationViewModel @Inject constructor(
+class ConfigViewModel @Inject constructor(
     private val serialRepository: SerialRepository
 ) : ViewModel() {
 
-    private val _sideEffect = MutableSharedFlow<ConfigurationSideEffect>()
+    private val _sideEffect = MutableSharedFlow<ConfigSideEffect>()
     val sideEffect = _sideEffect.asSharedFlow()
 
     val uiState = serialRepository.deviceStatus
@@ -32,48 +32,48 @@ class ConfigurationViewModel @Inject constructor(
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
-            initialValue = ConfigurationUiState()
+            initialValue = ConfigUiState()
         )
 
     init {
         refreshConfiguration()
     }
 
-    fun handleIntent(intent: ConfigurationIntent) {
+    fun handleIntent(intent: ConfigIntent) {
         when (intent) {
-            is ConfigurationIntent.ShowRelayMap -> showRelayMap()
+            is ConfigIntent.ShowRelayMap -> showRelayMap()
             else -> viewModelScope.launch {
                 when (intent) {
-                    is ConfigurationIntent.LoadInitialConfig -> serialRepository.refreshConfiguration()
-                    is ConfigurationIntent.SetLevelOpen -> serialRepository.setOpenLevel(intent.level)
-                    is ConfigurationIntent.SetLevelClose -> serialRepository.setCloseLevel(intent.level)
-                    is ConfigurationIntent.SetLamp -> serialRepository.setLampUsage(intent.status == UsageStatus.USE)
-                    is ConfigurationIntent.SetBuzzer -> serialRepository.setBuzzerUsage(intent.status == UsageStatus.USE)
-                    is ConfigurationIntent.SetLampPosOn -> serialRepository.setLampOnPosition(intent.state.name)
-                    is ConfigurationIntent.SetLampPosOff -> serialRepository.setLampOffPosition(
+                    is ConfigIntent.LoadInitialConfig -> serialRepository.refreshConfiguration()
+                    is ConfigIntent.SetLevelOpen -> serialRepository.setOpenLevel(intent.level)
+                    is ConfigIntent.SetLevelClose -> serialRepository.setCloseLevel(intent.level)
+                    is ConfigIntent.SetLamp -> serialRepository.setLampUsage(intent.status == UsageStatus.USE)
+                    is ConfigIntent.SetBuzzer -> serialRepository.setBuzzerUsage(intent.status == UsageStatus.USE)
+                    is ConfigIntent.SetLampPosOn -> serialRepository.setLampOnPosition(intent.state.name)
+                    is ConfigIntent.SetLampPosOff -> serialRepository.setLampOffPosition(
                         intent.state.name // fixme: Int 값이 아님
                     )
 
-                    is ConfigurationIntent.SetLedOpen -> serialRepository.setLedOpenColor(intent.color.name)
-                    is ConfigurationIntent.SetLedOpenPos -> serialRepository.setLedOpenPosition(
+                    is ConfigIntent.SetLedOpen -> serialRepository.setLedOpenColor(intent.color.name)
+                    is ConfigIntent.SetLedOpenPos -> serialRepository.setLedOpenPosition(
                         intent.position.toString() // fixme: Int 값이 아님
                     )
 
-                    is ConfigurationIntent.SetLedClose -> serialRepository.setLedCloseColor(intent.color.name)
-                    is ConfigurationIntent.SetLedClosePos -> serialRepository.setLedClosePosition(
+                    is ConfigIntent.SetLedClose -> serialRepository.setLedCloseColor(intent.color.name)
+                    is ConfigIntent.SetLedClosePos -> serialRepository.setLedClosePosition(
                         intent.position.toString() // fixme: Int 값이 아님
                     )
 
-                    is ConfigurationIntent.SetLoopA -> serialRepository.setLoopAUsage(intent.status == UsageStatus.USE)
-                    is ConfigurationIntent.SetLoopB -> serialRepository.setLoopBUsage(intent.status == UsageStatus.USE)
-                    is ConfigurationIntent.SetDelayTime -> serialRepository.setDelayTime(intent.time)
-                    is ConfigurationIntent.SetRelay1 -> serialRepository.setRelay1Mode(if (intent.status == UsageStatus.USE) 1 else 0)
-                    is ConfigurationIntent.SetRelay2 -> serialRepository.setRelay2Mode(if (intent.status == UsageStatus.USE) 1 else 0)
-                    is ConfigurationIntent.FactoryReset -> serialRepository.factoryReset()
-                    is ConfigurationIntent.SaveConfig -> { /* TODO: Implement file saving */
+                    is ConfigIntent.SetLoopA -> serialRepository.setLoopAUsage(intent.status == UsageStatus.USE)
+                    is ConfigIntent.SetLoopB -> serialRepository.setLoopBUsage(intent.status == UsageStatus.USE)
+                    is ConfigIntent.SetDelayTime -> serialRepository.setDelayTime(intent.time)
+                    is ConfigIntent.SetRelay1 -> serialRepository.setRelay1Mode(if (intent.status == UsageStatus.USE) 1 else 0)
+                    is ConfigIntent.SetRelay2 -> serialRepository.setRelay2Mode(if (intent.status == UsageStatus.USE) 1 else 0)
+                    is ConfigIntent.FactoryReset -> serialRepository.factoryReset()
+                    is ConfigIntent.SaveConfig -> { /* TODO: Implement file saving */
                     }
 
-                    is ConfigurationIntent.LoadConfig -> { /* TODO: Implement file loading */
+                    is ConfigIntent.LoadConfig -> { /* TODO: Implement file loading */
                     }
 
                     else -> Unit
@@ -90,12 +90,12 @@ class ConfigurationViewModel @Inject constructor(
 
     private fun showRelayMap() {
         viewModelScope.launch {
-            _sideEffect.emit(ConfigurationSideEffect.ShowRelayMapDialog)
+            _sideEffect.emit(ConfigSideEffect.ShowRelayMapDialog)
         }
     }
 
-    private fun GateControllerState.toConfigurationUiState(): ConfigurationUiState {
-        return ConfigurationUiState(
+    private fun GateControllerState.toConfigurationUiState(): ConfigUiState {
+        return ConfigUiState(
             version = this.version,
             levelOpen = this.levelOpen,
             levelClose = this.levelClose,

@@ -1,24 +1,51 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package com.cm.gatecontroller.boardtest
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Switch
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.cm.gatecontroller.core.serial.model.GateControllerState
-import com.cm.gatecontroller.core.serial.model.GateStage
 import com.cm.gatecontroller.core.serial.model.LedColor
 import com.cm.gatecontroller.core.serial.model.OnOff
 import com.cm.gatecontroller.core.serial.model.PositionState
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BoardTestScreen(
     viewModel: BoardTestViewModel = hiltViewModel()
@@ -26,7 +53,7 @@ fun BoardTestScreen(
     val uiState by viewModel.uiState.collectAsState()
     val testState = uiState.testState
     val snackbarHostState = remember { SnackbarHostState() }
-    val scope = rememberCoroutineScope()
+    val scope = rememberCoroutineScope() // TODO: scope 필요 여부
 
     LaunchedEffect(viewModel.sideEffect) {
         viewModel.sideEffect.collect { effect ->
@@ -47,27 +74,39 @@ fun BoardTestScreen(
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text("BOARD TEST", fontSize = 24.sp, fontWeight = MaterialTheme.typography.titleLarge.fontWeight)
+            Text(
+                "BOARD TEST",
+                fontSize = 24.sp,
+                fontWeight = MaterialTheme.typography.titleLarge.fontWeight
+            )
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Version Display
             ConfigItem(label = "VERSION", value = testState.version)
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Output Test
-            Text("OUTPUT TEST", fontSize = 20.sp, fontWeight = MaterialTheme.typography.titleMedium.fontWeight)
+            Text(
+                "OUTPUT TEST",
+                fontSize = 20.sp,
+                fontWeight = MaterialTheme.typography.titleMedium.fontWeight
+            )
             Spacer(modifier = Modifier.height(8.dp))
             OutputTestSection(viewModel, testState)
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Input Test
-            Text("INPUT TEST", fontSize = 20.sp, fontWeight = MaterialTheme.typography.titleMedium.fontWeight)
+            Text(
+                "INPUT TEST",
+                fontSize = 20.sp,
+                fontWeight = MaterialTheme.typography.titleMedium.fontWeight
+            )
             Spacer(modifier = Modifier.height(8.dp))
             InputTestSection(testState)
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Operation Test
-            Text("OPERATION TEST", fontSize = 20.sp, fontWeight = MaterialTheme.typography.titleMedium.fontWeight)
+            Text(
+                "OPERATION TEST",
+                fontSize = 20.sp,
+                fontWeight = MaterialTheme.typography.titleMedium.fontWeight
+            )
             Spacer(modifier = Modifier.height(8.dp))
             OperationTestSection(viewModel, testState)
             Spacer(modifier = Modifier.height(16.dp))
@@ -78,7 +117,6 @@ fun BoardTestScreen(
 @Composable
 fun OutputTestSection(viewModel: BoardTestViewModel, testState: GateControllerState) {
     Column(modifier = Modifier.fillMaxWidth()) {
-        // LAMP
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
@@ -90,7 +128,6 @@ fun OutputTestSection(viewModel: BoardTestViewModel, testState: GateControllerSt
                 onCheckedChange = { viewModel.handleIntent(BoardTestIntent.ToggleControlLamp(it)) }
             )
         }
-        // RELAY1
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
@@ -102,7 +139,6 @@ fun OutputTestSection(viewModel: BoardTestViewModel, testState: GateControllerSt
                 onCheckedChange = { viewModel.handleIntent(BoardTestIntent.ToggleControlRelay1(it)) }
             )
         }
-        // RELAY2
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
@@ -114,7 +150,6 @@ fun OutputTestSection(viewModel: BoardTestViewModel, testState: GateControllerSt
                 onCheckedChange = { viewModel.handleIntent(BoardTestIntent.ToggleControlRelay2(it)) }
             )
         }
-        // LED
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
@@ -126,7 +161,6 @@ fun OutputTestSection(viewModel: BoardTestViewModel, testState: GateControllerSt
                 onColorSelected = { viewModel.handleIntent(BoardTestIntent.SetControlLed(it)) }
             )
         }
-        // POSITION
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
@@ -166,15 +200,24 @@ fun OperationTestSection(viewModel: BoardTestViewModel, testState: GateControlle
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            Button(onClick = { viewModel.handleIntent(BoardTestIntent.OpenGate) }, modifier = Modifier.weight(1f)) {
+            Button(
+                onClick = { viewModel.handleIntent(BoardTestIntent.OpenGate) },
+                modifier = Modifier.weight(1f)
+            ) {
                 Text("GATE OPEN")
             }
             Spacer(modifier = Modifier.width(8.dp))
-            Button(onClick = { viewModel.handleIntent(BoardTestIntent.CloseGate) }, modifier = Modifier.weight(1f)) {
+            Button(
+                onClick = { viewModel.handleIntent(BoardTestIntent.CloseGate) },
+                modifier = Modifier.weight(1f)
+            ) {
                 Text("GATE CLOSE")
             }
             Spacer(modifier = Modifier.width(8.dp))
-            Button(onClick = { viewModel.handleIntent(BoardTestIntent.StopGate) }, modifier = Modifier.weight(1f)) {
+            Button(
+                onClick = { viewModel.handleIntent(BoardTestIntent.StopGate) },
+                modifier = Modifier.weight(1f)
+            ) {
                 Text("STOP")
             }
         }
@@ -184,11 +227,14 @@ fun OperationTestSection(viewModel: BoardTestViewModel, testState: GateControlle
 }
 
 @Composable
-fun LedColorSelector(selectedColor: LedColor, onColorSelected: (LedColor) -> Unit) {
+fun LedColorSelector( // TODO: PositionSelector와 함께 함수 통합
+    selectedColor: LedColor,
+    onColorSelected: (LedColor) -> Unit
+) {
     var expanded by remember { mutableStateOf(false) }
     ExposedDropdownMenuBox(
         expanded = expanded,
-        onExpandedChange = { expanded = !expanded },
+        onExpandedChange = { !expanded },
         modifier = Modifier.width(IntrinsicSize.Max)
     ) {
         OutlinedTextField(
@@ -202,7 +248,7 @@ fun LedColorSelector(selectedColor: LedColor, onColorSelected: (LedColor) -> Uni
             expanded = expanded,
             onDismissRequest = { expanded = false }
         ) {
-            LedColor.values().forEach { color ->
+            LedColor.entries.forEach { color -> // TODO: serial model 제거
                 DropdownMenuItem(
                     text = { Text(color.name) },
                     onClick = {
@@ -220,7 +266,7 @@ fun PositionSelector(selectedPosition: PositionState, onPositionSelected: (Posit
     var expanded by remember { mutableStateOf(false) }
     ExposedDropdownMenuBox(
         expanded = expanded,
-        onExpandedChange = { expanded = !expanded },
+        onExpandedChange = { !expanded },
         modifier = Modifier.width(IntrinsicSize.Max)
     ) {
         OutlinedTextField(
@@ -234,7 +280,7 @@ fun PositionSelector(selectedPosition: PositionState, onPositionSelected: (Posit
             expanded = expanded,
             onDismissRequest = { expanded = false }
         ) {
-            PositionState.values().forEach { position ->
+            PositionState.entries.forEach { position -> // TODO: serial model 제거
                 DropdownMenuItem(
                     text = { Text(position.name) },
                     onClick = {
@@ -266,7 +312,6 @@ fun InputStatusDisplay(label: String, value: OnOff) {
     }
 }
 
-// Reusing ConfigItem from ConfigurationScreen
 @Composable
 fun ConfigItem(label: String, value: Any?) {
     Row(
@@ -277,6 +322,10 @@ fun ConfigItem(label: String, value: Any?) {
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Text(label, style = MaterialTheme.typography.bodyLarge)
-        Text(value.toString(), style = MaterialTheme.typography.bodyLarge, fontWeight = MaterialTheme.typography.bodyLarge.fontWeight)
+        Text(
+            value.toString(),
+            style = MaterialTheme.typography.bodyLarge,
+            fontWeight = MaterialTheme.typography.bodyLarge.fontWeight
+        )
     }
 }

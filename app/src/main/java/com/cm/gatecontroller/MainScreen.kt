@@ -18,12 +18,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.cm.gatecontroller.boardtest.BoardTestScreen
 import com.cm.gatecontroller.configuration.ConfigurationScreen
-import com.cm.gatecontroller.configuration.ConfigurationViewModel
+import com.cm.gatecontroller.configuration.ConfigViewModel
 import com.cm.gatecontroller.connection.ConnectionStatus
 import com.cm.gatecontroller.connection.ConnectionViewModel
 import com.cm.gatecontroller.monitoring.MonitoringScreen
@@ -32,9 +33,9 @@ import com.cm.gatecontroller.user.UserViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(
-    userViewModel: UserViewModel,
-    connectionViewModel: ConnectionViewModel,
-    configurationViewModel: ConfigurationViewModel
+    userViewModel: UserViewModel = hiltViewModel(),
+    connectionViewModel: ConnectionViewModel = hiltViewModel(),
+    configViewModel: ConfigViewModel = hiltViewModel()
 ) {
     val connectionUiState by connectionViewModel.uiState.collectAsState()
     val navController = rememberNavController()
@@ -65,7 +66,10 @@ fun MainScreen(
                 MonitoringScreen(navController = navController)
             }
             composable("configuration") {
-                ConfigurationScreen(viewModel = configurationViewModel)
+                ConfigurationScreen(
+                    navController = navController,
+                    viewModel = configViewModel
+                )
             }
             composable("boardtest") {
                 BoardTestScreen()

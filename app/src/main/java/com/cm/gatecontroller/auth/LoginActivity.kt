@@ -5,6 +5,8 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -13,6 +15,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Modifier
 import com.cm.gatecontroller.MainActivity
 import com.cm.gatecontroller.ui.theme.GateControllerTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -55,8 +58,13 @@ class LoginActivity : ComponentActivity() {
 
                 Scaffold(
                     snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
-                ) { padding -> // fixme
-                    Surface(color = MaterialTheme.colorScheme.background) {
+                ) { padding ->
+                    Surface(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(padding),
+                        color = MaterialTheme.colorScheme.background
+                    ) {
                         AuthScreen(
                             viewModel = viewModel
                         )
