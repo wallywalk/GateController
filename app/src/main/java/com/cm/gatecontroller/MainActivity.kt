@@ -9,8 +9,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.compose.runtime.LaunchedEffect
 import com.cm.gatecontroller.auth.LoginActivity
-import com.cm.gatecontroller.configuration.ConfigSideEffect
-import com.cm.gatecontroller.configuration.ConfigViewModel
 import com.cm.gatecontroller.ui.theme.GateControllerTheme
 import com.cm.gatecontroller.user.UserSideEffect
 import com.cm.gatecontroller.user.UserViewModel

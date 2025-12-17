@@ -3,8 +3,6 @@ package com.cm.gatecontroller.boardtest
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cm.gatecontroller.core.serial.SerialRepository
-import com.cm.gatecontroller.core.serial.model.LedColor
-import com.cm.gatecontroller.core.serial.model.PositionState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow

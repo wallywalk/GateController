@@ -1,13 +1,13 @@
 package com.cm.gatecontroller.core.serial.parser
 
 import com.cm.gatecontroller.core.serial.model.GateControllerState
-import com.cm.gatecontroller.core.serial.model.GateState
-import com.cm.gatecontroller.core.serial.model.GateStage
-import com.cm.gatecontroller.core.serial.model.LampPosition
+import com.cm.gatecontroller.core.serial.model.MonitoringGateState
+import com.cm.gatecontroller.core.serial.model.BoardGateState
+import com.cm.gatecontroller.core.serial.model.ConfigPositionState
 import com.cm.gatecontroller.core.serial.model.LedColor
-import com.cm.gatecontroller.core.serial.model.OnOff
-import com.cm.gatecontroller.core.serial.model.PositionState
-import com.cm.gatecontroller.core.serial.model.UseState
+import com.cm.gatecontroller.core.serial.model.SwitchState
+import com.cm.gatecontroller.core.serial.model.BoardPositionState
+import com.cm.gatecontroller.core.serial.model.UsageState
 import com.cm.gatecontroller.core.serial.util.safeValueOf
 import javax.inject.Inject
 
@@ -26,11 +26,11 @@ class AtCommandParser @Inject constructor() {
 
             // Monitoring
             "AT+STGATE" -> currentState.copy(
-                gateState = safeValueOf<GateState>(value) ?: currentState.gateState
+                mGateState = safeValueOf<MonitoringGateState>(value) ?: currentState.mGateState
             )
 
             "AT+STLAMP" -> currentState.copy(
-                lampState = safeValueOf<OnOff>(value) ?: currentState.lampState
+                lampState = safeValueOf<SwitchState>(value) ?: currentState.lampState
             )
 
             "AT+STLED" -> currentState.copy(
@@ -38,51 +38,51 @@ class AtCommandParser @Inject constructor() {
             )
 
             "AT+STRELAY1" -> currentState.copy(
-                relay1 = safeValueOf<OnOff>(value) ?: currentState.relay1
+                relay1 = safeValueOf<SwitchState>(value) ?: currentState.relay1
             )
 
             "AT+STRELAY2" -> currentState.copy(
-                relay2 = safeValueOf<OnOff>(value) ?: currentState.relay2
+                relay2 = safeValueOf<SwitchState>(value) ?: currentState.relay2
             )
 
             "AT+STPHOTO1" -> currentState.copy(
-                photo1 = safeValueOf<OnOff>(value) ?: currentState.photo1
+                photo1 = safeValueOf<SwitchState>(value) ?: currentState.photo1
             )
 
             "AT+STPHOTO2" -> currentState.copy(
-                photo2 = safeValueOf<OnOff>(value) ?: currentState.photo2
+                photo2 = safeValueOf<SwitchState>(value) ?: currentState.photo2
             )
 
             "AT+STOPEN1" -> currentState.copy(
-                open1 = safeValueOf<OnOff>(value) ?: currentState.open1
+                open1 = safeValueOf<SwitchState>(value) ?: currentState.open1
             )
 
             "AT+STCLOSE1", "AT+STCLOSEE1" -> currentState.copy(
-                close1 = safeValueOf<OnOff>(value) ?: currentState.close1
+                close1 = safeValueOf<SwitchState>(value) ?: currentState.close1
             )
 
             "AT+STOPEN2" -> currentState.copy(
-                open2 = safeValueOf<OnOff>(value) ?: currentState.open2
+                open2 = safeValueOf<SwitchState>(value) ?: currentState.open2
             )
 
             "AT+STCLOSE2" -> currentState.copy(
-                close2 = safeValueOf<OnOff>(value) ?: currentState.close2
+                close2 = safeValueOf<SwitchState>(value) ?: currentState.close2
             )
 
             "AT+STOPEN3" -> currentState.copy(
-                open3 = safeValueOf<OnOff>(value) ?: currentState.open3
+                open3 = safeValueOf<SwitchState>(value) ?: currentState.open3
             )
 
             "AT+STCLOSE3", "AT+STCLOSE" -> currentState.copy(
-                close3 = safeValueOf<OnOff>(value) ?: currentState.close3
+                close3 = safeValueOf<SwitchState>(value) ?: currentState.close3
             )
 
             "AT+STLOOPA" -> currentState.copy(
-                loopA_mon = safeValueOf<OnOff>(value) ?: currentState.loopA_mon
+                loopA_mon = safeValueOf<SwitchState>(value) ?: currentState.loopA_mon
             )
 
             "AT+STLOOPB" -> currentState.copy(
-                loopB_mon = safeValueOf<OnOff>(value) ?: currentState.loopB_mon
+                loopB_mon = safeValueOf<SwitchState>(value) ?: currentState.loopB_mon
             )
 
             "AT+STMPWR" -> currentState.copy(mainPower = "${value}V")
@@ -105,19 +105,19 @@ class AtCommandParser @Inject constructor() {
             )
 
             "curr_lamp" -> currentState.copy(
-                lampUsage = safeValueOf<UseState>(value) ?: currentState.lampUsage
+                lampUsage = safeValueOf<UsageState>(value) ?: currentState.lampUsage
             )
 
             "curr_buzzer" -> currentState.copy(
-                buzzerUsage = safeValueOf<UseState>(value) ?: currentState.buzzerUsage
+                buzzerUsage = safeValueOf<UsageState>(value) ?: currentState.buzzerUsage
             )
 
             "curr_lampPosOn" -> currentState.copy(
-                lampOnPosition = safeValueOf<LampPosition>(value) ?: currentState.lampOnPosition
+                lampOnPosition = safeValueOf<ConfigPositionState>(value) ?: currentState.lampOnPosition
             )
 
             "curr_lampPosOff" -> currentState.copy(
-                lampOffPosition = safeValueOf<LampPosition>(value) ?: currentState.lampOffPosition
+                lampOffPosition = safeValueOf<ConfigPositionState>(value) ?: currentState.lampOffPosition
             )
 
             "curr_ledOpen" -> currentState.copy(
@@ -125,7 +125,7 @@ class AtCommandParser @Inject constructor() {
             )
 
             "curr_ledOpenPos" -> currentState.copy(
-                ledOpenPosition = safeValueOf<LampPosition>(value) ?: currentState.ledOpenPosition
+                ledOpenPosition = safeValueOf<ConfigPositionState>(value) ?: currentState.ledOpenPosition
             )
 
             "curr_ledClose" -> currentState.copy(
@@ -133,17 +133,17 @@ class AtCommandParser @Inject constructor() {
             )
 
             "curr_ledClosePos" -> currentState.copy(
-                ledClosePosition = safeValueOf<LampPosition>(
+                ledClosePosition = safeValueOf<ConfigPositionState>(
                     value
                 ) ?: currentState.ledClosePosition
             )
 
             "curr_loopa" -> currentState.copy(
-                loopA_conf = safeValueOf<UseState>(value) ?: currentState.loopA_conf
+                loopA_conf = safeValueOf<UsageState>(value) ?: currentState.loopA_conf
             )
 
             "curr_loopb" -> currentState.copy(
-                loopB_conf = safeValueOf<UseState>(value) ?: currentState.loopB_conf
+                loopB_conf = safeValueOf<UsageState>(value) ?: currentState.loopB_conf
             )
 
             "curr_delayTime" -> currentState.copy(
@@ -160,15 +160,15 @@ class AtCommandParser @Inject constructor() {
 
             // Board Test - Output Test Responses (AT+CTRL...)
             "AT+CTRLLAMP" -> currentState.copy(
-                controlLamp = safeValueOf<OnOff>(value) ?: currentState.controlLamp
+                controlLamp = safeValueOf<SwitchState>(value) ?: currentState.controlLamp
             )
 
             "AT+CTRLRELAY1" -> currentState.copy(
-                controlRelay1 = safeValueOf<OnOff>(value) ?: currentState.controlRelay1
+                controlRelay1 = safeValueOf<SwitchState>(value) ?: currentState.controlRelay1
             )
 
             "AT+CTRLRELAY2" -> currentState.copy(
-                controlRelay2 = safeValueOf<OnOff>(value) ?: currentState.controlRelay2
+                controlRelay2 = safeValueOf<SwitchState>(value) ?: currentState.controlRelay2
             )
 
             "AT+CTRLLED" -> currentState.copy(
@@ -176,61 +176,61 @@ class AtCommandParser @Inject constructor() {
             )
 
             "AT+STPOS" -> currentState.copy(
-                controlPosition = safeValueOf<PositionState>(value) ?: currentState.controlPosition
+                controlPosition = safeValueOf<BoardPositionState>(value) ?: currentState.controlPosition
             )
 
             // Board Test - Input Test Responses (AT+IN...)
             "AT+INPHOTO1" -> currentState.copy(
-                inPhoto1 = safeValueOf<OnOff>(value) ?: currentState.inPhoto1
+                inPhoto1 = safeValueOf<SwitchState>(value) ?: currentState.inPhoto1
             )
 
             "AT+INPHOTO2" -> currentState.copy(
-                inPhoto2 = safeValueOf<OnOff>(value) ?: currentState.inPhoto2
+                inPhoto2 = safeValueOf<SwitchState>(value) ?: currentState.inPhoto2
             )
 
             "AT+INLOOPA" -> currentState.copy(
-                inLoopA = safeValueOf<OnOff>(value) ?: currentState.inLoopA
+                inLoopA = safeValueOf<SwitchState>(value) ?: currentState.inLoopA
             )
 
             "AT+INLOOPB" -> currentState.copy(
-                inLoopB = safeValueOf<OnOff>(value) ?: currentState.inLoopB
+                inLoopB = safeValueOf<SwitchState>(value) ?: currentState.inLoopB
             )
 
             "AT+INOPEN1" -> currentState.copy(
-                inOpen1 = safeValueOf<OnOff>(value) ?: currentState.inOpen1
+                inOpen1 = safeValueOf<SwitchState>(value) ?: currentState.inOpen1
             )
 
             "AT+INOPEN2" -> currentState.copy(
-                inOpen2 = safeValueOf<OnOff>(value) ?: currentState.inOpen2
+                inOpen2 = safeValueOf<SwitchState>(value) ?: currentState.inOpen2
             )
 
             "AT+INOPEN3" -> currentState.copy(
-                inOpen3 = safeValueOf<OnOff>(value) ?: currentState.inOpen3
+                inOpen3 = safeValueOf<SwitchState>(value) ?: currentState.inOpen3
             )
 
             "AT+INCLOSE1" -> currentState.copy(
-                inClose1 = safeValueOf<OnOff>(value) ?: currentState.inClose1
+                inClose1 = safeValueOf<SwitchState>(value) ?: currentState.inClose1
             )
 
             "AT+INCLOSE2" -> currentState.copy(
-                inClose2 = safeValueOf<OnOff>(value) ?: currentState.inClose2
+                inClose2 = safeValueOf<SwitchState>(value) ?: currentState.inClose2
             )
 
             "AT+INCLOSE3" -> currentState.copy(
-                inClose3 = safeValueOf<OnOff>(value) ?: currentState.inClose3
+                inClose3 = safeValueOf<SwitchState>(value) ?: currentState.inClose3
             )
 
             "AT+SWOPEN" -> currentState.copy(
-                swOpen = safeValueOf<OnOff>(value) ?: currentState.swOpen
+                swOpen = safeValueOf<SwitchState>(value) ?: currentState.swOpen
             )
 
             "AT+SWCLOSE" -> currentState.copy(
-                swClose = safeValueOf<OnOff>(value) ?: currentState.swClose
+                swClose = safeValueOf<SwitchState>(value) ?: currentState.swClose
             )
 
             // Board Test - Operation Test Responses (AT+STAGE...)
             "AT+STAGE" -> currentState.copy(
-                gateStage = safeValueOf<GateStage>(value) ?: currentState.gateStage
+                boardGateState = safeValueOf<BoardGateState>(value) ?: currentState.boardGateState
             )
 
             "AT+FACTORY" -> {

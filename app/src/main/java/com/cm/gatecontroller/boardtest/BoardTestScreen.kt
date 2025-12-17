@@ -42,8 +42,8 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.cm.gatecontroller.core.serial.model.GateControllerState
 import com.cm.gatecontroller.core.serial.model.LedColor
-import com.cm.gatecontroller.core.serial.model.OnOff
-import com.cm.gatecontroller.core.serial.model.PositionState
+import com.cm.gatecontroller.core.serial.model.SwitchState
+import com.cm.gatecontroller.core.serial.model.BoardPositionState
 import kotlinx.coroutines.launch
 
 @Composable
@@ -124,7 +124,7 @@ fun OutputTestSection(viewModel: BoardTestViewModel, testState: GateControllerSt
         ) {
             Text("LAMP", style = MaterialTheme.typography.bodyLarge)
             Switch(
-                checked = testState.controlLamp == OnOff.ON,
+                checked = testState.controlLamp == SwitchState.ON,
                 onCheckedChange = { viewModel.handleIntent(BoardTestIntent.ToggleControlLamp(it)) }
             )
         }
@@ -135,7 +135,7 @@ fun OutputTestSection(viewModel: BoardTestViewModel, testState: GateControllerSt
         ) {
             Text("RELAY1", style = MaterialTheme.typography.bodyLarge)
             Switch(
-                checked = testState.controlRelay1 == OnOff.ON,
+                checked = testState.controlRelay1 == SwitchState.ON,
                 onCheckedChange = { viewModel.handleIntent(BoardTestIntent.ToggleControlRelay1(it)) }
             )
         }
@@ -146,7 +146,7 @@ fun OutputTestSection(viewModel: BoardTestViewModel, testState: GateControllerSt
         ) {
             Text("RELAY2", style = MaterialTheme.typography.bodyLarge)
             Switch(
-                checked = testState.controlRelay2 == OnOff.ON,
+                checked = testState.controlRelay2 == SwitchState.ON,
                 onCheckedChange = { viewModel.handleIntent(BoardTestIntent.ToggleControlRelay2(it)) }
             )
         }
@@ -222,7 +222,7 @@ fun OperationTestSection(viewModel: BoardTestViewModel, testState: GateControlle
             }
         }
         Spacer(modifier = Modifier.height(8.dp))
-        ConfigItem(label = "GATE STAGE", value = testState.gateStage.name)
+        ConfigItem(label = "GATE STAGE", value = testState.boardGateState.name)
     }
 }
 
@@ -262,7 +262,7 @@ fun LedColorSelector( // TODO: PositionSelector와 함께 함수 통합
 }
 
 @Composable
-fun PositionSelector(selectedPosition: PositionState, onPositionSelected: (PositionState) -> Unit) {
+fun PositionSelector(selectedPosition: BoardPositionState, onPositionSelected: (BoardPositionState) -> Unit) {
     var expanded by remember { mutableStateOf(false) }
     ExposedDropdownMenuBox(
         expanded = expanded,
@@ -280,7 +280,7 @@ fun PositionSelector(selectedPosition: PositionState, onPositionSelected: (Posit
             expanded = expanded,
             onDismissRequest = { expanded = false }
         ) {
-            PositionState.entries.forEach { position -> // TODO: serial model 제거
+            BoardPositionState.entries.forEach { position -> // TODO: serial model 제거
                 DropdownMenuItem(
                     text = { Text(position.name) },
                     onClick = {
@@ -294,8 +294,8 @@ fun PositionSelector(selectedPosition: PositionState, onPositionSelected: (Posit
 }
 
 @Composable
-fun InputStatusDisplay(label: String, value: OnOff) {
-    val isActive = value == OnOff.ON
+fun InputStatusDisplay(label: String, value: SwitchState) {
+    val isActive = value == SwitchState.ON
     Row(
         modifier = Modifier
             .fillMaxWidth()

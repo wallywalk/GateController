@@ -2,7 +2,7 @@ package com.cm.gatecontroller.boardtest
 
 import com.cm.gatecontroller.core.serial.model.GateControllerState
 import com.cm.gatecontroller.core.serial.model.LedColor
-import com.cm.gatecontroller.core.serial.model.PositionState
+import com.cm.gatecontroller.core.serial.model.BoardPositionState
 
 sealed interface BoardTestIntent {
     data object RefreshStatus : BoardTestIntent
@@ -12,7 +12,7 @@ sealed interface BoardTestIntent {
     data class ToggleControlRelay1(val on: Boolean) : BoardTestIntent
     data class ToggleControlRelay2(val on: Boolean) : BoardTestIntent
     data class SetControlLed(val color: LedColor) : BoardTestIntent
-    data class SetControlPosition(val position: PositionState) : BoardTestIntent
+    data class SetControlPosition(val position: BoardPositionState) : BoardTestIntent
 
     // Operation Test
     data object OpenGate : BoardTestIntent

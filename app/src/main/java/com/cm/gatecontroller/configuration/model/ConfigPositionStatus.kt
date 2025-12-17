@@ -1,6 +1,6 @@
 package com.cm.gatecontroller.configuration.model
 
-enum class LampStatus {
+enum class ConfigPositionStatus {
     OPENING,
     OPENED,
     CLOSING,
