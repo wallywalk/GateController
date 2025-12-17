@@ -3,18 +3,18 @@ package com.cm.gatecontroller.monitoring
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -27,6 +27,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -35,13 +36,11 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.cm.gatecontroller.model.LedStatus
-import com.cm.gatecontroller.monitoring.model.GateStatus
-import com.cm.gatecontroller.monitoring.model.OnOffStatus
+import com.cm.gatecontroller.monitoring.model.MonitoringGateStatus
+import com.cm.gatecontroller.model.SwitchStatus
 import com.cm.gatecontroller.ui.theme.Blue600
 import com.cm.gatecontroller.ui.theme.Gray400
-import com.cm.gatecontroller.ui.theme.Green500
 import com.cm.gatecontroller.ui.theme.Red500
-import com.cm.gatecontroller.ui.theme.White100
 import com.cm.gatecontroller.ui.theme.Yellow300
 import kotlinx.coroutines.flow.collectLatest
 
@@ -67,7 +66,7 @@ fun MonitoringScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Gate Controller Monitoring") },
+                title = { Text("Monitoring") },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primary,
                     titleContentColor = MaterialTheme.colorScheme.onPrimary
@@ -75,37 +74,121 @@ fun MonitoringScreen(
             )
         }
     ) { paddingValues ->
-        Column(
+        LazyColumn(
             modifier = Modifier
                 .padding(paddingValues)
-                .fillMaxSize()
+                .fillMaxSize(),
+            contentPadding = PaddingValues(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            LazyColumn(
-                modifier = Modifier.weight(1f),
-                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                val statusItems = createStatusItems(uiState)
-                items(statusItems) { item ->
-                    StatusCard(title = item.title, value = item.value, color = item.color)
+            item {
+                // Gate row
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Gate", modifier = Modifier.weight(1f), fontWeight = FontWeight.Bold)
+                    TwoActiveBadgesRow(
+                        label1 = "CLOSE",
+                        isActive1 = uiState.gateState == MonitoringGateStatus.CLOSE,
+                        label2 = "OPEN",
+                        isActive2 = uiState.gateState == MonitoringGateStatus.OPEN,
+                        modifier = Modifier.weight(2f)
+                    )
                 }
             }
 
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text("Version: ${uiState.version}", fontWeight = FontWeight.Bold)
-                Button(
-                    onClick = { viewModel.handleIntent(MonitoringIntent.ToggleTest) },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = if (uiState.isTestRunning) Red500 else Blue600
-                    )
+            item {
+                TwoActiveBadgesRow(
+                    label1 = "LAMP",
+                    isActive1 = uiState.lampState == SwitchStatus.ON,
+                    label2 = "LED", // TODO: 색상 표시
+                    isActive2 = uiState.ledState != LedStatus.OFF
+                )
+            }
+            item {
+                TwoActiveBadgesRow(
+                    label1 = "RELAY1",
+                    isActive1 = uiState.relay1State == SwitchStatus.ON,
+                    label2 = "RELAY2",
+                    isActive2 = uiState.relay2State == SwitchStatus.ON
+                )
+            }
+            item {
+                TwoActiveBadgesRow(
+                    label1 = "PHOTO1",
+                    isActive1 = uiState.photo1State == SwitchStatus.ON,
+                    label2 = "PHOTO2",
+                    isActive2 = uiState.photo2State == SwitchStatus.ON
+                )
+            }
+            item {
+                TwoActiveBadgesRow(
+                    label1 = "OPEN1",
+                    isActive1 = uiState.open1State == SwitchStatus.ON,
+                    label2 = "CLOSE1",
+                    isActive2 = uiState.close1State == SwitchStatus.ON
+                )
+            }
+            item {
+                TwoActiveBadgesRow(
+                    label1 = "OPEN2",
+                    isActive1 = uiState.open2State == SwitchStatus.ON,
+                    label2 = "CLOSE2",
+                    isActive2 = uiState.close2State == SwitchStatus.ON
+                )
+            }
+            item {
+                TwoActiveBadgesRow(
+                    label1 = "OPEN3",
+                    isActive1 = uiState.open3State == SwitchStatus.ON,
+                    label2 = "CLOSE3",
+                    isActive2 = uiState.close3State == SwitchStatus.ON
+                )
+            }
+            item {
+                TwoActiveBadgesRow(
+                    label1 = "LOOP A",
+                    isActive1 = uiState.loopAState == SwitchStatus.ON,
+                    label2 = "LOOP B",
+                    isActive2 = uiState.loopBState == SwitchStatus.ON
+                )
+            }
+
+            item {
+                TwoValueDisplayRow(
+                    label1 = uiState.mainPower,
+                    label2 = uiState.testCount.toString()
+                )
+            }
+
+            item {
+                ValueDisplayRow("DELAY TIME", "${uiState.delayTime}sec")
+            }
+
+            item {
+                Spacer(modifier = Modifier.height(8.dp))
+            }
+
+            item {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Text(if (uiState.isTestRunning) "TEST STOP" else "TEST START")
+                    ToggleActionButton(
+                        text = "Test Start",
+                        isToggled = uiState.isTestRunning,
+                        onToggle = { viewModel.handleIntent(MonitoringIntent.ToggleTest) },
+                        modifier = Modifier.weight(1f)
+                    )
+                    TallButton(
+                        text = "Config",
+                        modifier = Modifier.weight(1f)
+                    ) { navController.navigate("configuration") }
+                    TallButton(
+                        text = "Board Test",
+                        modifier = Modifier.weight(1f)
+                    ) { navController.navigate("boardtest") }
                 }
             }
         }
@@ -113,130 +196,104 @@ fun MonitoringScreen(
 }
 
 @Composable
-fun StatusCard(title: String, value: String, color: Color) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth(),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+private fun ActiveBadge(text: String, isActive: Boolean, modifier: Modifier = Modifier) {
+    val backgroundColor = if (isActive) Yellow300 else Gray400
+    Box(
+        modifier = modifier
+            .clip(RoundedCornerShape(8.dp))
+            .background(backgroundColor)
+            .padding(horizontal = 12.dp, vertical = 8.dp),
+        contentAlignment = Alignment.Center
     ) {
-        Row(
+        Text(text, color = Color.Black, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+    }
+}
+
+@Composable
+private fun TwoActiveBadgesRow(
+    label1: String,
+    isActive1: Boolean,
+    label2: String,
+    isActive2: Boolean,
+    modifier: Modifier = Modifier
+) {
+    Row(modifier = modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        ActiveBadge(text = label1, isActive = isActive1, modifier = Modifier.weight(1f))
+        ActiveBadge(text = label2, isActive = isActive2, modifier = Modifier.weight(1f))
+    }
+}
+
+@Composable
+private fun ValueDisplayRow(label: String, value: String, modifier: Modifier = Modifier) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(8.dp))
+            .background(MaterialTheme.colorScheme.surfaceVariant)
+            .padding(horizontal = 16.dp, vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(label, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+        Text(value, fontSize = 16.sp)
+    }
+}
+
+@Composable
+private fun TwoValueDisplayRow(label1: String, label2: String, modifier: Modifier = Modifier) {
+    Row(modifier = modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        Box(
             modifier = Modifier
-                .fillMaxWidth()
-                .background(color)
-                .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
+                .weight(1f)
+                .clip(RoundedCornerShape(8.dp))
+                .background(MaterialTheme.colorScheme.surfaceVariant)
+                .padding(horizontal = 16.dp, vertical = 12.dp),
+            contentAlignment = Alignment.CenterStart
         ) {
-            Text(
-                text = title,
-                fontWeight = FontWeight.Bold,
-                fontSize = 16.sp,
-                color = Color.Black
-            )
-            Text(
-                text = value,
-                fontSize = 18.sp,
-                fontWeight = FontWeight.SemiBold,
-                color = Color.Black
-            )
+            Text(label1, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+        }
+        Box(
+            modifier = Modifier
+                .weight(1f)
+                .clip(RoundedCornerShape(8.dp))
+                .background(MaterialTheme.colorScheme.surfaceVariant)
+                .padding(horizontal = 16.dp, vertical = 12.dp),
+            contentAlignment = Alignment.CenterStart
+        ) {
+            Text(label2, fontWeight = FontWeight.Bold, fontSize = 16.sp)
         }
     }
 }
 
-private data class StatusItem(val title: String, val value: String, val color: Color)
-
-private fun onOffColor(status: OnOffStatus, active: Color, inactive: Color) =
-    if (status == OnOffStatus.ON) active else inactive
-
-private fun gateColor(status: GateStatus, active: Color, inactive: Color) =
-    if (status == GateStatus.OPEN) active else inactive
-
-private fun ledColor(status: LedStatus) = when (status) {
-    LedStatus.OFF -> Gray400
-    LedStatus.BLUE -> Blue600
-    LedStatus.GREEN -> Green500
-    LedStatus.RED -> Red500
-    LedStatus.WHITE -> White100
+@Composable
+private fun ToggleActionButton(
+    text: String,
+    isToggled: Boolean,
+    onToggle: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Button(
+        onClick = onToggle,
+        modifier = modifier.height(64.dp),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = if (isToggled) Red500 else Blue600,
+            contentColor = Color.White
+        )
+    ) {
+        Text(text, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+    }
 }
 
-private fun createStatusItems(uiState: MonitoringUiState): List<StatusItem> { // fixme: 하드코딩
-    val activeColor = Yellow300
-    val inactiveColor = Gray400
-
-    return listOf(
-        StatusItem(
-            "GATE",
-            uiState.gateState.name,
-            gateColor(uiState.gateState, activeColor, inactiveColor)
-        ),
-        StatusItem(
-            "LAMP",
-            uiState.lampState.name,
-            onOffColor(uiState.lampState, activeColor, inactiveColor)
-        ),
-        StatusItem("LED", uiState.ledState.name, ledColor(uiState.ledState)),
-        StatusItem(
-            "RELAY 1",
-            uiState.relay1State.name,
-            onOffColor(uiState.relay1State, activeColor, inactiveColor)
-        ),
-        StatusItem(
-            "RELAY 2",
-            uiState.relay2State.name,
-            onOffColor(uiState.relay2State, activeColor, inactiveColor)
-        ),
-        StatusItem(
-            "PHOTO 1",
-            uiState.photo1State.name,
-            onOffColor(uiState.photo1State, activeColor, inactiveColor)
-        ),
-        StatusItem(
-            "PHOTO 2",
-            uiState.photo2State.name,
-            onOffColor(uiState.photo2State, activeColor, inactiveColor)
-        ),
-        StatusItem(
-            "OPEN 1",
-            uiState.open1State.name,
-            onOffColor(uiState.open1State, activeColor, inactiveColor)
-        ),
-        StatusItem(
-            "OPEN 2",
-            uiState.open2State.name,
-            onOffColor(uiState.open2State, activeColor, inactiveColor)
-        ),
-        StatusItem(
-            "OPEN 3",
-            uiState.open3State.name,
-            onOffColor(uiState.open3State, activeColor, inactiveColor)
-        ),
-        StatusItem(
-            "CLOSE 1",
-            uiState.close1State.name,
-            onOffColor(uiState.close1State, activeColor, inactiveColor)
-        ),
-        StatusItem(
-            "CLOSE 2",
-            uiState.close2State.name,
-            onOffColor(uiState.close2State, activeColor, inactiveColor)
-        ),
-        StatusItem(
-            "CLOSE 3",
-            uiState.close3State.name,
-            onOffColor(uiState.close3State, activeColor, inactiveColor)
-        ),
-        StatusItem(
-            "LOOP A",
-            uiState.loopAState.name,
-            onOffColor(uiState.loopAState, activeColor, inactiveColor)
-        ),
-        StatusItem(
-            "LOOP B",
-            uiState.loopBState.name,
-            onOffColor(uiState.loopBState, activeColor, inactiveColor)
-        ),
-        StatusItem("MAIN PWR", uiState.mainPower, activeColor),
-        StatusItem("TEST CNT", uiState.testCount.toString(), activeColor),
-        StatusItem("DELAY", uiState.delayTime.toString(), activeColor)
-    )
+@Composable
+private fun TallButton(text: String, modifier: Modifier = Modifier, onClick: () -> Unit) {
+    Button(
+        onClick = onClick,
+        modifier = modifier.height(64.dp),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = MaterialTheme.colorScheme.primary,
+            contentColor = MaterialTheme.colorScheme.onPrimary
+        )
+    ) {
+        Text(text, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+    }
 }
