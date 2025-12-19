@@ -12,7 +12,7 @@ enum class FactoryResponse { OK, ERROR }
 
 // Board Test States
 enum class PositionState { LEFT, RIGHT }
-enum class GateState { OPENING, OPENED, CLOSING, CLOSED }
+enum class GateState { OPENING, OPENED, CLOSING, CLOSED, STOP }
 
 data class GateControllerState(
     // Common

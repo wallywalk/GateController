@@ -51,3 +51,16 @@ fun LabelBadge(
         )
     }
 }
+
+@Composable
+fun InputBadge(label: String, isOn: Boolean, modifier: Modifier = Modifier) {
+    Box(
+        modifier = modifier
+            .clip(RoundedCornerShape(8.dp))
+            .background(if (isOn) Yellow300 else Gray400)
+            .padding(vertical = 12.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(label, color = Color.Black, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+    }
+}

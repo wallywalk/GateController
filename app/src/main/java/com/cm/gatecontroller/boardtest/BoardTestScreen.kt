@@ -1,259 +1,225 @@
-@file:OptIn(ExperimentalMaterial3Api::class)
-
 package com.cm.gatecontroller.boardtest
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
-import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import com.cm.gatecontroller.core.serial.model.GateControllerState
-import com.cm.gatecontroller.core.serial.model.LedColor
-import com.cm.gatecontroller.core.serial.model.SwitchState
-import com.cm.gatecontroller.core.serial.model.BoardPositionState
-import kotlinx.coroutines.launch
+import androidx.navigation.NavController
+import com.cm.gatecontroller.model.GateStatus
+import com.cm.gatecontroller.model.LedStatus
+import com.cm.gatecontroller.model.SwitchStatus
+import com.cm.gatecontroller.ui.theme.Blue600
+import com.cm.gatecontroller.ui.theme.Gray400
+import com.cm.gatecontroller.ui.theme.Green500
+import com.cm.gatecontroller.ui.theme.Red500
+import com.cm.gatecontroller.ui.theme.White100
+import com.cm.gatecontroller.ui.theme.Yellow300
+import com.cm.gatecontroller.ui.theme.component.ControlButton
+import com.cm.gatecontroller.ui.theme.component.InputBadge
+import com.cm.gatecontroller.ui.theme.component.LabelAndValue
+import kotlinx.coroutines.flow.collectLatest
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BoardTestScreen(
+    navController: NavController,
     viewModel: BoardTestViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    val testState = uiState.testState
     val snackbarHostState = remember { SnackbarHostState() }
-    val scope = rememberCoroutineScope() // TODO: scope 필요 여부
 
-    LaunchedEffect(viewModel.sideEffect) {
-        viewModel.sideEffect.collect { effect ->
+    LaunchedEffect(viewModel) {
+        viewModel.sideEffect.collectLatest { effect ->
             when (effect) {
                 is BoardTestSideEffect.ShowSnackbar -> {
-                    scope.launch { snackbarHostState.showSnackbar(effect.message) }
+                    snackbarHostState.showSnackbar(effect.message)
                 }
             }
         }
     }
 
-    Scaffold(snackbarHost = { SnackbarHost(snackbarHostState) }) { padding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-                .padding(16.dp)
-                .verticalScroll(rememberScrollState()),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(
-                "BOARD TEST",
-                fontSize = 24.sp,
-                fontWeight = MaterialTheme.typography.titleLarge.fontWeight
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Board Test") },
+                navigationIcon = {
+                    IconButton(onClick = { navController.navigateUp() }) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    titleContentColor = MaterialTheme.colorScheme.onPrimary,
+                    navigationIconContentColor = MaterialTheme.colorScheme.onPrimary
+                )
             )
-            Spacer(modifier = Modifier.height(16.dp))
-
-            ConfigItem(label = "VERSION", value = testState.version)
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Text(
-                "OUTPUT TEST",
-                fontSize = 20.sp,
-                fontWeight = MaterialTheme.typography.titleMedium.fontWeight
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            OutputTestSection(viewModel, testState)
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Text(
-                "INPUT TEST",
-                fontSize = 20.sp,
-                fontWeight = MaterialTheme.typography.titleMedium.fontWeight
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            InputTestSection(testState)
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Text(
-                "OPERATION TEST",
-                fontSize = 20.sp,
-                fontWeight = MaterialTheme.typography.titleMedium.fontWeight
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            OperationTestSection(viewModel, testState)
-            Spacer(modifier = Modifier.height(16.dp))
-        }
-    }
-}
-
-@Composable
-fun OutputTestSection(viewModel: BoardTestViewModel, testState: GateControllerState) {
-    Column(modifier = Modifier.fillMaxWidth()) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text("LAMP", style = MaterialTheme.typography.bodyLarge)
-            Switch(
-                checked = testState.controlLamp == SwitchState.ON,
-                onCheckedChange = { viewModel.handleIntent(BoardTestIntent.ToggleControlLamp(it)) }
-            )
-        }
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text("RELAY1", style = MaterialTheme.typography.bodyLarge)
-            Switch(
-                checked = testState.controlRelay1 == SwitchState.ON,
-                onCheckedChange = { viewModel.handleIntent(BoardTestIntent.ToggleControlRelay1(it)) }
-            )
-        }
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text("RELAY2", style = MaterialTheme.typography.bodyLarge)
-            Switch(
-                checked = testState.controlRelay2 == SwitchState.ON,
-                onCheckedChange = { viewModel.handleIntent(BoardTestIntent.ToggleControlRelay2(it)) }
-            )
-        }
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text("LED", style = MaterialTheme.typography.bodyLarge)
-            LedColorSelector(
-                selectedColor = testState.controlLed,
-                onColorSelected = { viewModel.handleIntent(BoardTestIntent.SetControlLed(it)) }
-            )
-        }
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text("POSITION", style = MaterialTheme.typography.bodyLarge)
-            PositionSelector(
-                selectedPosition = testState.controlPosition,
-                onPositionSelected = { viewModel.handleIntent(BoardTestIntent.SetControlPosition(it)) }
-            )
-        }
-    }
-}
-
-@Composable
-fun InputTestSection(testState: GateControllerState) {
-    Column(modifier = Modifier.fillMaxWidth()) {
-        InputStatusDisplay("PHOTO1", testState.inPhoto1)
-        InputStatusDisplay("PHOTO2", testState.inPhoto2)
-        InputStatusDisplay("LOOP A", testState.inLoopA)
-        InputStatusDisplay("LOOP B", testState.inLoopB)
-        InputStatusDisplay("OPEN1", testState.inOpen1)
-        InputStatusDisplay("OPEN2", testState.inOpen2)
-        InputStatusDisplay("OPEN3", testState.inOpen3)
-        InputStatusDisplay("CLOSE1", testState.inClose1)
-        InputStatusDisplay("CLOSE2", testState.inClose2)
-        InputStatusDisplay("CLOSE3", testState.inClose3)
-        InputStatusDisplay("SW OPEN", testState.swOpen)
-        InputStatusDisplay("SW CLOSE", testState.swClose)
-    }
-}
-
-@Composable
-fun OperationTestSection(viewModel: BoardTestViewModel, testState: GateControllerState) {
-    Column(modifier = Modifier.fillMaxWidth()) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceEvenly
-        ) {
-            Button(
-                onClick = { viewModel.handleIntent(BoardTestIntent.OpenGate) },
-                modifier = Modifier.weight(1f)
-            ) {
-                Text("GATE OPEN")
+        },
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
+    ) { paddingValues ->
+        if (uiState.isInitializing) {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator()
             }
-            Spacer(modifier = Modifier.width(8.dp))
-            Button(
-                onClick = { viewModel.handleIntent(BoardTestIntent.CloseGate) },
-                modifier = Modifier.weight(1f)
-            ) {
-                Text("GATE CLOSE")
-            }
-            Spacer(modifier = Modifier.width(8.dp))
-            Button(
-                onClick = { viewModel.handleIntent(BoardTestIntent.StopGate) },
-                modifier = Modifier.weight(1f)
-            ) {
-                Text("STOP")
-            }
+        } else {
+            BoardTestContent(
+                paddingValues = paddingValues,
+                uiState = uiState,
+                onIntent = viewModel::handleIntent
+            )
         }
-        Spacer(modifier = Modifier.height(8.dp))
-        ConfigItem(label = "GATE STAGE", value = testState.boardGateState.name)
     }
 }
 
 @Composable
-fun LedColorSelector( // TODO: PositionSelector와 함께 함수 통합
-    selectedColor: LedColor,
-    onColorSelected: (LedColor) -> Unit
+private fun BoardTestContent(
+    paddingValues: PaddingValues,
+    uiState: BoardTestUiState,
+    onIntent: (BoardTestIntent) -> Unit
 ) {
-    var expanded by remember { mutableStateOf(false) }
-    ExposedDropdownMenuBox(
-        expanded = expanded,
-        onExpandedChange = { !expanded },
-        modifier = Modifier.width(IntrinsicSize.Max)
+    LazyColumn(
+        modifier = Modifier
+            .padding(paddingValues)
+            .fillMaxSize(),
+        contentPadding = PaddingValues(16.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        OutlinedTextField(
-            value = selectedColor.name,
-            onValueChange = {},
-            readOnly = true,
-            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-            modifier = Modifier.menuAnchor()
-        )
-        ExposedDropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false }
-        ) {
-            LedColor.entries.forEach { color -> // TODO: serial model 제거
-                DropdownMenuItem(
-                    text = { Text(color.name) },
+        item {
+            LabelAndValue("Version", uiState.versionText)
+        }
+        item {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                OutputButton(
+                    label = "LAMP",
+                    isOn = uiState.lamp == SwitchStatus.ON,
+                    onClick = { onIntent(BoardTestIntent.ClickLamp) },
+                    modifier = Modifier.weight(1f)
+                )
+                OutputButton(
+                    label = "RELAY1",
+                    isOn = uiState.relay1 == SwitchStatus.ON,
+                    onClick = { onIntent(BoardTestIntent.ClickRelay1) },
+                    modifier = Modifier.weight(1f)
+                )
+                OutputButton(
+                    label = "RELAY2",
+                    isOn = uiState.relay2 == SwitchStatus.ON,
+                    onClick = { onIntent(BoardTestIntent.ClickRelay2) },
+                    modifier = Modifier.weight(1f)
+                )
+            }
+        }
+        item {
+            LedSelector(
+                selectedLed = uiState.led,
+                onSelect = { onIntent(BoardTestIntent.SelectLed(it)) }
+            )
+        }
+        item {
+            LabelAndValue("POSITION", uiState.position.toString())
+        }
+        item {
+            Spacer(modifier = Modifier.height(16.dp))
+        }
+        item {
+            InputBadgeRow(
+                labels = listOf("PHOTO1", "PHOTO2", "LOOP A", "LOOP B"),
+                states = listOf(uiState.photo1, uiState.photo2, uiState.loopA, uiState.loopB)
+            )
+        }
+        item {
+            InputBadgeRow(
+                labels = listOf("OPEN1", "OPEN2", "OPEN3", "OPEN"),
+                states = listOf(uiState.open1, uiState.open2, uiState.open3, uiState.openSwitch)
+            )
+        }
+        item {
+            InputBadgeRow(
+                labels = listOf("CLOSE1", "CLOSE2", "CLOSE3", "CLOSE"),
+                states = listOf(uiState.close1, uiState.close2, uiState.close3, uiState.closeSwitch)
+            )
+        }
+        item {
+            Spacer(modifier = Modifier.height(16.dp))
+        }
+        item {
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                var isOpen by remember(uiState.gateStage) {
+                    mutableStateOf(
+                        uiState.gateStage == GateStatus.OPENING || uiState.gateStage == GateStatus.OPENED
+                    )
+                }
+                var isClose by remember(uiState.gateStage) {
+                    mutableStateOf(
+                        uiState.gateStage == GateStatus.CLOSING || uiState.gateStage == GateStatus.CLOSED
+                    )
+                }
+
+                val openText = if (isOpen) "OPEN STOP" else "GATE OPEN"
+                val closeText = if (isClose) "CLOSE STOP" else "GATE CLOSE"
+
+                ControlButton(
+                    text = openText,
+                    modifier = Modifier.weight(1f),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = if (isOpen) Red500 else Blue600,
+                        contentColor = Color.White
+                    ),
                     onClick = {
-                        onColorSelected(color)
-                        expanded = false
+                        isOpen = !isOpen
+                        onIntent(BoardTestIntent.ClickGateOpen)
+                    }
+                )
+
+                ControlButton(
+                    text = closeText,
+                    modifier = Modifier.weight(1f),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = if (isClose) Red500 else Blue600,
+                        contentColor = Color.White
+                    ),
+                    onClick = {
+                        isClose = !isClose
+                        onIntent(BoardTestIntent.ClickGateClose)
                     }
                 )
             }
@@ -262,31 +228,59 @@ fun LedColorSelector( // TODO: PositionSelector와 함께 함수 통합
 }
 
 @Composable
-fun PositionSelector(selectedPosition: BoardPositionState, onPositionSelected: (BoardPositionState) -> Unit) {
-    var expanded by remember { mutableStateOf(false) }
-    ExposedDropdownMenuBox(
-        expanded = expanded,
-        onExpandedChange = { !expanded },
-        modifier = Modifier.width(IntrinsicSize.Max)
+private fun OutputButton(
+    label: String,
+    isOn: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Button(
+        onClick = onClick,
+        colors = ButtonDefaults.buttonColors(
+            containerColor = if (isOn) Yellow300 else Gray400,
+            contentColor = Color.Black
+        ),
+        modifier = modifier.height(48.dp),
+        shape = RoundedCornerShape(8.dp)
     ) {
-        OutlinedTextField(
-            value = selectedPosition.name,
-            onValueChange = {},
-            readOnly = true,
-            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-            modifier = Modifier.menuAnchor()
-        )
-        ExposedDropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false }
-        ) {
-            BoardPositionState.entries.forEach { position -> // TODO: serial model 제거
-                DropdownMenuItem(
-                    text = { Text(position.name) },
-                    onClick = {
-                        onPositionSelected(position)
-                        expanded = false
-                    }
+        Text(label, fontWeight = FontWeight.Bold)
+    }
+}
+
+@Composable
+private fun LedSelector(selectedLed: LedStatus, onSelect: (LedStatus) -> Unit) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        LedStatus.entries.forEach { led ->
+            val isSelected = selectedLed == led
+            val buttonColor = when (led) {
+                LedStatus.OFF -> Gray400
+                LedStatus.BLUE -> Blue600
+                LedStatus.GREEN -> Green500
+                LedStatus.RED -> Red500
+                LedStatus.WHITE -> White100
+            }
+            Button(
+                onClick = { onSelect(led) },
+                shape = RoundedCornerShape(8.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = buttonColor),
+                modifier = Modifier
+                    .weight(1f)
+                    .height(48.dp)
+                    .border(
+                        width = if (isSelected) 3.dp else 0.dp,
+                        color = if (isSelected) MaterialTheme.colorScheme.outline else Color.Transparent,
+                        shape = RoundedCornerShape(8.dp)
+                    ),
+                contentPadding = PaddingValues(4.dp)
+            ) {
+                Text(
+                    text = led.name,
+                    color = if (led == LedStatus.WHITE) Color.Black else Color.White,
+                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                    fontSize = 12.sp
                 )
             }
         }
@@ -294,38 +288,14 @@ fun PositionSelector(selectedPosition: BoardPositionState, onPositionSelected: (
 }
 
 @Composable
-fun InputStatusDisplay(label: String, value: SwitchState) {
-    val isActive = value == SwitchState.ON
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 4.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        Text(label, style = MaterialTheme.typography.bodyLarge)
-        Text(
-            text = value.name,
-            color = if (isActive) Color(0xFFFFA500) else Color.Gray,
-            fontWeight = MaterialTheme.typography.bodyLarge.fontWeight
-        )
-    }
-}
-
-@Composable
-fun ConfigItem(label: String, value: Any?) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 4.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        Text(label, style = MaterialTheme.typography.bodyLarge)
-        Text(
-            value.toString(),
-            style = MaterialTheme.typography.bodyLarge,
-            fontWeight = MaterialTheme.typography.bodyLarge.fontWeight
-        )
+private fun InputBadgeRow(labels: List<String>, states: List<SwitchStatus>) {
+    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        labels.forEachIndexed { index, label ->
+            InputBadge(
+                label = label,
+                isOn = states.getOrElse(index) { SwitchStatus.OFF } == SwitchStatus.ON,
+                modifier = Modifier.weight(1f)
+            )
+        }
     }
 }

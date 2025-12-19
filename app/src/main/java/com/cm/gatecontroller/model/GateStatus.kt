@@ -4,5 +4,6 @@ enum class GateStatus {
     OPENING,
     OPENED,
     CLOSING,
-    CLOSED
+    CLOSED,
+    STOP
 }
