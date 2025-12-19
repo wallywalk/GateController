@@ -2,11 +2,11 @@ package com.cm.gatecontroller.configuration
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.cm.gatecontroller.configuration.model.ConfigPositionStatus
+import com.cm.gatecontroller.model.GateStatus
 import com.cm.gatecontroller.configuration.model.UsageStatus
 import com.cm.gatecontroller.core.serial.SerialRepository
 import com.cm.gatecontroller.core.serial.model.GateControllerState
-import com.cm.gatecontroller.core.serial.model.ConfigPositionState
+import com.cm.gatecontroller.core.serial.model.GateState
 import com.cm.gatecontroller.core.serial.model.LedColor
 import com.cm.gatecontroller.core.serial.model.UsageState
 import com.cm.gatecontroller.model.LedStatus
@@ -83,17 +83,17 @@ class ConfigViewModel @Inject constructor(
                 UsageState.USE -> UsageStatus.USE
                 UsageState.UNUSE -> UsageStatus.UNUSE
             },
-            lampPosOn = when (this.lampOnPosition) {
-                ConfigPositionState.OPENING -> ConfigPositionStatus.OPENING
-                ConfigPositionState.OPENED -> ConfigPositionStatus.OPENED
-                ConfigPositionState.CLOSING -> ConfigPositionStatus.CLOSING
-                ConfigPositionState.CLOSED -> ConfigPositionStatus.CLOSED
+            lampPosOn = when (this.lampPositionOn) {
+                GateState.OPENING -> GateStatus.OPENING
+                GateState.OPENED -> GateStatus.OPENED
+                GateState.CLOSING -> GateStatus.CLOSING
+                GateState.CLOSED -> GateStatus.CLOSED
             },
-            lampPosOff = when (this.lampOffPosition) {
-                ConfigPositionState.OPENING -> ConfigPositionStatus.OPENING
-                ConfigPositionState.OPENED -> ConfigPositionStatus.OPENED
-                ConfigPositionState.CLOSING -> ConfigPositionStatus.CLOSING
-                ConfigPositionState.CLOSED -> ConfigPositionStatus.CLOSED
+            lampPosOff = when (this.lampPositionOff) {
+                GateState.OPENING -> GateStatus.OPENING
+                GateState.OPENED -> GateStatus.OPENED
+                GateState.CLOSING -> GateStatus.CLOSING
+                GateState.CLOSED -> GateStatus.CLOSED
             },
             ledOpenColor = when (this.ledOpenColor) {
                 LedColor.OFF -> LedStatus.OFF
@@ -103,10 +103,10 @@ class ConfigViewModel @Inject constructor(
                 LedColor.WHITE -> LedStatus.WHITE
             },
             ledOpenPos = when (this.ledOpenPosition) {
-                ConfigPositionState.OPENING -> ConfigPositionStatus.OPENING
-                ConfigPositionState.OPENED -> ConfigPositionStatus.OPENED
-                ConfigPositionState.CLOSING -> ConfigPositionStatus.CLOSING
-                ConfigPositionState.CLOSED -> ConfigPositionStatus.CLOSED
+                GateState.OPENING -> GateStatus.OPENING
+                GateState.OPENED -> GateStatus.OPENED
+                GateState.CLOSING -> GateStatus.CLOSING
+                GateState.CLOSED -> GateStatus.CLOSED
             },
             ledClose = when (this.ledCloseColor) {
                 LedColor.OFF -> LedStatus.OFF
@@ -116,22 +116,22 @@ class ConfigViewModel @Inject constructor(
                 LedColor.WHITE -> LedStatus.WHITE
             },
             ledClosePos = when (this.ledClosePosition) {
-                ConfigPositionState.OPENING -> ConfigPositionStatus.OPENING
-                ConfigPositionState.OPENED -> ConfigPositionStatus.OPENED
-                ConfigPositionState.CLOSING -> ConfigPositionStatus.CLOSING
-                ConfigPositionState.CLOSED -> ConfigPositionStatus.CLOSED
+                GateState.OPENING -> GateStatus.OPENING
+                GateState.OPENED -> GateStatus.OPENED
+                GateState.CLOSING -> GateStatus.CLOSING
+                GateState.CLOSED -> GateStatus.CLOSED
             },
-            loopA = when (this.loopA_conf) {
+            loopA = when (this.setLoopA) {
                 UsageState.USE -> UsageStatus.USE
                 UsageState.UNUSE -> UsageStatus.UNUSE
             },
-            loopB = when (this.loopB_conf) {
+            loopB = when (this.setLoopB) {
                 UsageState.USE -> UsageStatus.USE
                 UsageState.UNUSE -> UsageStatus.UNUSE
             },
-            delayTime = this.delayTime_conf,
-            relay1 = if (this.relay1Mode != 0) UsageStatus.USE else UsageStatus.UNUSE,
-            relay2 = if (this.relay2Mode != 0) UsageStatus.USE else UsageStatus.UNUSE,
+            delayTime = this.configDelayTime,
+            relay1 = this.setRelay1,
+            relay2 = this.setRelay2,
             isLoading = false
         )
     }

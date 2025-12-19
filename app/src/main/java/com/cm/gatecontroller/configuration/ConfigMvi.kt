@@ -1,6 +1,6 @@
 package com.cm.gatecontroller.configuration
 
-import com.cm.gatecontroller.configuration.model.ConfigPositionStatus
+import com.cm.gatecontroller.model.GateStatus
 import com.cm.gatecontroller.configuration.model.UsageStatus
 import com.cm.gatecontroller.model.LedStatus
 
@@ -10,12 +10,12 @@ data class ConfigUiState(
     val levelClose: Int = 1,
     val lamp: UsageStatus = UsageStatus.USE,
     val buzzer: UsageStatus = UsageStatus.USE,
-    val lampPosOn: ConfigPositionStatus = ConfigPositionStatus.OPENED,
-    val lampPosOff: ConfigPositionStatus = ConfigPositionStatus.CLOSED,
+    val lampPosOn: GateStatus = GateStatus.OPENED,
+    val lampPosOff: GateStatus = GateStatus.CLOSED,
     val ledOpenColor: LedStatus = LedStatus.OFF,
-    val ledOpenPos: ConfigPositionStatus = ConfigPositionStatus.OPENED,
+    val ledOpenPos: GateStatus = GateStatus.OPENED,
     val ledClose: LedStatus = LedStatus.OFF,
-    val ledClosePos: ConfigPositionStatus = ConfigPositionStatus.OPENED,
+    val ledClosePos: GateStatus = GateStatus.OPENED,
     val loopA: UsageStatus = UsageStatus.USE,
     val loopB: UsageStatus = UsageStatus.USE,
     val delayTime: Int = 0,

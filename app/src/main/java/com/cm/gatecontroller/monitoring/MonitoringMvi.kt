@@ -1,14 +1,14 @@
 package com.cm.gatecontroller.monitoring
 
 import androidx.compose.runtime.Immutable
-import com.cm.gatecontroller.monitoring.model.MonitoringGateStatus
+import com.cm.gatecontroller.monitoring.model.AccessStatus
 import com.cm.gatecontroller.model.LedStatus
 import com.cm.gatecontroller.model.SwitchStatus
 
 @Immutable
 data class MonitoringUiState(
     val version: String = "N/A",
-    val gateState: MonitoringGateStatus = MonitoringGateStatus.CLOSE,
+    val gateState: AccessStatus = AccessStatus.CLOSE,
     val lampState: SwitchStatus = SwitchStatus.OFF,
     val ledState: LedStatus = LedStatus.OFF,
     val relay1State: SwitchStatus = SwitchStatus.OFF,

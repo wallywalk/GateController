@@ -36,12 +36,13 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.cm.gatecontroller.model.LedStatus
-import com.cm.gatecontroller.monitoring.model.MonitoringGateStatus
 import com.cm.gatecontroller.model.SwitchStatus
+import com.cm.gatecontroller.monitoring.model.AccessStatus
 import com.cm.gatecontroller.ui.theme.Blue600
-import com.cm.gatecontroller.ui.theme.Gray400
 import com.cm.gatecontroller.ui.theme.Red500
-import com.cm.gatecontroller.ui.theme.Yellow300
+import com.cm.gatecontroller.ui.theme.component.ActiveBadge
+import com.cm.gatecontroller.ui.theme.component.ControlButton
+import com.cm.gatecontroller.ui.theme.component.LabelAndValue
 import kotlinx.coroutines.flow.collectLatest
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -82,7 +83,6 @@ fun MonitoringScreen(
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             item {
-                // Gate row
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.fillMaxWidth()
@@ -90,14 +90,13 @@ fun MonitoringScreen(
                     Text("Gate", modifier = Modifier.weight(1f), fontWeight = FontWeight.Bold)
                     TwoActiveBadgesRow(
                         label1 = "CLOSE",
-                        isActive1 = uiState.gateState == MonitoringGateStatus.CLOSE,
+                        isActive1 = uiState.gateState == AccessStatus.CLOSE,
                         label2 = "OPEN",
-                        isActive2 = uiState.gateState == MonitoringGateStatus.OPEN,
+                        isActive2 = uiState.gateState == AccessStatus.OPEN,
                         modifier = Modifier.weight(2f)
                     )
                 }
             }
-
             item {
                 TwoActiveBadgesRow(
                     label1 = "LAMP",
@@ -154,22 +153,21 @@ fun MonitoringScreen(
                     isActive2 = uiState.loopBState == SwitchStatus.ON
                 )
             }
-
             item {
                 TwoValueDisplayRow(
                     label1 = uiState.mainPower,
                     label2 = uiState.testCount.toString()
                 )
             }
-
             item {
-                ValueDisplayRow("DELAY TIME", "${uiState.delayTime}sec")
+                LabelAndValue(
+                    label = "DELAY TIME",
+                    value = "${uiState.delayTime}sec"
+                )
             }
-
             item {
                 Spacer(modifier = Modifier.height(8.dp))
             }
-
             item {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -181,31 +179,17 @@ fun MonitoringScreen(
                         onToggle = { viewModel.handleIntent(MonitoringIntent.ToggleTest) },
                         modifier = Modifier.weight(1f)
                     )
-                    TallButton(
+                    ControlButton(
                         text = "Config",
                         modifier = Modifier.weight(1f)
                     ) { navController.navigate("configuration") }
-                    TallButton(
+                    ControlButton(
                         text = "Board Test",
                         modifier = Modifier.weight(1f)
                     ) { navController.navigate("boardtest") }
                 }
             }
         }
-    }
-}
-
-@Composable
-private fun ActiveBadge(text: String, isActive: Boolean, modifier: Modifier = Modifier) {
-    val backgroundColor = if (isActive) Yellow300 else Gray400
-    Box(
-        modifier = modifier
-            .clip(RoundedCornerShape(8.dp))
-            .background(backgroundColor)
-            .padding(horizontal = 12.dp, vertical = 8.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(text, color = Color.Black, fontWeight = FontWeight.Bold, fontSize = 16.sp)
     }
 }
 
@@ -220,22 +204,6 @@ private fun TwoActiveBadgesRow(
     Row(modifier = modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         ActiveBadge(text = label1, isActive = isActive1, modifier = Modifier.weight(1f))
         ActiveBadge(text = label2, isActive = isActive2, modifier = Modifier.weight(1f))
-    }
-}
-
-@Composable
-private fun ValueDisplayRow(label: String, value: String, modifier: Modifier = Modifier) {
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(8.dp))
-            .background(MaterialTheme.colorScheme.surfaceVariant)
-            .padding(horizontal = 16.dp, vertical = 12.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        Text(label, fontWeight = FontWeight.Bold, fontSize = 16.sp)
-        Text(value, fontSize = 16.sp)
     }
 }
 
@@ -278,20 +246,6 @@ private fun ToggleActionButton(
         colors = ButtonDefaults.buttonColors(
             containerColor = if (isToggled) Red500 else Blue600,
             contentColor = Color.White
-        )
-    ) {
-        Text(text, fontSize = 16.sp, fontWeight = FontWeight.Bold)
-    }
-}
-
-@Composable
-private fun TallButton(text: String, modifier: Modifier = Modifier, onClick: () -> Unit) {
-    Button(
-        onClick = onClick,
-        modifier = modifier.height(64.dp),
-        colors = ButtonDefaults.buttonColors(
-            containerColor = MaterialTheme.colorScheme.primary,
-            contentColor = MaterialTheme.colorScheme.onPrimary
         )
     ) {
         Text(text, fontSize = 16.sp, fontWeight = FontWeight.Bold)

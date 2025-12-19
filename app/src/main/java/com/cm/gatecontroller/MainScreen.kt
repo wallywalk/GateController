@@ -72,7 +72,7 @@ fun MainScreen(
                 )
             }
             composable("boardtest") {
-                BoardTestScreen()
+                BoardTestScreen(navController = navController)
             }
         }
     }

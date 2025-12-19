@@ -1,6 +1,6 @@
 package com.cm.gatecontroller.monitoring.model
 
-enum class MonitoringGateStatus {
+enum class AccessStatus {
     OPEN,
     CLOSE
 }

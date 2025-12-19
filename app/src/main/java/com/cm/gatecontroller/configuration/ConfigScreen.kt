@@ -10,11 +10,9 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -43,8 +41,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import com.cm.gatecontroller.configuration.model.ConfigPositionStatus
 import com.cm.gatecontroller.configuration.model.UsageStatus
+import com.cm.gatecontroller.model.GateStatus
 import com.cm.gatecontroller.model.LedStatus
 import com.cm.gatecontroller.ui.theme.Blue600
 import com.cm.gatecontroller.ui.theme.Gray400
@@ -52,6 +50,10 @@ import com.cm.gatecontroller.ui.theme.Green500
 import com.cm.gatecontroller.ui.theme.Red500
 import com.cm.gatecontroller.ui.theme.White100
 import com.cm.gatecontroller.ui.theme.Yellow300
+import com.cm.gatecontroller.ui.theme.component.ControlButton
+import com.cm.gatecontroller.ui.theme.component.LabelAndValue
+import com.cm.gatecontroller.ui.theme.component.LabelBadge
+import com.cm.gatecontroller.ui.theme.component.LabelSwitch
 import kotlinx.coroutines.flow.collectLatest
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -107,7 +109,7 @@ fun ConfigurationScreen(
                     DeviceSettings(uiState = uiState, onIntent = viewModel::handleIntent)
                 }
                 item {
-                    ActionButtons(onIntent = viewModel::handleIntent)
+                    ControlButtons(onIntent = viewModel::handleIntent)
                 }
             }
         }
@@ -147,19 +149,19 @@ private fun DeviceSettings(uiState: ConfigUiState, onIntent: (ConfigIntent) -> U
         )
         TwoLabelSwitchRow(
             label1 = "LAMP ON",
-            checked1 = uiState.lampPosOn == ConfigPositionStatus.OPENING,
+            checked1 = uiState.lampPosOn == GateStatus.OPENING,
             label2 = "LAMP OFF",
-            checked2 = uiState.lampPosOff == ConfigPositionStatus.CLOSING
+            checked2 = uiState.lampPosOff == GateStatus.CLOSING
         )
         LedSettingRow(
             label = "LED OPEN",
             color = uiState.ledOpenColor,
-            isChecked = uiState.ledOpenPos == ConfigPositionStatus.OPENING
+            isChecked = uiState.ledOpenPos == GateStatus.OPENING
         )
         LedSettingRow(
             label = "LED CLOSE",
             color = uiState.ledClose,
-            isChecked = uiState.ledClosePos == ConfigPositionStatus.CLOSING
+            isChecked = uiState.ledClosePos == GateStatus.CLOSING
         )
 
         val loopABadgeColor = if (uiState.loopA == UsageStatus.USE) Yellow300 else Gray400
@@ -203,21 +205,6 @@ fun TwoLabelValueRow(
             value = value2,
             modifier = Modifier.weight(1f)
         )
-    }
-}
-
-@Composable
-private fun LabelAndValue(label: String, value: String, modifier: Modifier = Modifier) {
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.surfaceVariant)
-            .padding(horizontal = 16.dp, vertical = 12.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        Text(label, fontWeight = FontWeight.Bold, fontSize = 16.sp)
-        Text(value, fontSize = 16.sp)
     }
 }
 
@@ -284,30 +271,6 @@ fun TwoLabelSwitchRow(
 }
 
 @Composable
-private fun LabelSwitch(
-    label: String,
-    checked: Boolean,
-    modifier: Modifier = Modifier,
-    enabled: Boolean = false,
-    onCheckedChange: (Boolean) -> Unit = {}
-) {
-    Row(
-        modifier = modifier
-            .background(MaterialTheme.colorScheme.surfaceVariant)
-            .padding(horizontal = 16.dp, vertical = 4.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        Text(label, fontWeight = FontWeight.Bold, fontSize = 16.sp)
-        Switch(
-            checked = checked,
-            onCheckedChange = onCheckedChange,
-            enabled = enabled
-        )
-    }
-}
-
-@Composable
 fun LedSettingRow(
     label: String,
     color: LedStatus,
@@ -338,6 +301,7 @@ fun ColorBadge(colorName: String, modifier: Modifier = Modifier) {
         "WHITE" -> White100
         else -> Gray400
     }
+
     Box(
         modifier = modifier
             .clip(RoundedCornerShape(50))
@@ -383,55 +347,23 @@ fun TwoLabelBadgeRow(
 }
 
 @Composable
-fun LabelBadge(
-    label: String,
-    backgroundColor: Color,
-    modifier: Modifier = Modifier,
-    textColor: Color = Color.Black
-) {
-    Box(
-        modifier = modifier
-            .clip(RoundedCornerShape(24.dp))
-            .background(backgroundColor)
-            .padding(horizontal = 20.dp, vertical = 10.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(
-            text = label,
-            color = textColor,
-            fontWeight = FontWeight.Bold
-        )
-    }
-}
-
-@Composable
-private fun ActionButtons(onIntent: (ConfigIntent) -> Unit) {
+private fun ControlButtons(onIntent: (ConfigIntent) -> Unit) {
     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        TallButton(
+        ControlButton(
             "Relay\nMode",
             modifier = Modifier.weight(1f)
         ) { onIntent(ConfigIntent.ShowRelayMap) }
-        TallButton(
+        ControlButton(
             "Load\nconfig",
             modifier = Modifier.weight(1f)
         ) { onIntent(ConfigIntent.LoadConfig) }
-        TallButton(
+        ControlButton(
             "Save\nconfig",
             modifier = Modifier.weight(1f)
         ) { onIntent(ConfigIntent.SaveConfig) }
-        TallButton(
+        ControlButton(
             "Factory",
             modifier = Modifier.weight(1f)
         ) { onIntent(ConfigIntent.FactoryReset) }
-    }
-}
-
-@Composable
-fun TallButton(text: String, modifier: Modifier = Modifier, onClick: () -> Unit) {
-    Button(
-        onClick = onClick,
-        modifier = modifier.height(64.dp)
-    ) {
-        Text(text)
     }
 }
