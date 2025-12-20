@@ -93,8 +93,11 @@ fun BoardTestScreen(
         },
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
     ) { paddingValues ->
-        if (uiState.isInitializing) {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        if (uiState.isLoading) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
                 CircularProgressIndicator()
             }
         } else {
@@ -131,19 +134,19 @@ private fun BoardTestContent(
                 OutputButton(
                     label = "LAMP",
                     isOn = uiState.lamp == SwitchStatus.ON,
-                    onClick = { onIntent(BoardTestIntent.ClickLamp) },
+                    onClick = { onIntent(BoardTestIntent.ToggleLamp) },
                     modifier = Modifier.weight(1f)
                 )
                 OutputButton(
                     label = "RELAY1",
                     isOn = uiState.relay1 == SwitchStatus.ON,
-                    onClick = { onIntent(BoardTestIntent.ClickRelay1) },
+                    onClick = { onIntent(BoardTestIntent.ToggleRelay1) },
                     modifier = Modifier.weight(1f)
                 )
                 OutputButton(
                     label = "RELAY2",
                     isOn = uiState.relay2 == SwitchStatus.ON,
-                    onClick = { onIntent(BoardTestIntent.ClickRelay2) },
+                    onClick = { onIntent(BoardTestIntent.ToggleRelay2) },
                     modifier = Modifier.weight(1f)
                 )
             }
@@ -206,7 +209,7 @@ private fun BoardTestContent(
                     ),
                     onClick = {
                         isOpen = !isOpen
-                        onIntent(BoardTestIntent.ClickGateOpen)
+                        onIntent(BoardTestIntent.ToggleGateOpen)
                     }
                 )
 
@@ -219,7 +222,7 @@ private fun BoardTestContent(
                     ),
                     onClick = {
                         isClose = !isClose
-                        onIntent(BoardTestIntent.ClickGateClose)
+                        onIntent(BoardTestIntent.ToggleGateClose)
                     }
                 )
             }

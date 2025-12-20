@@ -7,14 +7,10 @@ interface SerialRepository {
 
     val deviceStatus: StateFlow<GateControllerState>
 
-    // Monitoring Commands
+    suspend fun requestVersion()
     suspend fun refreshStatus()
-    suspend fun toggleLamp()
-    suspend fun setLedColor(color: String)
     suspend fun startTest()
     suspend fun stopTest()
-
-    // Configuration Commands
     suspend fun refreshConfiguration()
     suspend fun setOpenLevel(level: Int)
     suspend fun setCloseLevel(level: Int)
@@ -31,14 +27,12 @@ interface SerialRepository {
     suspend fun setDelayTime(time: Int)
     suspend fun setRelay1Mode(mode: Int)
     suspend fun setRelay2Mode(mode: Int)
-    suspend fun factoryReset(): Result<Unit>
-
-    // Board Test Commands
+    suspend fun factoryReset()
     suspend fun setControlLamp(on: Boolean)
     suspend fun setControlRelay1(on: Boolean)
     suspend fun setControlRelay2(on: Boolean)
     suspend fun setControlLed(color: String)
-    suspend fun setControlPosition(position: String)
+    suspend fun requestPosition()
     suspend fun openGateTest()
     suspend fun closeGateTest()
     suspend fun stopGateTest()

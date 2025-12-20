@@ -29,7 +29,11 @@ class SerialRepositoryImpl @Inject constructor(
         }
     }
 
-    // Monitoring Commands
+    override suspend fun requestVersion() {
+        serialClient.sendCommand("AT+CONFIG=VERSION")
+    }
+
+    // TODO: ViewModel 의존성 제거
     override suspend fun refreshStatus() {
         serialClient.sendCommand("AT+CONFIG=VERSION")
         serialClient.sendCommand("AT+STGATE")
@@ -52,14 +56,6 @@ class SerialRepositoryImpl @Inject constructor(
         serialClient.sendCommand("AT+STDELATTIME")
     }
 
-    override suspend fun toggleLamp() {
-//        serialClient.sendCommand("AT+STLAMP=TOGGLE") // TODO: Example command
-    }
-
-    override suspend fun setLedColor(color: String) {
-        serialClient.sendCommand("AT+STLED=$color")
-    }
-
     override suspend fun startTest() {
         serialClient.sendCommand("AT+TESTSTART")
     }
@@ -68,7 +64,7 @@ class SerialRepositoryImpl @Inject constructor(
         serialClient.sendCommand("AT+TESTSTOP")
     }
 
-    // Configuration Commands
+    // TODO: ViewModel 의존성 제거
     override suspend fun refreshConfiguration() {
         serialClient.sendCommand("AT+CONFIG=VERSION")
         serialClient.sendCommand("AT+CONFIG=LEVELOPEN")
@@ -152,16 +148,10 @@ class SerialRepositoryImpl @Inject constructor(
         serialClient.sendCommand("AT+SETRELAY2=$mode")
     }
 
-    override suspend fun factoryReset(): Result<Unit> {
-        return try {
-            serialClient.sendCommand("AT+FACTORY")
-            Result.success(Unit)
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
+    override suspend fun factoryReset() {
+        serialClient.sendCommand("AT+FACTORY")
     }
 
-    // Board Test Commands
     override suspend fun setControlLamp(on: Boolean) {
         val value = if (on) "ON" else "OFF"
         serialClient.sendCommand("AT+CTRLLAMP=$value")
@@ -181,8 +171,8 @@ class SerialRepositoryImpl @Inject constructor(
         serialClient.sendCommand("AT+CTRLLED=$color")
     }
 
-    override suspend fun setControlPosition(position: String) {
-        serialClient.sendCommand("AT+STPOS=$position")
+    override suspend fun requestPosition() {
+        serialClient.sendCommand("AT+STPOS")
     }
 
     override suspend fun openGateTest() {

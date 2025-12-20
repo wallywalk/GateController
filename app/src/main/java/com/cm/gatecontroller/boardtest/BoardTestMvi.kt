@@ -27,19 +27,19 @@ data class BoardTestUiState(
     val close3: SwitchStatus = SwitchStatus.OFF,
     val closeSwitch: SwitchStatus = SwitchStatus.OFF,
     val gateStage: GateStatus = GateStatus.STOP,
-    val isInitializing: Boolean = true,
-    val lastError: String? = null
+    val isLoading: Boolean = true,
 )
 
 sealed interface BoardTestIntent {
     data object Initialize : BoardTestIntent
-    data object ClickLamp : BoardTestIntent
-    data object ClickRelay1 : BoardTestIntent
-    data object ClickRelay2 : BoardTestIntent
+    data object ToggleLamp : BoardTestIntent
+    data object ToggleRelay1 : BoardTestIntent
+    data object ToggleRelay2 : BoardTestIntent
     data class SelectLed(val color: LedStatus) : BoardTestIntent
-    data object TogglePosition : BoardTestIntent
-    data object ClickGateOpen : BoardTestIntent
-    data object ClickGateClose : BoardTestIntent
+    data object ToggleGateOpen : BoardTestIntent
+    data object ToggleGateClose : BoardTestIntent
+    data object ToggleGateStop : BoardTestIntent
+    data object RequestPosition : BoardTestIntent
 }
 
 sealed interface BoardTestSideEffect {
