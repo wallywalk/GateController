@@ -44,12 +44,7 @@ import androidx.navigation.NavHostController
 import com.cm.gatecontroller.configuration.model.UsageStatus
 import com.cm.gatecontroller.model.GateStatus
 import com.cm.gatecontroller.model.LedStatus
-import com.cm.gatecontroller.ui.theme.Blue600
-import com.cm.gatecontroller.ui.theme.Gray400
-import com.cm.gatecontroller.ui.theme.Green500
-import com.cm.gatecontroller.ui.theme.Red500
 import com.cm.gatecontroller.ui.theme.White100
-import com.cm.gatecontroller.ui.theme.Yellow300
 import com.cm.gatecontroller.ui.theme.component.ControlButton
 import com.cm.gatecontroller.ui.theme.component.LabelAndValue
 import com.cm.gatecontroller.ui.theme.component.LabelBadge
@@ -164,14 +159,11 @@ private fun DeviceSettings(uiState: ConfigUiState, onIntent: (ConfigIntent) -> U
             isChecked = uiState.ledClosePos == GateStatus.CLOSING
         )
 
-        val loopABadgeColor = if (uiState.loopA == UsageStatus.USE) Yellow300 else Gray400
-        val loopBBadgeColor = if (uiState.loopB == UsageStatus.USE) Yellow300 else Gray400
-
         TwoLabelBadgeRow(
             label1 = "LOOP A",
-            background1 = loopABadgeColor,
+            background1 = uiState.loopA.color,
             label2 = "LOOP B",
-            background2 = loopBBadgeColor
+            background2 = uiState.loopB.color
         )
         LabelAndValue("DELAY TIME", "${uiState.delayTime} sec")
         TwoLabelValueRow(
@@ -284,7 +276,7 @@ fun LedSettingRow(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(label, fontWeight = FontWeight.Bold, fontSize = 16.sp, modifier = Modifier.weight(1f))
-        ColorBadge(color.name, modifier = Modifier.weight(1f))
+        ColorBadge(color.color, color.name, modifier = Modifier.weight(1f))
         Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.CenterEnd) {
             Switch(checked = isChecked, onCheckedChange = {}, enabled = false)
         }
@@ -292,16 +284,7 @@ fun LedSettingRow(
 }
 
 @Composable
-fun ColorBadge(colorName: String, modifier: Modifier = Modifier) {
-    val color = when (colorName.uppercase()) { // TODO: 하드코딩
-        "RED" -> Red500
-        "GREEN" -> Green500
-        "BLUE" -> Blue600
-        "YELLOW" -> Yellow300
-        "WHITE" -> White100
-        else -> Gray400
-    }
-
+fun ColorBadge(color: Color, colorName: String, modifier: Modifier = Modifier) {
     Box(
         modifier = modifier
             .clip(RoundedCornerShape(50))
@@ -310,7 +293,7 @@ fun ColorBadge(colorName: String, modifier: Modifier = Modifier) {
         contentAlignment = Alignment.Center
     ) {
         Text(
-            colorName,
+            text = colorName,
             color = White100,
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center

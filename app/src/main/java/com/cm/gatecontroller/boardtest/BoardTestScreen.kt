@@ -46,11 +46,7 @@ import com.cm.gatecontroller.model.GateStatus
 import com.cm.gatecontroller.model.LedStatus
 import com.cm.gatecontroller.model.SwitchStatus
 import com.cm.gatecontroller.ui.theme.Blue600
-import com.cm.gatecontroller.ui.theme.Gray400
-import com.cm.gatecontroller.ui.theme.Green500
 import com.cm.gatecontroller.ui.theme.Red500
-import com.cm.gatecontroller.ui.theme.White100
-import com.cm.gatecontroller.ui.theme.Yellow300
 import com.cm.gatecontroller.ui.theme.component.ControlButton
 import com.cm.gatecontroller.ui.theme.component.InputBadge
 import com.cm.gatecontroller.ui.theme.component.LabelAndValue
@@ -65,7 +61,7 @@ fun BoardTestScreen(
     val uiState by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
 
-    LaunchedEffect(viewModel) {
+    LaunchedEffect(Unit) {
         viewModel.sideEffect.collectLatest { effect ->
             when (effect) {
                 is BoardTestSideEffect.ShowToast -> {
@@ -133,19 +129,19 @@ private fun BoardTestContent(
             ) {
                 OutputButton(
                     label = "LAMP",
-                    isOn = uiState.lamp == SwitchStatus.ON,
+                    containerColor = uiState.lamp.color,
                     onClick = { onIntent(BoardTestIntent.ToggleLamp) },
                     modifier = Modifier.weight(1f)
                 )
                 OutputButton(
                     label = "RELAY1",
-                    isOn = uiState.relay1 == SwitchStatus.ON,
+                    containerColor = uiState.relay1.color,
                     onClick = { onIntent(BoardTestIntent.ToggleRelay1) },
                     modifier = Modifier.weight(1f)
                 )
                 OutputButton(
                     label = "RELAY2",
-                    isOn = uiState.relay2 == SwitchStatus.ON,
+                    containerColor = uiState.relay2.color,
                     onClick = { onIntent(BoardTestIntent.ToggleRelay2) },
                     modifier = Modifier.weight(1f)
                 )
@@ -233,14 +229,14 @@ private fun BoardTestContent(
 @Composable
 private fun OutputButton(
     label: String,
-    isOn: Boolean,
+    containerColor: Color,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Button(
         onClick = onClick,
         colors = ButtonDefaults.buttonColors(
-            containerColor = if (isOn) Yellow300 else Gray400,
+            containerColor = containerColor,
             contentColor = Color.Black
         ),
         modifier = modifier.height(48.dp),
@@ -256,19 +252,13 @@ private fun LedSelector(selectedLed: LedStatus, onSelect: (LedStatus) -> Unit) {
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        LedStatus.entries.forEach { led ->
+        LedStatus.entries.forEach { led -> // TODO: 리컴포지션
             val isSelected = selectedLed == led
-            val buttonColor = when (led) {
-                LedStatus.OFF -> Gray400
-                LedStatus.BLUE -> Blue600
-                LedStatus.GREEN -> Green500
-                LedStatus.RED -> Red500
-                LedStatus.WHITE -> White100
-            }
+
             Button(
                 onClick = { onSelect(led) },
                 shape = RoundedCornerShape(8.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = buttonColor),
+                colors = ButtonDefaults.buttonColors(containerColor = led.color),
                 modifier = Modifier
                     .weight(1f)
                     .height(48.dp)
