@@ -9,11 +9,10 @@ import com.cm.gatecontroller.ui.theme.White100
 import com.cm.gatecontroller.ui.theme.Yellow300
 
 enum class LedStatus(val color: Color) {
-    OFF(Gray400),
     RED(Red500),
     GREEN(Green500),
     BLUE(Blue600),
     YELLOW(Yellow300),
     WHITE(White100),
-    NONE(Gray400)
+    OFF(Gray400),
 }

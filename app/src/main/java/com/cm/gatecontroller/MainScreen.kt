@@ -24,7 +24,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.cm.gatecontroller.boardtest.BoardTestScreen
 import com.cm.gatecontroller.configuration.ConfigurationScreen
-import com.cm.gatecontroller.configuration.ConfigViewModel
 import com.cm.gatecontroller.connection.ConnectionStatus
 import com.cm.gatecontroller.connection.ConnectionViewModel
 import com.cm.gatecontroller.monitoring.MonitoringScreen
@@ -35,7 +34,6 @@ import com.cm.gatecontroller.user.UserViewModel
 fun MainScreen(
     userViewModel: UserViewModel = hiltViewModel(),
     connectionViewModel: ConnectionViewModel = hiltViewModel(),
-    configViewModel: ConfigViewModel = hiltViewModel()
 ) {
     val connectionUiState by connectionViewModel.uiState.collectAsState()
     val navController = rememberNavController()
@@ -59,20 +57,23 @@ fun MainScreen(
     ) { padding ->
         NavHost(
             navController = navController,
-            startDestination = "monitoring", // TODO: Change to MainTab.MONITORING.route
+            startDestination = MainTab.Monitoring.route,
             modifier = Modifier.padding(padding)
         ) {
-            composable("monitoring") {
-                MonitoringScreen(navController = navController)
-            }
-            composable("configuration") {
-                ConfigurationScreen(
-                    navController = navController,
-                    viewModel = configViewModel
+            composable(MainTab.Monitoring.route) {
+                MonitoringScreen(
+                    navController = navController
                 )
             }
-            composable("boardtest") {
-                BoardTestScreen(navController = navController)
+            composable(MainTab.Configuration.route) {
+                ConfigurationScreen(
+                    navController = navController
+                )
+            }
+            composable(MainTab.BoardTest.route) {
+                BoardTestScreen(
+                    navController = navController
+                )
             }
         }
     }
@@ -88,14 +89,7 @@ private fun ConnectionStatus(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier.padding(end = 8.dp)
     ) {
-        val (text, color) = when (status) {
-            ConnectionStatus.DISCONNECTED -> "Disconnected" to Color.Gray
-            ConnectionStatus.CONNECTING -> "Connecting..." to Color.Yellow
-            ConnectionStatus.CONNECTED -> (deviceName ?: "Connected") to Color.Green
-            ConnectionStatus.ERROR -> "Error" to Color.Red
-        }
-
-        Text(text, color = color, style = MaterialTheme.typography.bodyMedium)
+        Text(status.label, color = status.color, style = MaterialTheme.typography.bodyMedium)
         Spacer(modifier = Modifier.width(8.dp))
 
         if (status == ConnectionStatus.DISCONNECTED || status == ConnectionStatus.ERROR) {
