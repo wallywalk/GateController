@@ -43,5 +43,5 @@ sealed interface BoardTestIntent {
 }
 
 sealed interface BoardTestSideEffect {
-    data class ShowToast(val message: String) : BoardTestSideEffect
+    data class ShowSnackbar(val message: String) : BoardTestSideEffect
 }

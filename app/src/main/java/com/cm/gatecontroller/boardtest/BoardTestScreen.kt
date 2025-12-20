@@ -64,7 +64,7 @@ fun BoardTestScreen(
     LaunchedEffect(Unit) {
         viewModel.sideEffect.collectLatest { effect ->
             when (effect) {
-                is BoardTestSideEffect.ShowToast -> {
+                is BoardTestSideEffect.ShowSnackbar -> {
                     snackbarHostState.showSnackbar(effect.message)
                 }
             }

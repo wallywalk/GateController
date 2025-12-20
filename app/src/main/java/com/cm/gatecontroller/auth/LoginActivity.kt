@@ -39,7 +39,7 @@ class LoginActivity : ComponentActivity() {
                 val snackbarHostState = remember { SnackbarHostState() }
                 val scope = rememberCoroutineScope() // TODO: scope 필요 여부
 
-                LaunchedEffect(viewModel.sideEffect) {
+                LaunchedEffect(Unit) {
                     viewModel.sideEffect.collect { effect ->
                         when (effect) {
                             is AuthSideEffect.ShowSnackbar -> {

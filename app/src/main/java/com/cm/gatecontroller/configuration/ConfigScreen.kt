@@ -50,6 +50,10 @@ import com.cm.gatecontroller.ui.theme.component.LabelAndValue
 import com.cm.gatecontroller.ui.theme.component.LabelBadge
 import com.cm.gatecontroller.ui.theme.component.LabelSwitch
 import kotlinx.coroutines.flow.collectLatest
+import androidx.compose.ui.window.Dialog
+import androidx.compose.foundation.Image
+import androidx.compose.ui.res.painterResource
+import com.cm.gatecontroller.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -57,8 +61,9 @@ fun ConfigurationScreen(
     navController: NavHostController,
     viewModel: ConfigViewModel = hiltViewModel()
 ) {
-    val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
+    val uiState by viewModel.uiState.collectAsState()
+    var showRelayMapDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         viewModel.sideEffect.collectLatest { effect ->
@@ -68,7 +73,7 @@ fun ConfigurationScreen(
                 }
 
                 is ConfigSideEffect.ShowRelayMapDialog -> {
-                    // TODO: Show Relay Map Dialog
+                    showRelayMapDialog = true
                 }
             }
         }
@@ -107,6 +112,28 @@ fun ConfigurationScreen(
                     ControlButtons(onIntent = viewModel::handleIntent)
                 }
             }
+        }
+    }
+
+    if (showRelayMapDialog) {
+        RelayMapDialog(onDismissRequest = { showRelayMapDialog = false })
+    }
+}
+
+@Composable
+fun RelayMapDialog(onDismissRequest: () -> Unit) {
+    Dialog(onDismissRequest = onDismissRequest) {
+        Box(
+            modifier = Modifier
+                .background(Color.White)
+                .clickable { onDismissRequest() }) {
+            Image(
+                painter = painterResource(id = R.drawable.relay_mode_map),
+                contentDescription = "Relay Mode Map",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(8.dp))
+            )
         }
     }
 }
