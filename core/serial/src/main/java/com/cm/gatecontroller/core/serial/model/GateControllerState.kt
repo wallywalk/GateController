@@ -55,7 +55,7 @@ data class GateControllerState(
     val configDelayTime: Int = 30,
     val setRelay1: Int = 4,
     val setRelay2: Int = 10,
-    val factory: FactoryResponse? = FactoryResponse.ERROR,
+    val factory: FactoryResponse = FactoryResponse.ERROR,
 
     // Board Test State
     val controlLamp: SwitchState = SwitchState.OFF,

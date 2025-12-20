@@ -2,9 +2,11 @@ package com.cm.gatecontroller.configuration
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.cm.gatecontroller.configuration.model.FactoryResult
 import com.cm.gatecontroller.model.GateStatus
 import com.cm.gatecontroller.configuration.model.UsageStatus
 import com.cm.gatecontroller.core.serial.SerialRepository
+import com.cm.gatecontroller.core.serial.model.FactoryResponse
 import com.cm.gatecontroller.core.serial.model.GateControllerState
 import com.cm.gatecontroller.core.serial.model.GateState
 import com.cm.gatecontroller.core.serial.model.LedColor
@@ -44,7 +46,7 @@ class ConfigViewModel @Inject constructor(
             is ConfigIntent.ShowRelayMap -> showRelayMap()
             else -> viewModelScope.launch {
                 when (intent) {
-                    is ConfigIntent.LoadInitialConfig -> serialRepository.refreshConfiguration()
+                    is ConfigIntent.Initialize -> serialRepository.refreshConfiguration()
                     is ConfigIntent.FactoryReset -> serialRepository.factoryReset()
                     is ConfigIntent.SaveConfig -> { /* TODO: Implement file saving */
                     }
@@ -88,12 +90,14 @@ class ConfigViewModel @Inject constructor(
                 GateState.OPENED -> GateStatus.OPENED
                 GateState.CLOSING -> GateStatus.CLOSING
                 GateState.CLOSED -> GateStatus.CLOSED
+                GateState.STOP -> GateStatus.STOP
             },
             lampPosOff = when (this.lampPositionOff) {
                 GateState.OPENING -> GateStatus.OPENING
                 GateState.OPENED -> GateStatus.OPENED
                 GateState.CLOSING -> GateStatus.CLOSING
                 GateState.CLOSED -> GateStatus.CLOSED
+                GateState.STOP -> GateStatus.STOP
             },
             ledOpenColor = when (this.ledOpenColor) {
                 LedColor.OFF -> LedStatus.OFF
@@ -107,6 +111,7 @@ class ConfigViewModel @Inject constructor(
                 GateState.OPENED -> GateStatus.OPENED
                 GateState.CLOSING -> GateStatus.CLOSING
                 GateState.CLOSED -> GateStatus.CLOSED
+                GateState.STOP -> GateStatus.STOP
             },
             ledClose = when (this.ledCloseColor) {
                 LedColor.OFF -> LedStatus.OFF
@@ -120,6 +125,7 @@ class ConfigViewModel @Inject constructor(
                 GateState.OPENED -> GateStatus.OPENED
                 GateState.CLOSING -> GateStatus.CLOSING
                 GateState.CLOSED -> GateStatus.CLOSED
+                GateState.STOP -> GateStatus.STOP
             },
             loopA = when (this.setLoopA) {
                 UsageState.USE -> UsageStatus.USE
@@ -132,6 +138,10 @@ class ConfigViewModel @Inject constructor(
             delayTime = this.configDelayTime,
             relay1 = this.setRelay1,
             relay2 = this.setRelay2,
+            factory = when (this.factory) {
+                FactoryResponse.OK -> FactoryResult.OK
+                FactoryResponse.ERROR -> FactoryResult.ERROR
+            },
             isLoading = false
         )
     }
