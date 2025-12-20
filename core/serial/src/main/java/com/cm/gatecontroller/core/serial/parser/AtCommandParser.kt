@@ -1,14 +1,14 @@
 package com.cm.gatecontroller.core.serial.parser
 
-import com.cm.gatecontroller.core.serial.model.FactoryResponse
-import com.cm.gatecontroller.core.serial.model.PositionState
-import com.cm.gatecontroller.core.serial.model.GateControllerState
-import com.cm.gatecontroller.core.serial.model.LedColor
 import com.cm.gatecontroller.core.serial.model.AccessMode
+import com.cm.gatecontroller.core.serial.model.FactoryResponse
+import com.cm.gatecontroller.core.serial.model.GateControllerState
 import com.cm.gatecontroller.core.serial.model.GateState
+import com.cm.gatecontroller.core.serial.model.LedColor
+import com.cm.gatecontroller.core.serial.model.PositionState
 import com.cm.gatecontroller.core.serial.model.SwitchState
 import com.cm.gatecontroller.core.serial.model.UsageState
-import com.cm.gatecontroller.core.serial.util.safeValueOf
+import com.cm.gatecontroller.core.serial.util.orParsed
 import javax.inject.Inject
 
 class AtCommandParser @Inject constructor() {
@@ -16,210 +16,226 @@ class AtCommandParser @Inject constructor() {
     fun parse(response: String, currentState: GateControllerState): GateControllerState {
         if (!response.contains("=")) return currentState
 
-        val parts = response.split("=", limit = 1)
-        val key = parts[0]
+        val parts = response.split("=", limit = 2)
+        val keyString = parts[0]
         val value = parts[1]
 
-        return when (key) {
-            // Common
-            "curr_version" -> currentState.copy(version = value)
+        val atCommand = AtCommand.fromKey(keyString) ?: return currentState
 
-            // Monitoring
-            "AT+STGATE" -> currentState.copy(
-                accessMode = safeValueOf<AccessMode>(value) ?: currentState.accessMode
+        return when (atCommand) {
+            AtCommand.CurrVersion -> currentState.copy(version = value)
+
+            AtCommand.StGate -> currentState.copy(
+                accessMode = currentState.accessMode.orParsed<AccessMode>(value)
             )
 
-            "AT+STLAMP" -> currentState.copy(
-                lampState = safeValueOf<SwitchState>(value) ?: currentState.lampState
+            AtCommand.StLamp -> currentState.copy(
+                lampState = currentState.lampState.orParsed<SwitchState>(value)
             )
 
-            "AT+STLED" -> currentState.copy(
-                ledColor = safeValueOf<LedColor>(value) ?: currentState.ledColor
+            AtCommand.StLed -> currentState.copy(
+                ledColor = currentState.ledColor.orParsed<LedColor>(value)
             )
 
-            "AT+STRELAY1" -> currentState.copy(
-                stRelay1 = safeValueOf<SwitchState>(value) ?: currentState.stRelay1
+            AtCommand.StRelay1 -> currentState.copy(
+                stRelay1 = currentState.stRelay1.orParsed<SwitchState>(value)
             )
 
-            "AT+STRELAY2" -> currentState.copy(
-                stRelay2 = safeValueOf<SwitchState>(value) ?: currentState.stRelay2
+            AtCommand.StRelay2 -> currentState.copy(
+                stRelay2 = currentState.stRelay2.orParsed<SwitchState>(value)
             )
 
-            "AT+STPHOTO1" -> currentState.copy(
-                stPhoto1 = safeValueOf<SwitchState>(value) ?: currentState.stPhoto1
+            AtCommand.StPhoto1 -> currentState.copy(
+                stPhoto1 = currentState.stPhoto1.orParsed<SwitchState>(value)
             )
 
-            "AT+STPHOTO2" -> currentState.copy(
-                stPhoto2 = safeValueOf<SwitchState>(value) ?: currentState.stPhoto2
+            AtCommand.StPhoto2 -> currentState.copy(
+                stPhoto2 = currentState.stPhoto2.orParsed<SwitchState>(value)
             )
 
-            "AT+STOPEN1" -> currentState.copy(
-                stOpen1 = safeValueOf<SwitchState>(value) ?: currentState.stOpen1
+            AtCommand.StOpen1 -> currentState.copy(
+                stOpen1 = currentState.stOpen1.orParsed<SwitchState>(value)
             )
 
-            "AT+STCLOSE1" -> currentState.copy(
-                stClose1 = safeValueOf<SwitchState>(value) ?: currentState.stClose1
+            AtCommand.StClose1 -> currentState.copy(
+                stClose1 = currentState.stClose1.orParsed<SwitchState>(value)
             )
 
-            "AT+STOPEN2" -> currentState.copy(
-                stOpen2 = safeValueOf<SwitchState>(value) ?: currentState.stOpen2
+            AtCommand.StOpen2 -> currentState.copy(
+                stOpen2 = currentState.stOpen2.orParsed<SwitchState>(value)
             )
 
-            "AT+STCLOSE2" -> currentState.copy(
-                stClose2 = safeValueOf<SwitchState>(value) ?: currentState.stClose2
+            AtCommand.StClose2 -> currentState.copy(
+                stClose2 = currentState.stClose2.orParsed<SwitchState>(value)
             )
 
-            "AT+STOPEN3" -> currentState.copy(
-                stOpen3 = safeValueOf<SwitchState>(value) ?: currentState.stOpen3
+            AtCommand.StOpen3 -> currentState.copy(
+                stOpen3 = currentState.stOpen3.orParsed<SwitchState>(value)
             )
 
-            "AT+STCLOSE3", "AT+STCLOSE" -> currentState.copy(
-                stClose3 = safeValueOf<SwitchState>(value) ?: currentState.stClose3
+            AtCommand.StClose3 -> currentState.copy(
+                stClose3 = currentState.stClose3.orParsed<SwitchState>(value)
             )
 
-            "AT+STLOOPA" -> currentState.copy(
-                stLoopA = safeValueOf<SwitchState>(value) ?: currentState.stLoopA
+            AtCommand.StClose -> currentState.copy(
+                stClose3 = currentState.stClose3.orParsed<SwitchState>(value)
             )
 
-            "AT+STLOOPB" -> currentState.copy(
-                stLoopB = safeValueOf<SwitchState>(value) ?: currentState.stLoopB
+            AtCommand.StLoopA -> currentState.copy(
+                stLoopA = currentState.stLoopA.orParsed<SwitchState>(value)
             )
 
-            "AT+STMPWR" -> currentState.copy(mainPower = "${value}V")
-
-            "curr_testcount" -> currentState.copy(testCount = value)
-
-            "AT+STDELATTIME" -> currentState.copy(stDelayTime = "${value}sec")
-
-            "AT+TESTSTART" -> currentState.copy(
-                isTestRunning = value.equals(
-                    "START",
-                    ignoreCase = true
-                )
+            AtCommand.StLoopB -> currentState.copy(
+                stLoopB = currentState.stLoopB.orParsed<SwitchState>(value)
             )
 
-            // Configuration
-            "curr_levelOpen" -> currentState.copy(
+            AtCommand.StMpwr -> currentState.copy(mainPower = "${value}V")
+
+            AtCommand.CurrTestCount -> currentState.copy(testCount = value)
+
+            AtCommand.StDelatTime -> currentState.copy(stDelayTime = "${value}sec")
+
+            AtCommand.TestStart -> currentState.copy(
+                isTestRunning = value.equals("START", ignoreCase = true)
+            )
+
+            AtCommand.CurrLevelOpen -> currentState.copy(
                 levelOpen = value.toIntOrNull() ?: currentState.levelOpen
             )
 
-            "curr_levelClose" -> currentState.copy(
+            AtCommand.CurrLevelClose -> currentState.copy(
                 levelClose = value.toIntOrNull() ?: currentState.levelClose
             )
 
-            "curr_lamp" -> currentState.copy(
-                lampUsage = safeValueOf<UsageState>(value) ?: currentState.lampUsage
+            AtCommand.CurrLamp -> currentState.copy(
+                lampUsage = currentState.lampUsage.orParsed<UsageState>(value)
             )
 
-            "curr_buzzer" -> currentState.copy(
-                buzzerUsage = safeValueOf<UsageState>(value) ?: currentState.buzzerUsage
+            AtCommand.CurrBuzzer -> currentState.copy(
+                buzzerUsage = currentState.buzzerUsage.orParsed<UsageState>(value)
             )
 
-            "curr_lampPosOn" -> currentState.copy(
-                lampPositionOn = safeValueOf<GateState>(value)
-                    ?: currentState.lampPositionOn
+            AtCommand.CurrLampPosOn -> currentState.copy(
+                lampPositionOn = currentState.lampPositionOn.orParsed<GateState>(value)
             )
 
-            "curr_lampPosOff" -> currentState.copy(
-                lampPositionOff = safeValueOf<GateState>(value)
-                    ?: currentState.lampPositionOff
+            AtCommand.CurrLampPosOff -> currentState.copy(
+                lampPositionOff = currentState.lampPositionOff.orParsed<GateState>(value)
             )
 
-            "curr_ledOpen" -> currentState.copy(
-                ledOpenColor = safeValueOf<LedColor>(value) ?: currentState.ledOpenColor
+            AtCommand.CurrLedOpen -> currentState.copy(
+                ledOpenColor = currentState.ledOpenColor.orParsed<LedColor>(value)
             )
 
-            "curr_ledOpenPos" -> currentState.copy(
-                ledOpenPosition = safeValueOf<GateState>(value)
-                    ?: currentState.ledOpenPosition
+            AtCommand.CurrLedOpenPos -> currentState.copy(
+                ledOpenPosition = currentState.ledOpenPosition.orParsed<GateState>(value)
             )
 
-            "curr_ledClose" -> currentState.copy(
-                ledCloseColor = safeValueOf<LedColor>(value) ?: currentState.ledCloseColor
+            AtCommand.CurrLedClose -> currentState.copy(
+                ledCloseColor = currentState.ledCloseColor.orParsed<LedColor>(value)
             )
 
-            "curr_ledClosePos" -> currentState.copy(
-                ledClosePosition = safeValueOf<GateState>(
-                    value
-                ) ?: currentState.ledClosePosition
+            AtCommand.CurrLedClosePos -> currentState.copy(
+                ledClosePosition = currentState.ledClosePosition.orParsed<GateState>(value)
             )
 
-            "curr_loopa" -> currentState.copy(
-                setLoopA = safeValueOf<UsageState>(value) ?: currentState.setLoopA
+            AtCommand.CurrLoopA -> currentState.copy(
+                setLoopA = currentState.setLoopA.orParsed<UsageState>(value)
             )
 
-            "curr_loopb" -> currentState.copy(
-                setLoopB = safeValueOf<UsageState>(value) ?: currentState.setLoopB
+            AtCommand.CurrLoopB -> currentState.copy(
+                setLoopB = currentState.setLoopB.orParsed<UsageState>(value)
             )
 
-            "curr_delayTime" -> currentState.copy(
+            AtCommand.CurrDelayTime -> currentState.copy(
                 configDelayTime = value.toIntOrNull() ?: currentState.configDelayTime
             )
 
-            "curr_relay1" -> currentState.copy(
+            AtCommand.CurrRelay1 -> currentState.copy(
                 setRelay1 = value.toIntOrNull() ?: currentState.setRelay1
             )
 
-            "curr_relay2" -> currentState.copy(
+            AtCommand.CurrRelay2 -> currentState.copy(
                 setRelay2 = value.toIntOrNull() ?: currentState.setRelay2
             )
 
-            "AT+FACTORY" -> {
+            AtCommand.Factory -> {
                 currentState.copy(
-                    factory = safeValueOf<FactoryResponse>(value)
+                    factory = currentState.factory.orParsed<FactoryResponse>(value)
                 )
             }
 
-            // Board Test - Output Test Responses (AT+CTRL...)
-            "AT+CTRLLAMP" -> currentState.copy(
-                controlLamp = safeValueOf<SwitchState>(value) ?: currentState.controlLamp
+            AtCommand.CtrlLamp -> currentState.copy(
+                controlLamp = currentState.controlLamp.orParsed<SwitchState>(value)
             )
 
-            "AT+CTRLRELAY1" -> currentState.copy(
-                controlRelay1 = safeValueOf<SwitchState>(value) ?: currentState.controlRelay1
+            AtCommand.CtrlRelay1 -> currentState.copy(
+                controlRelay1 = currentState.controlRelay1.orParsed<SwitchState>(value)
             )
 
-            "AT+CTRLRELAY2" -> currentState.copy(
-                controlRelay2 = safeValueOf<SwitchState>(value) ?: currentState.controlRelay2
+            AtCommand.CtrlRelay2 -> currentState.copy(
+                controlRelay2 = currentState.controlRelay2.orParsed<SwitchState>(value)
             )
 
-            "AT+CTRLLED" -> currentState.copy(
-                controlLed = safeValueOf<LedColor>(value) ?: currentState.controlLed
+            AtCommand.CtrlLed -> currentState.copy(
+                controlLed = currentState.controlLed.orParsed<LedColor>(value)
             )
 
-            "AT+STPOS" -> currentState.copy(
-                controlPosition = safeValueOf<PositionState>(value)
-                    ?: currentState.controlPosition
+            AtCommand.StPos -> currentState.copy(
+                controlPosition = currentState.controlPosition.orParsed<PositionState>(value)
             )
 
-            // Board Test - Input Test Responses (AT+IN...)
-            "AT+INPHOTO1" -> currentState.copy(stPhoto1 = safeValueOf<SwitchState>(value))
+            AtCommand.InPhoto1 -> currentState.copy(
+                inPhoto1 = currentState.inPhoto1.orParsed<SwitchState>(value)
+            )
 
-            "AT+INPHOTO2" -> currentState.copy(stPhoto2 = safeValueOf<SwitchState>(value))
+            AtCommand.InPhoto2 -> currentState.copy(
+                inPhoto2 = currentState.inPhoto2.orParsed<SwitchState>(value)
+            )
 
-            "AT+INLOOPB" -> currentState.copy(inLoopB = safeValueOf<SwitchState>(value))
+            AtCommand.InLoopA -> currentState.copy(
+                inLoopA = currentState.inLoopA.orParsed<SwitchState>(value)
+            )
 
-            "AT+INLOOPA" -> currentState.copy(inLoopA = safeValueOf<SwitchState>(value))
+            AtCommand.InLoopB -> currentState.copy(
+                inLoopB = currentState.inLoopB.orParsed<SwitchState>(value)
+            )
 
-            "AT+INOPEN1" -> currentState.copy(stOpen1 = safeValueOf<SwitchState>(value))
+            AtCommand.InOpen1 -> currentState.copy(
+                stOpen1 = currentState.stOpen1.orParsed<SwitchState>(value)
+            )
 
-            "AT+INOPEN2" -> currentState.copy(stOpen2 = safeValueOf<SwitchState>(value))
+            AtCommand.InOpen2 -> currentState.copy(
+                stOpen2 = currentState.stOpen2.orParsed<SwitchState>(value)
+            )
 
-            "AT+INOPEN3" -> currentState.copy(stOpen3 = safeValueOf<SwitchState>(value))
+            AtCommand.InOpen3 -> currentState.copy(
+                stOpen3 = currentState.stOpen3.orParsed<SwitchState>(value)
+            )
 
-            "AT+INCLOSE1" -> currentState.copy(stClose1 = safeValueOf<SwitchState>(value))
+            AtCommand.InClose1 -> currentState.copy(
+                stClose1 = currentState.stClose1.orParsed<SwitchState>(value)
+            )
 
-            "AT+INCLOSE2" -> currentState.copy(stClose2 = safeValueOf<SwitchState>(value))
+            AtCommand.InClose2 -> currentState.copy(
+                stClose2 = currentState.stClose2.orParsed<SwitchState>(value)
+            )
 
-            "AT+INCLOSE3" -> currentState.copy(stClose3 = safeValueOf<SwitchState>(value))
+            AtCommand.InClose3 -> currentState.copy(
+                stClose3 = currentState.stClose3.orParsed<SwitchState>(value)
+            )
 
-            "AT+SWOPEN" -> currentState.copy(swOpen = safeValueOf<SwitchState>(value))
+            AtCommand.SwOpen -> currentState.copy(
+                swOpen = currentState.swOpen.orParsed<SwitchState>(value)
+            )
 
-            "AT+SWCLOSE" -> currentState.copy(swClose = safeValueOf<SwitchState>(value))
+            AtCommand.SwClose -> currentState.copy(
+                swClose = currentState.swClose.orParsed<SwitchState>(value)
+            )
 
-            "AT+STAGE" -> currentState.copy(gateState = safeValueOf<GateState>(value))
-
-            else -> currentState
+            AtCommand.StAge -> currentState.copy(
+                gateState = currentState.gateState.orParsed<GateState>(value)
+            )
         }
     }
 }
