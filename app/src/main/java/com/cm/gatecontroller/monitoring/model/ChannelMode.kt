@@ -1,6 +1,6 @@
 package com.cm.gatecontroller.monitoring.model
 
-enum class AccessStatus {
+enum class ChannelMode {
     OPEN,
     CLOSE
 }

@@ -37,7 +37,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.cm.gatecontroller.model.LedStatus
 import com.cm.gatecontroller.model.SwitchStatus
-import com.cm.gatecontroller.monitoring.model.AccessStatus
+import com.cm.gatecontroller.monitoring.model.ChannelMode
 import com.cm.gatecontroller.ui.theme.Blue600
 import com.cm.gatecontroller.ui.theme.Red500
 import com.cm.gatecontroller.ui.theme.component.ActiveBadge
@@ -90,9 +90,9 @@ fun MonitoringScreen(
                     Text("Gate", modifier = Modifier.weight(1f), fontWeight = FontWeight.Bold)
                     TwoActiveBadgesRow(
                         label1 = "CLOSE",
-                        isActive1 = uiState.gateState == AccessStatus.CLOSE,
+                        isActive1 = uiState.channelMode == ChannelMode.CLOSE,
                         label2 = "OPEN",
-                        isActive2 = uiState.gateState == AccessStatus.OPEN,
+                        isActive2 = uiState.channelMode == ChannelMode.OPEN,
                         modifier = Modifier.weight(2f)
                     )
                 }
@@ -100,57 +100,57 @@ fun MonitoringScreen(
             item {
                 TwoActiveBadgesRow(
                     label1 = "LAMP",
-                    isActive1 = uiState.lampState == SwitchStatus.ON,
+                    isActive1 = uiState.lamp == SwitchStatus.ON,
                     label2 = "LED", // TODO: 색상 표시
-                    isActive2 = uiState.ledState != LedStatus.OFF
+                    isActive2 = uiState.led != LedStatus.OFF
                 )
             }
             item {
                 TwoActiveBadgesRow(
                     label1 = "RELAY1",
-                    isActive1 = uiState.relay1State == SwitchStatus.ON,
+                    isActive1 = uiState.relay1 == SwitchStatus.ON,
                     label2 = "RELAY2",
-                    isActive2 = uiState.relay2State == SwitchStatus.ON
+                    isActive2 = uiState.relay2 == SwitchStatus.ON
                 )
             }
             item {
                 TwoActiveBadgesRow(
                     label1 = "PHOTO1",
-                    isActive1 = uiState.photo1State == SwitchStatus.ON,
+                    isActive1 = uiState.photo1 == SwitchStatus.ON,
                     label2 = "PHOTO2",
-                    isActive2 = uiState.photo2State == SwitchStatus.ON
+                    isActive2 = uiState.photo2 == SwitchStatus.ON
                 )
             }
             item {
                 TwoActiveBadgesRow(
                     label1 = "OPEN1",
-                    isActive1 = uiState.open1State == SwitchStatus.ON,
+                    isActive1 = uiState.open1 == SwitchStatus.ON,
                     label2 = "CLOSE1",
-                    isActive2 = uiState.close1State == SwitchStatus.ON
+                    isActive2 = uiState.close1 == SwitchStatus.ON
                 )
             }
             item {
                 TwoActiveBadgesRow(
                     label1 = "OPEN2",
-                    isActive1 = uiState.open2State == SwitchStatus.ON,
+                    isActive1 = uiState.open2 == SwitchStatus.ON,
                     label2 = "CLOSE2",
-                    isActive2 = uiState.close2State == SwitchStatus.ON
+                    isActive2 = uiState.close2 == SwitchStatus.ON
                 )
             }
             item {
                 TwoActiveBadgesRow(
                     label1 = "OPEN3",
-                    isActive1 = uiState.open3State == SwitchStatus.ON,
+                    isActive1 = uiState.open3 == SwitchStatus.ON,
                     label2 = "CLOSE3",
-                    isActive2 = uiState.close3State == SwitchStatus.ON
+                    isActive2 = uiState.close3 == SwitchStatus.ON
                 )
             }
             item {
                 TwoActiveBadgesRow(
                     label1 = "LOOP A",
-                    isActive1 = uiState.loopAState == SwitchStatus.ON,
+                    isActive1 = uiState.loopA == SwitchStatus.ON,
                     label2 = "LOOP B",
-                    isActive2 = uiState.loopBState == SwitchStatus.ON
+                    isActive2 = uiState.loopB == SwitchStatus.ON
                 )
             }
             item {

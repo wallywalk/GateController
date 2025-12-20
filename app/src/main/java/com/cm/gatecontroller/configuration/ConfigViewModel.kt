@@ -79,61 +79,61 @@ class ConfigViewModel @Inject constructor(
             levelClose = this.levelClose,
             lamp = when (this.lampUsage) {
                 UsageState.USE -> UsageStatus.USE
-                UsageState.UNUSE -> UsageStatus.UNUSE
+                else -> UsageStatus.UNUSE
             },
             buzzer = when (this.buzzerUsage) {
                 UsageState.USE -> UsageStatus.USE
-                UsageState.UNUSE -> UsageStatus.UNUSE
+                else -> UsageStatus.UNUSE
             },
             lampPosOn = when (this.lampPositionOn) {
                 GateState.OPENING -> GateStatus.OPENING
                 GateState.OPENED -> GateStatus.OPENED
                 GateState.CLOSING -> GateStatus.CLOSING
                 GateState.CLOSED -> GateStatus.CLOSED
-                GateState.STOP -> GateStatus.STOP
+                else -> GateStatus.STOP
             },
             lampPosOff = when (this.lampPositionOff) {
                 GateState.OPENING -> GateStatus.OPENING
                 GateState.OPENED -> GateStatus.OPENED
                 GateState.CLOSING -> GateStatus.CLOSING
                 GateState.CLOSED -> GateStatus.CLOSED
-                GateState.STOP -> GateStatus.STOP
+                else -> GateStatus.STOP
             },
             ledOpenColor = when (this.ledOpenColor) {
-                LedColor.OFF -> LedStatus.OFF
                 LedColor.BLUE -> LedStatus.BLUE
                 LedColor.GREEN -> LedStatus.GREEN
                 LedColor.RED -> LedStatus.RED
                 LedColor.WHITE -> LedStatus.WHITE
+                else -> LedStatus.OFF
             },
             ledOpenPos = when (this.ledOpenPosition) {
                 GateState.OPENING -> GateStatus.OPENING
                 GateState.OPENED -> GateStatus.OPENED
                 GateState.CLOSING -> GateStatus.CLOSING
                 GateState.CLOSED -> GateStatus.CLOSED
-                GateState.STOP -> GateStatus.STOP
+                else -> GateStatus.STOP
             },
-            ledClose = when (this.ledCloseColor) {
-                LedColor.OFF -> LedStatus.OFF
+            ledCloseColor = when (this.ledCloseColor) {
                 LedColor.BLUE -> LedStatus.BLUE
                 LedColor.GREEN -> LedStatus.GREEN
                 LedColor.RED -> LedStatus.RED
                 LedColor.WHITE -> LedStatus.WHITE
+                else -> LedStatus.OFF
             },
             ledClosePos = when (this.ledClosePosition) {
                 GateState.OPENING -> GateStatus.OPENING
                 GateState.OPENED -> GateStatus.OPENED
                 GateState.CLOSING -> GateStatus.CLOSING
                 GateState.CLOSED -> GateStatus.CLOSED
-                GateState.STOP -> GateStatus.STOP
+                else -> GateStatus.STOP
             },
             loopA = when (this.setLoopA) {
                 UsageState.USE -> UsageStatus.USE
-                UsageState.UNUSE -> UsageStatus.UNUSE
+                else -> UsageStatus.UNUSE
             },
             loopB = when (this.setLoopB) {
                 UsageState.USE -> UsageStatus.USE
-                UsageState.UNUSE -> UsageStatus.UNUSE
+                else -> UsageStatus.UNUSE
             },
             delayTime = this.configDelayTime,
             relay1 = this.setRelay1,
@@ -141,6 +141,7 @@ class ConfigViewModel @Inject constructor(
             factory = when (this.factory) {
                 FactoryResponse.OK -> FactoryResult.OK
                 FactoryResponse.ERROR -> FactoryResult.ERROR
+                else -> null
             },
             isLoading = false
         )

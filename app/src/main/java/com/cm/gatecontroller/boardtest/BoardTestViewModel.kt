@@ -72,7 +72,7 @@ class BoardTestViewModel @Inject constructor(
 
     private fun GateControllerState.toBoardTestUiState(): BoardTestUiState {
         return BoardTestUiState(
-            versionText = this.version,
+            version = this.version,
             lamp = if (this.controlLamp == SwitchState.ON) SwitchStatus.ON else SwitchStatus.OFF,
             relay1 = if (this.controlRelay1 == SwitchState.ON) SwitchStatus.ON else SwitchStatus.OFF,
             relay2 = if (this.controlRelay2 == SwitchState.ON) SwitchStatus.ON else SwitchStatus.OFF,
@@ -85,7 +85,7 @@ class BoardTestViewModel @Inject constructor(
             },
             position = when (this.controlPosition) {
                 PositionState.LEFT -> PositionStatus.LEFT
-                PositionState.RIGHT -> PositionStatus.RIGHT
+                else -> PositionStatus.RIGHT
             },
             photo1 = if (this.stPhoto1 == SwitchState.ON) SwitchStatus.ON else SwitchStatus.OFF,
             photo2 = if (this.stPhoto2 == SwitchState.ON) SwitchStatus.ON else SwitchStatus.OFF,
@@ -99,7 +99,7 @@ class BoardTestViewModel @Inject constructor(
             close2 = if (this.stClose2 == SwitchState.ON) SwitchStatus.ON else SwitchStatus.OFF,
             close3 = if (this.stClose3 == SwitchState.ON) SwitchStatus.ON else SwitchStatus.OFF,
             closeSwitch = if (this.swClose == SwitchState.ON) SwitchStatus.ON else SwitchStatus.OFF,
-            gateStage = when (this.gateState) {
+            gateStatus = when (this.gateState) {
                 GateState.OPENING -> GateStatus.OPENING
                 GateState.OPENED -> GateStatus.OPENED
                 GateState.CLOSING -> GateStatus.CLOSING

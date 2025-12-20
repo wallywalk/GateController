@@ -8,7 +8,7 @@ import com.cm.gatecontroller.model.SwitchStatus
 
 @Immutable
 data class BoardTestUiState(
-    val versionText: String = "N/A",
+    val version: String = "N/A",
     val lamp: SwitchStatus = SwitchStatus.OFF,
     val relay1: SwitchStatus = SwitchStatus.OFF,
     val relay2: SwitchStatus = SwitchStatus.OFF,
@@ -26,8 +26,8 @@ data class BoardTestUiState(
     val close2: SwitchStatus = SwitchStatus.OFF,
     val close3: SwitchStatus = SwitchStatus.OFF,
     val closeSwitch: SwitchStatus = SwitchStatus.OFF,
-    val gateStage: GateStatus = GateStatus.STOP,
-    val isLoading: Boolean = true,
+    val gateStatus: GateStatus = GateStatus.STOP,
+    val isLoading: Boolean = false,
 )
 
 sealed interface BoardTestIntent {
@@ -43,5 +43,5 @@ sealed interface BoardTestIntent {
 }
 
 sealed interface BoardTestSideEffect {
-    data class ShowSnackbar(val message: String) : BoardTestSideEffect
+    data class ShowToast(val message: String) : BoardTestSideEffect
 }

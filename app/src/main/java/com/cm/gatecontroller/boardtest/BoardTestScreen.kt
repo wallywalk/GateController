@@ -68,7 +68,7 @@ fun BoardTestScreen(
     LaunchedEffect(viewModel) {
         viewModel.sideEffect.collectLatest { effect ->
             when (effect) {
-                is BoardTestSideEffect.ShowSnackbar -> {
+                is BoardTestSideEffect.ShowToast -> {
                     snackbarHostState.showSnackbar(effect.message)
                 }
             }
@@ -124,7 +124,7 @@ private fun BoardTestContent(
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         item {
-            LabelAndValue("Version", uiState.versionText)
+            LabelAndValue("Version", uiState.version)
         }
         item {
             Row(
@@ -186,14 +186,14 @@ private fun BoardTestContent(
         }
         item {
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                var isOpen by remember(uiState.gateStage) {
+                var isOpen by remember(uiState.gateStatus) {
                     mutableStateOf(
-                        uiState.gateStage == GateStatus.OPENING || uiState.gateStage == GateStatus.OPENED
+                        uiState.gateStatus == GateStatus.OPENING || uiState.gateStatus == GateStatus.OPENED
                     )
                 }
-                var isClose by remember(uiState.gateStage) {
+                var isClose by remember(uiState.gateStatus) {
                     mutableStateOf(
-                        uiState.gateStage == GateStatus.CLOSING || uiState.gateStage == GateStatus.CLOSED
+                        uiState.gateStatus == GateStatus.CLOSING || uiState.gateStatus == GateStatus.CLOSED
                     )
                 }
 

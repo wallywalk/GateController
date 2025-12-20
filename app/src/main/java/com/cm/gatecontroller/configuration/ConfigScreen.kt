@@ -160,7 +160,7 @@ private fun DeviceSettings(uiState: ConfigUiState, onIntent: (ConfigIntent) -> U
         )
         LedSettingRow(
             label = "LED CLOSE",
-            color = uiState.ledClose,
+            color = uiState.ledCloseColor,
             isChecked = uiState.ledClosePos == GateStatus.CLOSING
         )
 

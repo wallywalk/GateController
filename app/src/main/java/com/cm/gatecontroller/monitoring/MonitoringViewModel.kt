@@ -7,7 +7,7 @@ import com.cm.gatecontroller.core.serial.model.GateControllerState
 import com.cm.gatecontroller.core.serial.model.LedColor
 import com.cm.gatecontroller.core.serial.model.SwitchState
 import com.cm.gatecontroller.core.serial.model.AccessMode
-import com.cm.gatecontroller.monitoring.model.AccessStatus
+import com.cm.gatecontroller.monitoring.model.ChannelMode
 import com.cm.gatecontroller.model.LedStatus
 import com.cm.gatecontroller.model.SwitchStatus
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -60,33 +60,33 @@ class MonitoringViewModel @Inject constructor(
     private fun GateControllerState.toMonitoringUiState(): MonitoringUiState {
         return MonitoringUiState( // TODO: copy 불가능?
             version = this.version,
-            gateState = when (this.accessMode) {
-                AccessMode.OPEN -> AccessStatus.OPEN
-                else -> AccessStatus.CLOSE
+            channelMode = when (this.accessMode) {
+                AccessMode.OPEN -> ChannelMode.OPEN
+                else -> ChannelMode.CLOSE
             },
-            lampState = when (this.lampState) {
+            lamp = when (this.lampState) {
                 SwitchState.ON -> SwitchStatus.ON
                 else -> SwitchStatus.OFF
             },
-            ledState = when (this.ledColor) {
+            led = when (this.ledColor) {
                 LedColor.BLUE -> LedStatus.BLUE
                 LedColor.GREEN -> LedStatus.GREEN
                 LedColor.RED -> LedStatus.RED
                 LedColor.WHITE -> LedStatus.WHITE
                 else -> LedStatus.OFF
             },
-            relay1State = if (this.stRelay1 == SwitchState.ON) SwitchStatus.ON else SwitchStatus.OFF,
-            relay2State = if (this.stRelay2 == SwitchState.ON) SwitchStatus.ON else SwitchStatus.OFF,
-            photo1State = if (this.stPhoto1 == SwitchState.ON) SwitchStatus.ON else SwitchStatus.OFF,
-            photo2State = if (this.stPhoto2 == SwitchState.ON) SwitchStatus.ON else SwitchStatus.OFF,
-            open1State = if (this.stOpen1 == SwitchState.ON) SwitchStatus.ON else SwitchStatus.OFF,
-            open2State = if (this.stOpen2 == SwitchState.ON) SwitchStatus.ON else SwitchStatus.OFF,
-            open3State = if (this.stOpen3 == SwitchState.ON) SwitchStatus.ON else SwitchStatus.OFF,
-            close1State = if (this.stClose1 == SwitchState.ON) SwitchStatus.ON else SwitchStatus.OFF,
-            close2State = if (this.stClose2 == SwitchState.ON) SwitchStatus.ON else SwitchStatus.OFF,
-            close3State = if (this.stClose3 == SwitchState.ON) SwitchStatus.ON else SwitchStatus.OFF,
-            loopAState = if (this.stLoopA == SwitchState.ON) SwitchStatus.ON else SwitchStatus.OFF,
-            loopBState = if (this.stLoopB == SwitchState.ON) SwitchStatus.ON else SwitchStatus.OFF,
+            relay1 = if (this.stRelay1 == SwitchState.ON) SwitchStatus.ON else SwitchStatus.OFF,
+            relay2 = if (this.stRelay2 == SwitchState.ON) SwitchStatus.ON else SwitchStatus.OFF,
+            photo1 = if (this.stPhoto1 == SwitchState.ON) SwitchStatus.ON else SwitchStatus.OFF,
+            photo2 = if (this.stPhoto2 == SwitchState.ON) SwitchStatus.ON else SwitchStatus.OFF,
+            open1 = if (this.stOpen1 == SwitchState.ON) SwitchStatus.ON else SwitchStatus.OFF,
+            open2 = if (this.stOpen2 == SwitchState.ON) SwitchStatus.ON else SwitchStatus.OFF,
+            open3 = if (this.stOpen3 == SwitchState.ON) SwitchStatus.ON else SwitchStatus.OFF,
+            close1 = if (this.stClose1 == SwitchState.ON) SwitchStatus.ON else SwitchStatus.OFF,
+            close2 = if (this.stClose2 == SwitchState.ON) SwitchStatus.ON else SwitchStatus.OFF,
+            close3 = if (this.stClose3 == SwitchState.ON) SwitchStatus.ON else SwitchStatus.OFF,
+            loopA = if (this.stLoopA == SwitchState.ON) SwitchStatus.ON else SwitchStatus.OFF,
+            loopB = if (this.stLoopB == SwitchState.ON) SwitchStatus.ON else SwitchStatus.OFF,
             mainPower = this.mainPower,
             testCount = this.testCount.toIntOrNull() ?: 0,
             delayTime = this.stDelayTime.replace("sec", "").toIntOrNull() ?: 0,

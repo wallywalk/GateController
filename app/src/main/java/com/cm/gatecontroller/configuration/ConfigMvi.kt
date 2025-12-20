@@ -6,23 +6,23 @@ import com.cm.gatecontroller.configuration.model.UsageStatus
 import com.cm.gatecontroller.model.LedStatus
 
 data class ConfigUiState(
-    val version: String = "",
-    val levelOpen: Int = 1,
-    val levelClose: Int = 1,
-    val lamp: UsageStatus = UsageStatus.USE,
-    val buzzer: UsageStatus = UsageStatus.USE,
-    val lampPosOn: GateStatus = GateStatus.OPENED,
-    val lampPosOff: GateStatus = GateStatus.CLOSED,
+    val version: String = "N/A",
+    val levelOpen: Int = 0,
+    val levelClose: Int = 0,
+    val lamp: UsageStatus = UsageStatus.UNUSE,
+    val buzzer: UsageStatus = UsageStatus.UNUSE,
+    val lampPosOn: GateStatus = GateStatus.STOP,
+    val lampPosOff: GateStatus = GateStatus.STOP,
     val ledOpenColor: LedStatus = LedStatus.OFF,
-    val ledOpenPos: GateStatus = GateStatus.OPENED,
-    val ledClose: LedStatus = LedStatus.OFF,
-    val ledClosePos: GateStatus = GateStatus.OPENED,
-    val loopA: UsageStatus = UsageStatus.USE,
-    val loopB: UsageStatus = UsageStatus.USE,
+    val ledOpenPos: GateStatus = GateStatus.STOP,
+    val ledCloseColor: LedStatus = LedStatus.OFF,
+    val ledClosePos: GateStatus = GateStatus.STOP,
+    val loopA: UsageStatus = UsageStatus.UNUSE,
+    val loopB: UsageStatus = UsageStatus.UNUSE,
     val delayTime: Int = 0,
-    val relay1: Int = 1,
-    val relay2: Int = 1,
-    val factory: FactoryResult = FactoryResult.ERROR,
+    val relay1: Int = 0,
+    val relay2: Int = 0,
+    val factory: FactoryResult? = null,
     val isLoading: Boolean = true
 )
 
