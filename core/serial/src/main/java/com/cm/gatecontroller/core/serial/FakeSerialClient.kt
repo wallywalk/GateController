@@ -1,5 +1,6 @@
 package com.cm.gatecontroller.core.serial
 
+import com.cm.gatecontroller.core.serial.model.DeviceItem
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -33,11 +34,15 @@ class FakeSerialClient : SerialClient {
         }
     }
 
-    override fun connect() {
-        // No-op for fake client
+    override suspend fun connect(deviceItem: DeviceItem): Result<Unit> {
+        return Result.success(Unit)
     }
 
     override fun disconnect() {
         // No-op for fake client
+    }
+
+    override fun getAvailableDevices(): List<DeviceItem> {
+        return emptyList()
     }
 }

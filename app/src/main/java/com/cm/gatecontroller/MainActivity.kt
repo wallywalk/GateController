@@ -54,7 +54,7 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             GateControllerTheme {
-                LaunchedEffect(userViewModel.sideEffect) {
+                LaunchedEffect(Unit) {
                     userViewModel.sideEffect.collect { effect ->
                         when (effect) {
                             UserSideEffect.NavigateToLogin -> {

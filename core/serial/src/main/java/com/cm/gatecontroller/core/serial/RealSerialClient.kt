@@ -27,7 +27,7 @@ private const val ACTION_USB_PERMISSION = "com.cm.gatecontroller.USB_PERMISSION"
 
 @Singleton
 class RealSerialClient @Inject constructor(
-    @ApplicationContext private val context: Context
+    @param:ApplicationContext private val context: Context
 ) : SerialClient, SerialInputOutputManager.Listener {
 
     private val usbManager = context.getSystemService(Context.USB_SERVICE) as UsbManager
@@ -40,14 +40,14 @@ class RealSerialClient @Inject constructor(
     private val scope = CoroutineScope(Dispatchers.IO)
     private val lineBuffer = StringBuilder()
 
-    fun getAvailableDevices(): List<DeviceItem> {
+    override fun getAvailableDevices(): List<DeviceItem> {
         val availableDrivers = UsbSerialProber.getDefaultProber().findAllDrivers(usbManager)
         return availableDrivers.map { driver ->
             DeviceItem(driver.device, driver.ports.firstOrNull())
         }
     }
 
-    suspend fun connect(deviceItem: DeviceItem): Result<Unit> {
+    override suspend fun connect(deviceItem: DeviceItem): Result<Unit> {
         val device = deviceItem.device
         val port = deviceItem.port ?: return Result.failure(IOException("No port found"))
 
@@ -103,12 +103,6 @@ class RealSerialClient @Inject constructor(
         usbManager.requestPermission(device, pendingIntent)
 
         return permissionDeferred.await()
-    }
-
-    override fun connect() {
-        scope.launch {
-            getAvailableDevices().firstOrNull()?.let { connect(it) }
-        }
     }
 
     override fun disconnect() {

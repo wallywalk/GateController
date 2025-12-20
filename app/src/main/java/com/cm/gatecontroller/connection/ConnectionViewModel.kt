@@ -15,14 +15,14 @@ class ConnectionViewModel @Inject constructor(
     private val serialClient: RealSerialClient
 ) : ViewModel() {
 
+    private val _uiState = MutableStateFlow(ConnectionUiState())
+    val uiState = _uiState.asStateFlow()
+
     init {
         viewModelScope.launch {
             connectToFirstDevice()
         }
     }
-
-    private val _uiState = MutableStateFlow(ConnectionUiState())
-    val uiState = _uiState.asStateFlow()
 
     fun connectToFirstDevice() {
         if (_uiState.value.status == ConnectionStatus.CONNECTING || _uiState.value.status == ConnectionStatus.CONNECTED) {
