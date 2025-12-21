@@ -14,7 +14,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -37,7 +36,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -45,11 +43,14 @@ import androidx.navigation.NavController
 import com.cm.gatecontroller.model.GateStatus
 import com.cm.gatecontroller.model.LedStatus
 import com.cm.gatecontroller.model.SwitchStatus
+import com.cm.gatecontroller.model.color
 import com.cm.gatecontroller.ui.theme.Blue600
+import com.cm.gatecontroller.ui.theme.Gray400
 import com.cm.gatecontroller.ui.theme.Red500
 import com.cm.gatecontroller.ui.theme.component.ControlButton
-import com.cm.gatecontroller.ui.theme.component.InputBadge
+import com.cm.gatecontroller.ui.theme.component.LabelAndButton
 import com.cm.gatecontroller.ui.theme.component.LabelAndValue
+import com.cm.gatecontroller.ui.theme.component.StatusBadge
 import kotlinx.coroutines.flow.collectLatest
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -74,7 +75,7 @@ fun BoardTestScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Board Test") },
+                title = { Text("BOARD TEST") },
                 navigationIcon = {
                     IconButton(onClick = { navController.navigateUp() }) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
@@ -120,61 +121,88 @@ private fun BoardTestContent(
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         item {
-            LabelAndValue("Version", uiState.version)
+            LabelAndValue("VERSION", uiState.version)
         }
         item {
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                OutputButton(
-                    label = "LAMP",
-                    containerColor = uiState.lamp.color,
-                    onClick = { onIntent(BoardTestIntent.ToggleLamp) },
-                    modifier = Modifier.weight(1f)
+                ControlButton(
+                    modifier = Modifier.weight(1f),
+                    text = "LAMP",
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = uiState.lamp.color,
+                        contentColor = Color.Black
+                    ),
+                    onClick = { onIntent(BoardTestIntent.ToggleLamp) }
                 )
-                OutputButton(
-                    label = "RELAY1",
-                    containerColor = uiState.relay1.color,
-                    onClick = { onIntent(BoardTestIntent.ToggleRelay1) },
-                    modifier = Modifier.weight(1f)
+                ControlButton(
+                    modifier = Modifier.weight(1f),
+                    text = "RELAY1",
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = uiState.relay1.color,
+                        contentColor = Color.Black
+                    ),
+                    onClick = { onIntent(BoardTestIntent.ToggleRelay1) }
                 )
-                OutputButton(
-                    label = "RELAY2",
-                    containerColor = uiState.relay2.color,
-                    onClick = { onIntent(BoardTestIntent.ToggleRelay2) },
-                    modifier = Modifier.weight(1f)
+                ControlButton(
+                    modifier = Modifier.weight(1f),
+                    text = "RELAY2",
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = uiState.relay2.color,
+                        contentColor = Color.Black
+                    ),
+                    onClick = { onIntent(BoardTestIntent.ToggleRelay2) }
                 )
             }
         }
         item {
-            LedSelector(
+            LedSelectRow(
                 selectedLed = uiState.led,
                 onSelect = { onIntent(BoardTestIntent.SelectLed(it)) }
             )
         }
         item {
-            LabelAndValue("POSITION", uiState.position.toString())
+            LabelAndButton(
+                label = "POSITION",
+                value = uiState.position.name,
+                onClick = { onIntent(BoardTestIntent.RequestPosition) }
+            )
         }
         item {
             Spacer(modifier = Modifier.height(16.dp))
         }
         item {
             InputBadgeRow(
-                labels = listOf("PHOTO1", "PHOTO2", "LOOP A", "LOOP B"),
-                states = listOf(uiState.photo1, uiState.photo2, uiState.loopA, uiState.loopB)
+                items = listOf(
+                    "PHOTO1" to uiState.photo1,
+                    "PHOTO2" to uiState.photo2,
+                    "LOOP A" to uiState.loopA,
+                    "LOOP B" to uiState.loopB
+                )
             )
         }
         item {
             InputBadgeRow(
-                labels = listOf("OPEN1", "OPEN2", "OPEN3", "OPEN"),
-                states = listOf(uiState.open1, uiState.open2, uiState.open3, uiState.openSwitch)
+                items = listOf(
+                    "OPEN1" to uiState.open1,
+                    "OPEN2" to uiState.open2,
+                    "OPEN3" to uiState.open3,
+                    "OPEN" to uiState.openSwitch
+                )
             )
         }
         item {
             InputBadgeRow(
-                labels = listOf("CLOSE1", "CLOSE2", "CLOSE3", "CLOSE"),
-                states = listOf(uiState.close1, uiState.close2, uiState.close3, uiState.closeSwitch)
+                items = listOf(
+                    "CLOSE1" to uiState.close1,
+                    "CLOSE2" to uiState.close2,
+                    "CLOSE3" to uiState.close3,
+                    "CLOSE" to uiState.closeSwitch
+                )
             )
         }
         item {
@@ -227,66 +255,43 @@ private fun BoardTestContent(
 }
 
 @Composable
-private fun OutputButton(
-    label: String,
-    containerColor: Color,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Button(
-        onClick = onClick,
-        colors = ButtonDefaults.buttonColors(
-            containerColor = containerColor,
-            contentColor = Color.Black
-        ),
-        modifier = modifier.height(48.dp),
-        shape = RoundedCornerShape(8.dp)
-    ) {
-        Text(label, fontWeight = FontWeight.Bold)
-    }
-}
-
-@Composable
-private fun LedSelector(selectedLed: LedStatus, onSelect: (LedStatus) -> Unit) {
+private fun LedSelectRow(selectedLed: LedStatus, onSelect: (LedStatus) -> Unit) {
     Row(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(48.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        LedStatus.entries.forEach { led -> // TODO: 리컴포지션
+        LedStatus.entries.forEach { led ->
             val isSelected = selectedLed == led
 
-            Button(
-                onClick = { onSelect(led) },
-                shape = RoundedCornerShape(8.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = led.color),
+            ControlButton(
                 modifier = Modifier
                     .weight(1f)
-                    .height(48.dp)
                     .border(
-                        width = if (isSelected) 3.dp else 0.dp,
+                        width = if (isSelected) 2.dp else 0.dp,
                         color = if (isSelected) MaterialTheme.colorScheme.outline else Color.Transparent,
                         shape = RoundedCornerShape(8.dp)
                     ),
-                contentPadding = PaddingValues(4.dp)
-            ) {
-                Text(
-                    text = led.name,
-                    color = if (led == LedStatus.WHITE) Color.Black else Color.White,
-                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                    fontSize = 12.sp
+                text = led.name,
+                fontSize = 12.sp,
+                onClick = { onSelect(led) },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = if (isSelected) led.color else Gray400,
+                    contentColor = if (led == LedStatus.WHITE && isSelected) Color.Black else Color.White
                 )
-            }
+            )
         }
     }
 }
 
 @Composable
-private fun InputBadgeRow(labels: List<String>, states: List<SwitchStatus>) {
+private fun InputBadgeRow(items: List<Pair<String, SwitchStatus>>) {
     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        labels.forEachIndexed { index, label ->
-            InputBadge(
-                label = label,
-                isOn = states.getOrElse(index) { SwitchStatus.OFF } == SwitchStatus.ON,
+        items.forEach { (label, status) ->
+            StatusBadge(
+                text = label,
+                backgroundColor = status.color,
                 modifier = Modifier.weight(1f)
             )
         }

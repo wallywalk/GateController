@@ -1,9 +1,7 @@
 package com.cm.gatecontroller.monitoring
 
 import android.widget.Toast
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -12,8 +10,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -27,22 +23,20 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import com.cm.gatecontroller.model.LedStatus
-import com.cm.gatecontroller.model.SwitchStatus
-import com.cm.gatecontroller.monitoring.model.ChannelMode
+import com.cm.gatecontroller.MainTab
+import com.cm.gatecontroller.model.color
+import com.cm.gatecontroller.monitoring.model.color
 import com.cm.gatecontroller.ui.theme.Blue600
 import com.cm.gatecontroller.ui.theme.Red500
-import com.cm.gatecontroller.ui.theme.component.ActiveBadge
 import com.cm.gatecontroller.ui.theme.component.ControlButton
 import com.cm.gatecontroller.ui.theme.component.LabelAndValue
+import com.cm.gatecontroller.ui.theme.component.StatusBadge
 import kotlinx.coroutines.flow.collectLatest
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -67,7 +61,7 @@ fun MonitoringScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Monitoring") },
+                title = { Text("MONITORING") },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primary,
                     titleContentColor = MaterialTheme.colorScheme.onPrimary
@@ -87,76 +81,78 @@ fun MonitoringScreen(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text("Gate", modifier = Modifier.weight(1f), fontWeight = FontWeight.Bold)
-                    TwoActiveBadgesRow(
+                    Text("GATE", modifier = Modifier.weight(1f), fontWeight = FontWeight.Bold)
+                    TwoStatusBadgesRow(
                         label1 = "CLOSE",
-                        isActive1 = uiState.channelMode == ChannelMode.CLOSE,
+                        backgroundColor1 = uiState.channelMode.color,
                         label2 = "OPEN",
-                        isActive2 = uiState.channelMode == ChannelMode.OPEN,
+                        backgroundColor2 = uiState.channelMode.color,
                         modifier = Modifier.weight(2f)
                     )
                 }
             }
             item {
-                TwoActiveBadgesRow(
+                TwoStatusBadgesRow(
                     label1 = "LAMP",
-                    isActive1 = uiState.lamp == SwitchStatus.ON,
-                    label2 = "LED", // TODO: 색상 표시
-                    isActive2 = uiState.led != LedStatus.OFF
+                    backgroundColor1 = uiState.lamp.color,
+                    label2 = "LED",
+                    backgroundColor2 = uiState.led.color
                 )
             }
             item {
-                TwoActiveBadgesRow(
+                TwoStatusBadgesRow(
                     label1 = "RELAY1",
-                    isActive1 = uiState.relay1 == SwitchStatus.ON,
+                    backgroundColor1 = uiState.relay1.color,
                     label2 = "RELAY2",
-                    isActive2 = uiState.relay2 == SwitchStatus.ON
+                    backgroundColor2 = uiState.relay2.color
                 )
             }
             item {
-                TwoActiveBadgesRow(
+                TwoStatusBadgesRow(
                     label1 = "PHOTO1",
-                    isActive1 = uiState.photo1 == SwitchStatus.ON,
+                    backgroundColor1 = uiState.photo1.color,
                     label2 = "PHOTO2",
-                    isActive2 = uiState.photo2 == SwitchStatus.ON
+                    backgroundColor2 = uiState.photo2.color
                 )
             }
             item {
-                TwoActiveBadgesRow(
+                TwoStatusBadgesRow(
                     label1 = "OPEN1",
-                    isActive1 = uiState.open1 == SwitchStatus.ON,
+                    backgroundColor1 = uiState.open1.color,
                     label2 = "CLOSE1",
-                    isActive2 = uiState.close1 == SwitchStatus.ON
+                    backgroundColor2 = uiState.close1.color
                 )
             }
             item {
-                TwoActiveBadgesRow(
+                TwoStatusBadgesRow(
                     label1 = "OPEN2",
-                    isActive1 = uiState.open2 == SwitchStatus.ON,
+                    backgroundColor1 = uiState.open2.color,
                     label2 = "CLOSE2",
-                    isActive2 = uiState.close2 == SwitchStatus.ON
+                    backgroundColor2 = uiState.close2.color
                 )
             }
             item {
-                TwoActiveBadgesRow(
+                TwoStatusBadgesRow(
                     label1 = "OPEN3",
-                    isActive1 = uiState.open3 == SwitchStatus.ON,
+                    backgroundColor1 = uiState.open3.color,
                     label2 = "CLOSE3",
-                    isActive2 = uiState.close3 == SwitchStatus.ON
+                    backgroundColor2 = uiState.close3.color
                 )
             }
             item {
-                TwoActiveBadgesRow(
+                TwoStatusBadgesRow(
                     label1 = "LOOP A",
-                    isActive1 = uiState.loopA == SwitchStatus.ON,
+                    backgroundColor1 = uiState.loopA.color,
                     label2 = "LOOP B",
-                    isActive2 = uiState.loopB == SwitchStatus.ON
+                    backgroundColor2 = uiState.loopB.color
                 )
             }
             item {
-                TwoValueDisplayRow(
+                TwoStatusBadgesRow(
                     label1 = uiState.mainPower,
-                    label2 = uiState.testCount.toString()
+                    backgroundColor1 = MaterialTheme.colorScheme.surfaceVariant,
+                    label2 = uiState.testCount.toString(),
+                    backgroundColor2 = MaterialTheme.colorScheme.surfaceVariant
                 )
             }
             item {
@@ -173,20 +169,25 @@ fun MonitoringScreen(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    ToggleActionButton(
-                        text = "Test Start",
-                        isToggled = uiState.isTestRunning,
-                        onToggle = { viewModel.handleIntent(MonitoringIntent.ToggleTest) },
-                        modifier = Modifier.weight(1f)
+                    ControlButton(
+                        text = if (uiState.isTestRunning) "TEST STOP" else "TEST START",
+                        modifier = Modifier.weight(1f),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = if (uiState.isTestRunning) Red500 else Blue600,
+                            contentColor = Color.White
+                        ),
+                        onClick = { viewModel.handleIntent(MonitoringIntent.ToggleTest) }
                     )
                     ControlButton(
-                        text = "Config",
-                        modifier = Modifier.weight(1f)
-                    ) { navController.navigate("configuration") }
+                        modifier = Modifier.weight(1f),
+                        text = "CONFIG",
+                        onClick = { navController.navigate(MainTab.Configuration.route) }
+                    )
                     ControlButton(
-                        text = "Board Test",
-                        modifier = Modifier.weight(1f)
-                    ) { navController.navigate("boardtest") }
+                        modifier = Modifier.weight(1f),
+                        text = "BOARD TEST",
+                        onClick = { navController.navigate(MainTab.BoardTest.route) }
+                    )
                 }
             }
         }
@@ -194,60 +195,23 @@ fun MonitoringScreen(
 }
 
 @Composable
-private fun TwoActiveBadgesRow(
+private fun TwoStatusBadgesRow(
     label1: String,
-    isActive1: Boolean,
+    backgroundColor1: Color,
     label2: String,
-    isActive2: Boolean,
+    backgroundColor2: Color,
     modifier: Modifier = Modifier
 ) {
     Row(modifier = modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        ActiveBadge(text = label1, isActive = isActive1, modifier = Modifier.weight(1f))
-        ActiveBadge(text = label2, isActive = isActive2, modifier = Modifier.weight(1f))
-    }
-}
-
-@Composable
-private fun TwoValueDisplayRow(label1: String, label2: String, modifier: Modifier = Modifier) {
-    Row(modifier = modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        Box(
-            modifier = Modifier
-                .weight(1f)
-                .clip(RoundedCornerShape(8.dp))
-                .background(MaterialTheme.colorScheme.surfaceVariant)
-                .padding(horizontal = 16.dp, vertical = 12.dp),
-            contentAlignment = Alignment.CenterStart
-        ) {
-            Text(label1, fontWeight = FontWeight.Bold, fontSize = 16.sp)
-        }
-        Box(
-            modifier = Modifier
-                .weight(1f)
-                .clip(RoundedCornerShape(8.dp))
-                .background(MaterialTheme.colorScheme.surfaceVariant)
-                .padding(horizontal = 16.dp, vertical = 12.dp),
-            contentAlignment = Alignment.CenterStart
-        ) {
-            Text(label2, fontWeight = FontWeight.Bold, fontSize = 16.sp)
-        }
-    }
-}
-
-@Composable
-private fun ToggleActionButton(
-    text: String,
-    isToggled: Boolean,
-    onToggle: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Button(
-        onClick = onToggle,
-        modifier = modifier.height(64.dp),
-        colors = ButtonDefaults.buttonColors(
-            containerColor = if (isToggled) Red500 else Blue600,
-            contentColor = Color.White
+        StatusBadge(
+            text = label1,
+            backgroundColor = backgroundColor1,
+            modifier = Modifier.weight(1f)
         )
-    ) {
-        Text(text, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+        StatusBadge(
+            text = label2,
+            backgroundColor = backgroundColor2,
+            modifier = Modifier.weight(1f)
+        )
     }
 }

@@ -6,13 +6,20 @@ import com.cm.gatecontroller.ui.theme.Gray400
 import com.cm.gatecontroller.ui.theme.Green500
 import com.cm.gatecontroller.ui.theme.Red500
 import com.cm.gatecontroller.ui.theme.White100
-import com.cm.gatecontroller.ui.theme.Yellow300
 
-enum class LedStatus(val color: Color) {
-    RED(Red500),
-    GREEN(Green500),
-    BLUE(Blue600),
-    YELLOW(Yellow300),
-    WHITE(White100),
-    OFF(Gray400),
+enum class LedStatus {
+    RED,
+    GREEN,
+    BLUE,
+    WHITE,
+    OFF,
 }
+
+val LedStatus.color: Color
+    get() = when (this) {
+        LedStatus.RED -> Red500
+        LedStatus.GREEN -> Green500
+        LedStatus.BLUE -> Blue600
+        LedStatus.WHITE -> White100
+        LedStatus.OFF -> Gray400
+    }
