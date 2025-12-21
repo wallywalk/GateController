@@ -1,10 +1,12 @@
 package com.cm.gatecontroller.configuration
 
+import androidx.compose.runtime.Immutable
 import com.cm.gatecontroller.configuration.model.FactoryResult
 import com.cm.gatecontroller.model.GateStatus
 import com.cm.gatecontroller.configuration.model.UsageStatus
 import com.cm.gatecontroller.model.LedStatus
 
+@Immutable
 data class ConfigUiState(
     val version: String = "N/A",
     val levelOpen: Int = 0,
@@ -22,7 +24,6 @@ data class ConfigUiState(
     val delayTime: Int = 0,
     val relay1: Int = 0,
     val relay2: Int = 0,
-    val factory: FactoryResult? = null,
     val isLoading: Boolean = true
 )
 
@@ -30,22 +31,22 @@ sealed interface ConfigIntent {
     data object Initialize : ConfigIntent
     data class SetLevelOpen(val level: Int) : ConfigIntent
     data class SetLevelClose(val level: Int) : ConfigIntent
-    data class SetLamp(val status: UsageStatus) : ConfigIntent
-    data class SetBuzzer(val status: UsageStatus) : ConfigIntent
+    data class SetLamp(val use: Boolean) : ConfigIntent
+    data class SetBuzzer(val use: Boolean) : ConfigIntent
     data class SetLampPosOn(val state: GateStatus) : ConfigIntent
     data class SetLampPosOff(val state: GateStatus) : ConfigIntent
     data class SetLedOpen(val color: LedStatus) : ConfigIntent
-    data class SetLedOpenPos(val position: Int) : ConfigIntent
+    data class SetLedOpenPos(val position: GateStatus) : ConfigIntent
     data class SetLedClose(val color: LedStatus) : ConfigIntent
-    data class SetLedClosePos(val position: Int) : ConfigIntent
-    data class SetLoopA(val status: UsageStatus) : ConfigIntent
-    data class SetLoopB(val status: UsageStatus) : ConfigIntent
+    data class SetLedClosePos(val position: GateStatus) : ConfigIntent
+    data class SetLoopA(val use: Boolean) : ConfigIntent
+    data class SetLoopB(val use: Boolean) : ConfigIntent
     data class SetDelayTime(val time: Int) : ConfigIntent
-    data class SetRelay1(val status: UsageStatus) : ConfigIntent
-    data class SetRelay2(val status: UsageStatus) : ConfigIntent
+    data class SetRelay1(val value: Int) : ConfigIntent
+    data class SetRelay2(val value: Int) : ConfigIntent
+    data object FactoryReset : ConfigIntent
     data object SaveConfig : ConfigIntent
     data object LoadConfig : ConfigIntent
-    data object FactoryReset : ConfigIntent
     data object ShowRelayMap : ConfigIntent
 }
 

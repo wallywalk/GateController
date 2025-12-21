@@ -2,8 +2,6 @@ package com.cm.gatecontroller.configuration
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.cm.gatecontroller.configuration.model.FactoryResult
-import com.cm.gatecontroller.model.GateStatus
 import com.cm.gatecontroller.configuration.model.UsageStatus
 import com.cm.gatecontroller.core.serial.SerialRepository
 import com.cm.gatecontroller.core.serial.model.FactoryResponse
@@ -11,11 +9,14 @@ import com.cm.gatecontroller.core.serial.model.GateControllerState
 import com.cm.gatecontroller.core.serial.model.GateState
 import com.cm.gatecontroller.core.serial.model.LedColor
 import com.cm.gatecontroller.core.serial.model.UsageState
+import com.cm.gatecontroller.model.GateStatus
 import com.cm.gatecontroller.model.LedStatus
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -39,23 +40,36 @@ class ConfigViewModel @Inject constructor(
 
     init {
         refreshConfiguration()
+        observeFactoryReset()
     }
 
     fun handleIntent(intent: ConfigIntent) {
-        when (intent) {
-            is ConfigIntent.ShowRelayMap -> showRelayMap()
-            else -> viewModelScope.launch {
-                when (intent) {
-                    is ConfigIntent.Initialize -> serialRepository.refreshConfiguration()
-                    is ConfigIntent.FactoryReset -> serialRepository.factoryReset()
-                    is ConfigIntent.SaveConfig -> { /* TODO: Implement file saving */
+        viewModelScope.launch {
+            when (intent) {
+                is ConfigIntent.Initialize -> serialRepository.refreshConfiguration()
+                is ConfigIntent.SetLevelOpen -> serialRepository.setOpenLevel(intent.level)
+                is ConfigIntent.SetLevelClose -> serialRepository.setCloseLevel(intent.level)
+                is ConfigIntent.SetLamp -> serialRepository.setLampUsage(intent.use)
+                is ConfigIntent.SetBuzzer -> serialRepository.setBuzzerUsage(intent.use)
+                is ConfigIntent.SetLampPosOn -> serialRepository.setLampOnPosition(intent.state.name)
+                is ConfigIntent.SetLampPosOff -> serialRepository.setLampOffPosition(intent.state.name)
+                is ConfigIntent.SetLedOpen -> serialRepository.setLedOpenColor(intent.color.name)
+                is ConfigIntent.SetLedOpenPos -> serialRepository.setLedOpenPosition(intent.position.name)
+                is ConfigIntent.SetLedClose -> serialRepository.setLedCloseColor(intent.color.name)
+                is ConfigIntent.SetLedClosePos -> serialRepository.setLedClosePosition(intent.position.name)
+                is ConfigIntent.SetLoopA -> serialRepository.setLoopAUsage(intent.use)
+                is ConfigIntent.SetLoopB -> serialRepository.setLoopBUsage(intent.use)
+                is ConfigIntent.SetDelayTime -> serialRepository.setDelayTime(intent.time)
+                is ConfigIntent.SetRelay1 -> serialRepository.setRelay1Mode(intent.value)
+                is ConfigIntent.SetRelay2 -> serialRepository.setRelay2Mode(intent.value)
+                is ConfigIntent.FactoryReset -> serialRepository.factoryReset()
+                is ConfigIntent.SaveConfig, is ConfigIntent.LoadConfig -> {
+                    viewModelScope.launch {
+                        _sideEffect.emit(ConfigSideEffect.ShowToast("Not implemented yet"))
                     }
-
-                    is ConfigIntent.LoadConfig -> { /* TODO: Implement file loading */
-                    }
-
-                    else -> Unit
                 }
+
+                is ConfigIntent.ShowRelayMap -> showRelayMap()
             }
         }
     }
@@ -69,6 +83,22 @@ class ConfigViewModel @Inject constructor(
     private fun showRelayMap() {
         viewModelScope.launch {
             _sideEffect.emit(ConfigSideEffect.ShowRelayMapDialog)
+        }
+    }
+
+    private fun observeFactoryReset() {
+        viewModelScope.launch {
+            serialRepository.deviceStatus
+                .map { it.factory }
+                .distinctUntilChanged()
+                .filterNotNull()
+                .collect { factoryResult ->
+                    val message = when (factoryResult) {
+                        FactoryResponse.OK -> "Factory reset success."
+                        FactoryResponse.ERROR -> "Factory reset failed."
+                    }
+                    _sideEffect.emit(ConfigSideEffect.ShowToast(message))
+                }
         }
     }
 
@@ -138,11 +168,6 @@ class ConfigViewModel @Inject constructor(
             delayTime = this.configDelayTime,
             relay1 = this.setRelay1,
             relay2 = this.setRelay2,
-            factory = when (this.factory) {
-                FactoryResponse.OK -> FactoryResult.OK
-                FactoryResponse.ERROR -> FactoryResult.ERROR
-                else -> null
-            },
             isLoading = false
         )
     }
