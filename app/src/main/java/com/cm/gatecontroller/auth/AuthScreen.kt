@@ -1,5 +1,6 @@
 package com.cm.gatecontroller.auth
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,8 +21,10 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import com.cm.gatecontroller.R
 
 @Composable
 fun AuthScreen(
@@ -53,9 +56,8 @@ fun AuthContent(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Text("Gate Controller", style = MaterialTheme.typography.headlineMedium)
+                Text(text = "Gate Controller", style = MaterialTheme.typography.headlineMedium)
                 Spacer(modifier = Modifier.height(16.dp))
-
                 OutlinedTextField(
                     value = uiState.email,
                     onValueChange = { onIntent(AuthIntent.EmailChanged(it)) },
@@ -69,9 +71,7 @@ fun AuthContent(
                     visualTransformation = PasswordVisualTransformation(),
                     modifier = Modifier.fillMaxWidth()
                 )
-
                 Spacer(modifier = Modifier.height(16.dp))
-
                 Button(
                     onClick = { onIntent(AuthIntent.SubmitLogin) },
                     modifier = Modifier.fillMaxWidth()
@@ -90,6 +90,12 @@ fun AuthContent(
                 ) {
                     Text("Forgot Password?")
                 }
+                Spacer(modifier = Modifier.height(16.dp))
+                Image(
+                    painter = painterResource(id = R.drawable.logo),
+                    contentDescription = "Logo",
+                    modifier = Modifier.height(40.dp)
+                )
             }
         }
     }

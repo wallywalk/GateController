@@ -1,9 +1,8 @@
 package com.cm.gatecontroller.configuration
 
 import androidx.compose.runtime.Immutable
-import com.cm.gatecontroller.configuration.model.FactoryResult
-import com.cm.gatecontroller.model.GateStatus
 import com.cm.gatecontroller.configuration.model.UsageStatus
+import com.cm.gatecontroller.model.GateStatus
 import com.cm.gatecontroller.model.LedStatus
 
 @Immutable
