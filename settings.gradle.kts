@@ -23,3 +23,4 @@ dependencyResolutionManagement {
 rootProject.name = "GateController"
 include(":app")
 include(":core:serial")
+include(":core:logger")
