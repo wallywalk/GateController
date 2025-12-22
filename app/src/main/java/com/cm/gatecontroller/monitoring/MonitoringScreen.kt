@@ -65,6 +65,9 @@ fun MonitoringScreen(
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             item {
+                LabelAndValue(stringResource(R.string.common_version), uiState.version)
+            }
+            item {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically

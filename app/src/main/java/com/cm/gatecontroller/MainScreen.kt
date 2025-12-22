@@ -99,6 +99,7 @@ fun MainScreen(
                             Text(stringResource(R.string.common_logout))
                         }
                     )
+                    Spacer(modifier = Modifier.width(6.dp))
                     ConnectionStatus(
                         status = connectionUiState.status,
                         deviceName = connectionUiState.connectedDeviceName,
@@ -170,10 +171,13 @@ private fun ConnectionStatus(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(status.label, color = status.color)
-        Spacer(modifier = Modifier.width(10.dp))
+        Spacer(modifier = Modifier.width(6.dp))
 
         if (status == ConnectionStatus.DISCONNECTED || status == ConnectionStatus.ERROR) {
-            Button(onClick = onConnectClick) {
+            Button(
+                modifier = Modifier.padding(horizontal = 6.dp),
+                onClick = onConnectClick
+            ) {
                 Text(stringResource(R.string.common_connect))
             }
         }

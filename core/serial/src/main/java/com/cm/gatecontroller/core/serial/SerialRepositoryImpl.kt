@@ -104,13 +104,13 @@ class SerialRepositoryImpl @Inject constructor(
     }
 
     override suspend fun setLampOnPosition(on: Boolean) {
-        if (on) GateState.OPENING else GateState.OPENED
-        serialClient.sendCommand("AT+SETLAMPON=$on")
+        val value = if (on) GateState.OPENING else GateState.OPENED
+        serialClient.sendCommand("AT+SETLAMPON=$value")
     }
 
     override suspend fun setLampOffPosition(on: Boolean) {
-        if (on) GateState.CLOSING else GateState.CLOSED
-        serialClient.sendCommand("AT+SETLAMPOFF=$on")
+        val value = if (on) GateState.CLOSING else GateState.CLOSED
+        serialClient.sendCommand("AT+SETLAMPOFF=$value")
     }
 
     override suspend fun setLedOpenColor(color: String) {
@@ -118,8 +118,8 @@ class SerialRepositoryImpl @Inject constructor(
     }
 
     override suspend fun setLedOpenPosition(on: Boolean) {
-        if (on) GateState.OPENING else GateState.OPENED
-        serialClient.sendCommand("AT+SETLEDOPENPOS=$on")
+        val value = if (on) GateState.OPENING else GateState.OPENED
+        serialClient.sendCommand("AT+SETLEDOPENPOS=$value")
     }
 
     override suspend fun setLedCloseColor(color: String) {
@@ -127,8 +127,8 @@ class SerialRepositoryImpl @Inject constructor(
     }
 
     override suspend fun setLedClosePosition(on: Boolean) {
-        if (on) GateState.CLOSING else GateState.CLOSED
-        serialClient.sendCommand("AT+SETLEDCLOSEPOS=$on")
+        val value = if (on) GateState.CLOSING else GateState.CLOSED
+        serialClient.sendCommand("AT+SETLEDCLOSEPOS=$value")
     }
 
     override suspend fun setLoopAUsage(use: Boolean) {
