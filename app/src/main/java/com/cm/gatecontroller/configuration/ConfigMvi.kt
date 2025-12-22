@@ -32,12 +32,12 @@ sealed interface ConfigIntent {
     data class SetLevelClose(val level: Int) : ConfigIntent
     data class SetLamp(val use: Boolean) : ConfigIntent
     data class SetBuzzer(val use: Boolean) : ConfigIntent
-    data class SetLampPosOn(val state: GateStatus) : ConfigIntent
-    data class SetLampPosOff(val state: GateStatus) : ConfigIntent
+    data class SetLampPosOn(val on: Boolean) : ConfigIntent
+    data class SetLampPosOff(val on: Boolean) : ConfigIntent
     data class SetLedOpen(val color: LedStatus) : ConfigIntent
-    data class SetLedOpenPos(val position: GateStatus) : ConfigIntent
+    data class SetLedOpenPos(val on: Boolean) : ConfigIntent
     data class SetLedClose(val color: LedStatus) : ConfigIntent
-    data class SetLedClosePos(val position: GateStatus) : ConfigIntent
+    data class SetLedClosePos(val on: Boolean) : ConfigIntent
     data class SetLoopA(val use: Boolean) : ConfigIntent
     data class SetLoopB(val use: Boolean) : ConfigIntent
     data class SetDelayTime(val time: Int) : ConfigIntent

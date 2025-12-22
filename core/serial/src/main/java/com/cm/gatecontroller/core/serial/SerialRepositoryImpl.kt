@@ -1,6 +1,7 @@
 package com.cm.gatecontroller.core.serial
 
 import com.cm.gatecontroller.core.serial.model.GateControllerState
+import com.cm.gatecontroller.core.serial.model.GateState
 import com.cm.gatecontroller.core.serial.parser.AtCommandParser
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -102,28 +103,32 @@ class SerialRepositoryImpl @Inject constructor(
         serialClient.sendCommand("AT+SETBUZZER=$value")
     }
 
-    override suspend fun setLampOnPosition(position: String) {
-        serialClient.sendCommand("AT+SETLAMPON=$position")
+    override suspend fun setLampOnPosition(on: Boolean) {
+        if (on) GateState.OPENING else GateState.OPENED
+        serialClient.sendCommand("AT+SETLAMPON=$on")
     }
 
-    override suspend fun setLampOffPosition(position: String) {
-        serialClient.sendCommand("AT+SETLAMPOFF=$position")
+    override suspend fun setLampOffPosition(on: Boolean) {
+        if (on) GateState.CLOSING else GateState.CLOSED
+        serialClient.sendCommand("AT+SETLAMPOFF=$on")
     }
 
     override suspend fun setLedOpenColor(color: String) {
         serialClient.sendCommand("AT+SETLEDOPEN=$color")
     }
 
-    override suspend fun setLedOpenPosition(position: String) {
-        serialClient.sendCommand("AT+SETLEDOPENPOS=$position")
+    override suspend fun setLedOpenPosition(on: Boolean) {
+        if (on) GateState.OPENING else GateState.OPENED
+        serialClient.sendCommand("AT+SETLEDOPENPOS=$on")
     }
 
     override suspend fun setLedCloseColor(color: String) {
         serialClient.sendCommand("AT+SETLEDCLOSE=$color")
     }
 
-    override suspend fun setLedClosePosition(position: String) {
-        serialClient.sendCommand("AT+SETLEDCLOSEPOS=$position")
+    override suspend fun setLedClosePosition(on: Boolean) {
+        if (on) GateState.CLOSING else GateState.CLOSED
+        serialClient.sendCommand("AT+SETLEDCLOSEPOS=$on")
     }
 
     override suspend fun setLoopAUsage(use: Boolean) {

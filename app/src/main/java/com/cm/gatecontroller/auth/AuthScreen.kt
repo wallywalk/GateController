@@ -24,6 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
 import com.cm.gatecontroller.R
 
 @Composable
@@ -56,18 +57,21 @@ fun AuthContent(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Text(text = "Gate Controller", style = MaterialTheme.typography.headlineMedium)
+                Text(
+                    text = stringResource(R.string.main_app_title),
+                    style = MaterialTheme.typography.headlineMedium
+                )
                 Spacer(modifier = Modifier.height(16.dp))
                 OutlinedTextField(
                     value = uiState.email,
                     onValueChange = { onIntent(AuthIntent.EmailChanged(it)) },
-                    label = { Text("Email") },
+                    label = { Text(stringResource(R.string.login_email_hint)) },
                     modifier = Modifier.fillMaxWidth()
                 )
                 OutlinedTextField(
                     value = uiState.password,
                     onValueChange = { onIntent(AuthIntent.PasswordChanged(it)) },
-                    label = { Text("Password") },
+                    label = { Text(stringResource(R.string.login_password_hint)) },
                     visualTransformation = PasswordVisualTransformation(),
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -76,24 +80,24 @@ fun AuthContent(
                     onClick = { onIntent(AuthIntent.SubmitLogin) },
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text("Login")
+                    Text(stringResource(R.string.login_log_in_button))
                 }
                 Button(
                     onClick = { onIntent(AuthIntent.SubmitSignUp) },
                     modifier = Modifier.fillMaxWidth(),
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary)
                 ) {
-                    Text("Sign Up")
+                    Text(stringResource(R.string.login_sign_in_button))
                 }
                 TextButton(
                     onClick = { onIntent(AuthIntent.ResetPassword) }
                 ) {
-                    Text("Forgot Password?")
+                    Text(stringResource(R.string.login_forgot_password))
                 }
                 Spacer(modifier = Modifier.height(16.dp))
                 Image(
                     painter = painterResource(id = R.drawable.logo),
-                    contentDescription = "Logo",
+                    contentDescription = stringResource(R.string.common_logo_description),
                     modifier = Modifier.height(40.dp)
                 )
             }

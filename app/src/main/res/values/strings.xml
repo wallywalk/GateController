@@ -1,8 +1,9 @@
 <resources>
     <string name="app_name" translatable="false">Premium Gate Controller</string>
+
     <!-- Login / Common -->
-    <string name="login_email_hint">Email.</string>
-    <string name="login_password_hint">Password.</string>
+    <string name="login_email_hint">Email</string>
+    <string name="login_password_hint">Password</string>
     <string name="login_log_in_button">LOG IN</string>
     <string name="login_sign_in_button">SIGN IN</string>
     <string name="login_forgot_password">Forgot Password?</string>
@@ -39,7 +40,6 @@
     <string name="monitoring_config_button">CONFIG</string>
     <string name="monitoring_board_test_button" translatable="false">BOARD TEST</string>
     <string name="common_delay_time">DELAY TIME</string>
-
 
     <!-- Configuration Screen -->
     <string name="config_title">CONFIGURATION</string>

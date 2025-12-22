@@ -1,11 +1,12 @@
 <resources>
     <string name="app_name" translatable="false">Premium Gate Controller</string>
+
     <!-- Login / Common -->
-    <string name="login_email_hint">Email.</string>
-    <string name="login_password_hint">Password.</string>
+    <string name="login_email_hint">Email</string>
+    <string name="login_password_hint">Password</string>
     <string name="login_log_in_button">로그인</string>
     <string name="login_sign_in_button">등록</string>
-    <string name="login_forgot_password">비밀번호재등록</string>
+    <string name="login_forgot_password">비밀번호 재등록</string>
 
     <!-- Main Screen / Common -->
     <string name="common_logout">로그아웃</string>
@@ -38,7 +39,6 @@
     <string name="monitoring_config_button">설정</string>
     <string name="monitoring_board_test_button">보드 테스트</string>
     <string name="common_delay_time">지연시간</string>
-
 
     <!-- Configuration Screen -->
     <string name="config_title">설정</string>

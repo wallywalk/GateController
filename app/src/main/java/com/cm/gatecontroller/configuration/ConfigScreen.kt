@@ -15,19 +15,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -42,6 +35,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -88,34 +82,19 @@ fun ConfigurationScreen(
         }
     }
 
-    Scaffold(
-        topBar = {
-            TopAppBar( // TODO: 반복되는 뷰
-                title = { Text("CONFIGURATION") },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimary
-                ),
-                navigationIcon = {
-                    IconButton(onClick = { navController.navigateUp() }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
-                    }
-                }
-            )
+    if (uiState.isLoading) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            CircularProgressIndicator()
         }
-    ) { paddingValues ->
-        if (uiState.isLoading) {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator()
-            }
-        } else {
+    } else {
+        Column(
+            modifier = Modifier.fillMaxSize()
+        ) {
             LazyColumn(
-                modifier = Modifier
-                    .padding(paddingValues)
-                    .fillMaxSize(),
+                modifier = Modifier.weight(1f),
                 contentPadding = PaddingValues(16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
@@ -125,12 +104,11 @@ fun ConfigurationScreen(
                         onIntent = viewModel::handleIntent
                     )
                 }
-                item {
-                    ControlButtons(
-                        onIntent = viewModel::handleIntent
-                    )
-                }
             }
+            ControlButtons(
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp),
+                onIntent = viewModel::handleIntent
+            )
         }
     }
 
@@ -153,11 +131,11 @@ fun RelayMapDialog(onDismissRequest: () -> Unit) {
                 .padding(12.dp)
         ) {
             Image(
-                painter = painter,
-                contentDescription = "Relay Mode Map",
                 modifier = Modifier
                     .fillMaxWidth()
                     .aspectRatio(painter.aspectRatioOr()),
+                painter = painter,
+                contentDescription = stringResource(R.string.config_relay_map_description),
                 contentScale = ContentScale.Fit
             )
         }
@@ -167,77 +145,68 @@ fun RelayMapDialog(onDismissRequest: () -> Unit) {
 @Composable
 private fun DeviceSettings(uiState: ConfigUiState, onIntent: (ConfigIntent) -> Unit) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        LabelAndValue("VERSION", uiState.version)
+        LabelAndValue(stringResource(R.string.common_version), uiState.version)
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             IntDropdownSettingRow(
-                label = "OPEN SPEED",
+                modifier = Modifier.weight(1f),
+                label = stringResource(R.string.config_open_speed),
                 valueText = uiState.levelOpen.toString(),
                 options = (1..5).toList(),
-                modifier = Modifier.weight(1f),
                 onValueChange = {
                     onIntent(ConfigIntent.SetLevelOpen(it))
                 }
             )
             IntDropdownSettingRow(
-                label = "CLOSE SPEED",
+                modifier = Modifier.weight(1f),
+                label = stringResource(R.string.config_close_speed),
                 valueText = uiState.levelClose.toString(),
                 options = (1..5).toList(),
-                modifier = Modifier.weight(1f),
                 onValueChange = {
                     onIntent(ConfigIntent.SetLevelClose(it))
                 }
             )
         }
         TwoLabelSwitchRow(
-            label1 = "LAMP",
+            label1 = stringResource(R.string.common_lamp),
             checked1 = uiState.lamp == UsageStatus.USE,
             onCheckedChange1 = { onIntent(ConfigIntent.SetLamp(it)) },
-            label2 = "BUZZER",
+            label2 = stringResource(R.string.config_buzzer),
             checked2 = uiState.buzzer == UsageStatus.USE,
             onCheckedChange2 = { onIntent(ConfigIntent.SetBuzzer(it)) }
         )
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            GateStatusSettingRow(
-                label = "LAMP ON",
-                options = listOf(GateStatus.OPENING, GateStatus.OPENED),
-                selectedValue = uiState.lampPosOn,
-                modifier = Modifier.weight(1f),
-                onValueChange = { onIntent(ConfigIntent.SetLampPosOn(it)) }
-            )
-            GateStatusSettingRow(
-                label = "LAMP OFF",
-                options = listOf(GateStatus.CLOSING, GateStatus.CLOSED),
-                selectedValue = uiState.lampPosOff,
-                modifier = Modifier.weight(1f),
-                onValueChange = { onIntent(ConfigIntent.SetLampPosOff(it)) }
-            )
-        }
+        TwoLabelSwitchRow(
+            label1 = stringResource(R.string.config_lamp_on),
+            checked1 = uiState.lampPosOn == GateStatus.OPENING,
+            onCheckedChange1 = {
+                onIntent(ConfigIntent.SetLampPosOn(it))
+            },
+            label2 = stringResource(R.string.config_lamp_off),
+            checked2 = uiState.lampPosOff == GateStatus.CLOSING,
+            onCheckedChange2 = {
+                onIntent(ConfigIntent.SetLampPosOff(it))
+            }
+        )
         LedSettingRow(
-            label = "LED OPEN",
+            label = stringResource(R.string.config_led_open),
             ledStatus = uiState.ledOpenColor,
             gateStatus = uiState.ledOpenPos,
-            gateOptions = listOf(GateStatus.OPENING, GateStatus.OPENED),
             onLedStatusChange = { onIntent(ConfigIntent.SetLedOpen(it)) },
             onGateStatusChange = { onIntent(ConfigIntent.SetLedOpenPos(it)) }
         )
         LedSettingRow(
-            label = "LED CLOSE",
+            label = stringResource(R.string.config_led_close),
             ledStatus = uiState.ledCloseColor,
             gateStatus = uiState.ledClosePos,
-            gateOptions = listOf(GateStatus.CLOSING, GateStatus.CLOSED),
             onLedStatusChange = { onIntent(ConfigIntent.SetLedClose(it)) },
             onGateStatusChange = { onIntent(ConfigIntent.SetLedClosePos(it)) }
         )
         TwoLabelBadgeRow(
-            label1 = "LOOP A",
+            label1 = stringResource(R.string.common_loop_a),
             background1 = uiState.loopA.color,
-            label2 = "LOOP B",
+            label2 = stringResource(R.string.common_loop_b),
             background2 = uiState.loopB.color,
         )
 
@@ -245,13 +214,13 @@ private fun DeviceSettings(uiState: ConfigUiState, onIntent: (ConfigIntent) -> U
         val backgroundColor = if (enabled) MaterialTheme.colorScheme.surfaceVariant else Gray400
 
         IntDropdownSettingRow(
-            label = "DELAY TIME",
+            modifier = Modifier.background(backgroundColor),
+            label = stringResource(R.string.common_delay_time),
             valueText = "${uiState.delayTime} sec",
             options = (1..6).map { it * 10 },
             onValueChange = {
                 onIntent(ConfigIntent.SetDelayTime(it))
             },
-            modifier = Modifier.background(backgroundColor),
             enabled = enabled
         )
         Row(
@@ -259,19 +228,19 @@ private fun DeviceSettings(uiState: ConfigUiState, onIntent: (ConfigIntent) -> U
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             IntDropdownSettingRow(
-                label = "RELAY1",
+                modifier = Modifier.weight(1f),
+                label = stringResource(R.string.common_relay1),
                 valueText = uiState.relay1.toString(),
                 options = (1..12).toList(),
-                modifier = Modifier.weight(1f),
                 onValueChange = {
                     onIntent(ConfigIntent.SetRelay1(it))
                 }
             )
             IntDropdownSettingRow(
-                label = "RELAY2",
+                modifier = Modifier.weight(1f),
+                label = stringResource(R.string.common_relay2),
                 valueText = uiState.relay2.toString(),
                 options = (1..12).toList(),
-                modifier = Modifier.weight(1f),
                 onValueChange = {
                     onIntent(ConfigIntent.SetRelay2(it))
                 }
@@ -282,11 +251,11 @@ private fun DeviceSettings(uiState: ConfigUiState, onIntent: (ConfigIntent) -> U
 
 @Composable
 private fun IntDropdownSettingRow(
+    modifier: Modifier = Modifier,
     label: String,
     valueText: String,
     options: List<Int>,
     onValueChange: (Int) -> Unit,
-    modifier: Modifier = Modifier,
     enabled: Boolean = true,
 ) {
     var expanded by remember { mutableStateOf(false) }
@@ -322,68 +291,27 @@ private fun IntDropdownSettingRow(
 }
 
 @Composable
-fun GateStatusSettingRow(
-    label: String,
-    options: List<GateStatus>,
-    selectedValue: GateStatus,
-    modifier: Modifier = Modifier,
-    onValueChange: (GateStatus) -> Unit
-) {
-    var expanded by remember { mutableStateOf(false) }
-
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(8.dp))
-            .background(MaterialTheme.colorScheme.surfaceVariant)
-            .clickable { expanded = true }
-            .padding(horizontal = 16.dp, vertical = 12.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        Text(label, fontWeight = FontWeight.Bold, fontSize = 16.sp)
-        Box {
-            Text(text = selectedValue.name, fontSize = 16.sp)
-            DropdownMenu(
-                expanded = expanded,
-                onDismissRequest = { expanded = false }
-            ) {
-                options.forEach { option ->
-                    DropdownMenuItem(
-                        text = { Text(option.name) },
-                        onClick = {
-                            onValueChange(option)
-                            expanded = false
-                        }
-                    )
-                }
-            }
-        }
-    }
-}
-
-@Composable
 fun TwoLabelSwitchRow(
+    modifier: Modifier = Modifier,
     label1: String,
     checked1: Boolean,
     onCheckedChange1: (Boolean) -> Unit,
     label2: String,
     checked2: Boolean,
-    onCheckedChange2: (Boolean) -> Unit,
-    modifier: Modifier = Modifier
+    onCheckedChange2: (Boolean) -> Unit
 ) {
     Row(modifier = modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         LabelSwitch(
+            modifier = Modifier.weight(1f),
             label = label1,
             checked = checked1,
-            onCheckedChange = onCheckedChange1,
-            modifier = Modifier.weight(1f)
+            onCheckedChange = onCheckedChange1
         )
         LabelSwitch(
+            modifier = Modifier.weight(1f),
             label = label2,
             checked = checked2,
-            onCheckedChange = onCheckedChange2,
-            modifier = Modifier.weight(1f)
+            onCheckedChange = onCheckedChange2
         )
     }
 }
@@ -393,12 +321,10 @@ fun LedSettingRow(
     label: String,
     ledStatus: LedStatus,
     gateStatus: GateStatus,
-    gateOptions: List<GateStatus>,
     onLedStatusChange: (LedStatus) -> Unit,
-    onGateStatusChange: (GateStatus) -> Unit
+    onGateStatusChange: (Boolean) -> Unit
 ) {
     var ledExpanded by remember { mutableStateOf(false) }
-    var gateExpanded by remember { mutableStateOf(false) }
 
     Row(
         modifier = Modifier
@@ -410,16 +336,16 @@ fun LedSettingRow(
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Text(
+            modifier = Modifier.weight(2f),
             text = label,
             fontWeight = FontWeight.Bold,
-            fontSize = 16.sp,
-            modifier = Modifier.weight(2f)
+            fontSize = 16.sp
         )
         Box(modifier = Modifier.weight(1.5f)) {
             ColorBadge(
+                modifier = Modifier.clickable { ledExpanded = true },
                 color = ledStatus.color,
-                colorName = ledStatus.name,
-                modifier = Modifier.clickable { ledExpanded = true }
+                colorName = stringResourceForLedStatus(ledStatus)
             )
             DropdownMenu(
                 expanded = ledExpanded,
@@ -427,7 +353,7 @@ fun LedSettingRow(
             ) {
                 LedStatus.entries.forEach { status ->
                     DropdownMenuItem(
-                        text = { Text(status.name) },
+                        text = { Text(stringResourceForLedStatus(status)) },
                         onClick = {
                             onLedStatusChange(status)
                             ledExpanded = false
@@ -436,28 +362,32 @@ fun LedSettingRow(
                 }
             }
         }
-        Box(modifier = Modifier.weight(1.5f), contentAlignment = Alignment.Center) {
-            Text(gateStatus.name, modifier = Modifier.clickable { gateExpanded = true })
-            DropdownMenu(
-                expanded = gateExpanded,
-                onDismissRequest = { gateExpanded = false }
-            ) {
-                gateOptions.forEach { status ->
-                    DropdownMenuItem(
-                        text = { Text(status.name) },
-                        onClick = {
-                            onGateStatusChange(status)
-                            gateExpanded = false
-                        }
-                    )
+
+        val configLedOpenLabel = stringResource(R.string.config_led_open)
+        val configLedCloseLabel = stringResource(R.string.config_led_close)
+
+        val isChecked = when (label) { // TODO: 하드코딩 제거
+            configLedOpenLabel -> gateStatus == GateStatus.OPENING
+            configLedCloseLabel -> gateStatus == GateStatus.CLOSING
+            else -> false
+        }
+
+        LabelSwitch(
+            modifier = Modifier.weight(1.5f),
+            label = "",
+            checked = isChecked,
+            onCheckedChange = {
+                when (label) {
+                    configLedOpenLabel -> onGateStatusChange(it)
+                    configLedCloseLabel -> onGateStatusChange(it)
                 }
             }
-        }
+        )
     }
 }
 
 @Composable
-fun ColorBadge(color: Color, colorName: String, modifier: Modifier = Modifier) {
+fun ColorBadge(modifier: Modifier = Modifier, color: Color, colorName: String) {
     Box(
         modifier = modifier
             .clip(RoundedCornerShape(50))
@@ -476,11 +406,11 @@ fun ColorBadge(color: Color, colorName: String, modifier: Modifier = Modifier) {
 
 @Composable
 fun TwoLabelBadgeRow(
+    modifier: Modifier = Modifier,
     label1: String,
     background1: Color,
     label2: String,
     background2: Color,
-    modifier: Modifier = Modifier,
     textColor: Color = Color.Black
 ) {
     Row(
@@ -488,44 +418,61 @@ fun TwoLabelBadgeRow(
         horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         StatusBadge(
+            modifier = Modifier.weight(1f),
             text = label1,
             textColor = textColor,
             backgroundColor = background1,
-            shape = RoundedCornerShape(24.dp),
-            modifier = Modifier.weight(1f)
+            shape = RoundedCornerShape(24.dp)
         )
         StatusBadge(
+            modifier = Modifier.weight(1f),
             text = label2,
             textColor = textColor,
             backgroundColor = background2,
-            shape = RoundedCornerShape(24.dp),
-            modifier = Modifier.weight(1f)
+            shape = RoundedCornerShape(24.dp)
         )
     }
 }
 
 @Composable
-private fun ControlButtons(onIntent: (ConfigIntent) -> Unit) {
-    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+private fun ControlButtons(
+    modifier: Modifier = Modifier,
+    onIntent: (ConfigIntent) -> Unit
+) {
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
         ControlButton(
             modifier = Modifier.weight(1f),
-            text = "Relay\nMode",
+            text = stringResource(R.string.config_relay_map_button),
             onClick = { onIntent(ConfigIntent.ShowRelayMap) }
         )
         ControlButton(
             modifier = Modifier.weight(1f),
-            text = "Load\nconfig",
+            text = stringResource(R.string.config_load_config_button),
             onClick = { onIntent(ConfigIntent.LoadConfig) }
         )
         ControlButton(
             modifier = Modifier.weight(1f),
-            text = "Save\nconfig",
+            text = stringResource(R.string.config_save_config_button),
             onClick = { onIntent(ConfigIntent.SaveConfig) }
         )
         ControlButton(
-            text = "Factory",
             modifier = Modifier.weight(1f),
+            text = stringResource(R.string.config_factory_button),
             onClick = { onIntent(ConfigIntent.FactoryReset) }
         )
+    }
+}
+
+@Composable
+fun stringResourceForLedStatus(ledStatus: LedStatus): String {
+    return when (ledStatus) {
+        LedStatus.OFF -> stringResource(R.string.common_off)
+        LedStatus.BLUE -> stringResource(R.string.common_blue)
+        LedStatus.GREEN -> stringResource(R.string.common_green)
+        LedStatus.RED -> stringResource(R.string.common_red)
+        LedStatus.WHITE -> stringResource(R.string.common_white)
     }
 }
