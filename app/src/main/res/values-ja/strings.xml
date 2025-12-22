@@ -1,0 +1,79 @@
+<resources>
+    <string name="app_name" translatable="false">プレミアムゲートコントローラー</string>
+    <!-- Login / Common -->
+    <string name="login_email_hint">メールアドレス</string>
+    <string name="login_password_hint">パスワード</string>
+    <string name="login_log_in_button">ログイン</string>
+    <string name="login_sign_in_button">サインイン</string>
+    <string name="login_forgot_password">パスワード再登録</string>
+
+    <!-- Main Screen / Common -->
+    <string name="common_logout">ログアウト</string>
+    <string name="common_connect">接続</string>
+    <string name="common_back">戻る</string>
+    <string name="common_logo_description">アプリのロゴ</string>
+
+    <!-- Monitoring Screen -->
+    <string name="common_version">バージョン</string>
+    <string name="monitoring_gate">ゲート</string>
+    <string name="common_lamp">ランプ</string>
+    <string name="common_led">LED</string>
+    <string name="common_relay1">リレー1</string>
+    <string name="common_relay2">リレー2</string>
+    <string name="monitoring_sensors1">センサ1</string>
+    <string name="monitoring_sensors2">センサ2</string>
+    <string name="common_photo1">フォト1</string>
+    <string name="common_photo2">フォト2</string>
+    <string name="common_open1">開ける1</string>
+    <string name="common_close1">閉める1</string>
+    <string name="common_open2">開ける2</string>
+    <string name="common_close2">閉める2</string>
+    <string name="common_open3">開ける3</string>
+    <string name="common_close3">閉める3</string>
+    <string name="common_loop_a">ループA</string>
+    <string name="common_loop_b">ループB</string>
+    <string name="monitoring_test_start_button">テスト開始</string>
+    <string name="monitoring_test_stop_button">テスト停止</string>
+    <string name="monitoring_config_button">設定</string>
+    <string name="common_delay_time">遅延時間</string>
+
+
+    <!-- Configuration Screen -->
+    <string name="config_title">構成</string>
+    <string name="config_open_speed">開ける速度</string>
+    <string name="config_close_speed">閉める速度</string>
+    <string name="config_buzzer">ブザー</string>
+    <string name="config_lamp_on">ランプオン</string>
+    <string name="config_lamp_off">ランプオフ</string>
+    <string name="config_led_open">LED開端</string>
+    <string name="config_led_close">LED閉端</string>
+    <string name="config_relay_map_button">リレーモード</string>
+    <string name="config_load_config_button">設定ロード</string>
+    <string name="config_save_config_button">設定保存</string>
+    <string name="config_factory_button">リセット</string>
+    <string name="config_relay_map_description">リレーモードマップ</string>
+
+    <!-- Board Test Screen -->
+    <string name="board_test_title">ボードテスト</string>
+    <string name="board_test_output">出力信号</string>
+    <string name="board_test_input">入力信号</string>
+    <string name="board_test_sensors1">センサー1</string>
+    <string name="board_test_sensors2">センサー2</string>
+    <string name="common_off">オフ</string>
+    <string name="common_blue">青</string>
+    <string name="common_green">緑</string>
+    <string name="common_red">赤</string>
+    <string name="common_white">白</string>
+    <string name="common_position">設置位置</string>
+    <string name="common_open">開ける</string>
+    <string name="common_close">閉める</string>
+    <string name="common_gate_opening">開いている</string>
+    <string name="common_gate_opened">開いた</string>
+    <string name="common_gate_closing">閉じている</string>
+    <string name="common_gate_closed">閉じた</string>
+    <string name="board_test_gate_open_button">ゲート開ける</string>
+    <string name="board_test_gate_close_button">ゲート閉める</string>
+    <string name="board_test_open_stop_button">開く停止</string>
+    <string name="board_test_close_stop_button">閉じる停止</string>
+
+</resources>

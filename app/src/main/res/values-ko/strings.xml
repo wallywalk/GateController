@@ -1,0 +1,81 @@
+<resources>
+    <string name="app_name" translatable="false">Premium Gate Controller</string>
+    <!-- Login / Common -->
+    <string name="login_email_hint">Email.</string>
+    <string name="login_password_hint">Password.</string>
+    <string name="login_log_in_button">로그인</string>
+    <string name="login_sign_in_button">등록</string>
+    <string name="login_forgot_password">비밀번호재등록</string>
+
+    <!-- Main Screen / Common -->
+    <string name="common_logout">로그아웃</string>
+    <string name="common_connect">연결</string>
+    <string name="common_back">뒤로</string>
+    <string name="common_logo_description">앱 로고</string>
+
+    <!-- Monitoring Screen -->
+    <string name="monitoring_title">모니터링</string>
+    <string name="common_version">버전</string>
+    <string name="monitoring_gate">게이트</string>
+    <string name="common_lamp">램프</string>
+    <string name="common_led">LED</string>
+    <string name="common_relay1">릴레이1</string>
+    <string name="common_relay2">릴레이2</string>
+    <string name="monitoring_sensors1">포토센서1</string>
+    <string name="monitoring_sensors2">포토센서2</string>
+    <string name="common_photo1">포토1</string>
+    <string name="common_photo2">포토2</string>
+    <string name="common_open1">열림1</string>
+    <string name="common_close1">닫힘1</string>
+    <string name="common_open2">열림2</string>
+    <string name="common_close2">닫힘2</string>
+    <string name="common_open3">열림3</string>
+    <string name="common_close3">닫힘3</string>
+    <string name="common_loop_a">루프A</string>
+    <string name="common_loop_b">루프B</string>
+    <string name="monitoring_test_start_button">테스트 시작</string>
+    <string name="monitoring_test_stop_button">테스트 중지</string>
+    <string name="monitoring_config_button">설정</string>
+    <string name="monitoring_board_test_button">보드 테스트</string>
+    <string name="common_delay_time">지연시간</string>
+
+
+    <!-- Configuration Screen -->
+    <string name="config_title">설정</string>
+    <string name="config_open_speed">열림속도</string>
+    <string name="config_close_speed">닫힘속도</string>
+    <string name="config_buzzer">부저</string>
+    <string name="config_lamp_on">램프켜짐</string>
+    <string name="config_lamp_off">램프꺼짐</string>
+    <string name="config_led_open">LED열림</string>
+    <string name="config_led_close">LED닫힘</string>
+    <string name="config_relay_map_button">릴레이모드</string>
+    <string name="config_load_config_button">설정불러오기</string>
+    <string name="config_save_config_button">설정저장하기</string>
+    <string name="config_factory_button">공장초기화</string>
+    <string name="config_relay_map_description">릴레이 모드 맵</string>
+
+    <!-- Board Test Screen -->
+    <string name="board_test_title">보드테스트</string>
+    <string name="board_test_output">출력신호</string>
+    <string name="board_test_input">입력신호</string>
+    <string name="board_test_sensors1">센서1</string>
+    <string name="board_test_sensors2">센서2</string>
+    <string name="common_off">꺼짐</string>
+    <string name="common_blue">파란색</string>
+    <string name="common_green">녹색</string>
+    <string name="common_red">빨간색</string>
+    <string name="common_white">하얀색</string>
+    <string name="common_position">설치위치</string>
+    <string name="common_open">열림</string>
+    <string name="common_close">닫힘</string>
+    <string name="common_gate_opening">열리는 중</string>
+    <string name="common_gate_opened">열림</string>
+    <string name="common_gate_closing">닫히는 중</string>
+    <string name="common_gate_closed">닫힘</string>
+    <string name="board_test_gate_open_button">게이트 열림</string>
+    <string name="board_test_gate_close_button">게이트 닫힘</string>
+    <string name="board_test_open_stop_button">열림 중지</string>
+    <string name="board_test_close_stop_button">닫힘 중지</string>
+
+</resources>

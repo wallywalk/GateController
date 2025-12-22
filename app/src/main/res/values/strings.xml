@@ -1,3 +1,82 @@
 <resources>
-    <string name="app_name">GateController</string>
+    <string name="app_name" translatable="false">Premium Gate Controller</string>
+    <!-- Login / Common -->
+    <string name="login_email_hint">Email.</string>
+    <string name="login_password_hint">Password.</string>
+    <string name="login_log_in_button">LOG IN</string>
+    <string name="login_sign_in_button">SIGN IN</string>
+    <string name="login_forgot_password">Forgot Password?</string>
+
+    <!-- Main Screen / Common -->
+    <string name="main_app_title" translatable="false">Gate Controller</string>
+    <string name="common_logout">Logout</string>
+    <string name="common_connect">Connect</string>
+    <string name="common_back">Back</string>
+    <string name="common_logo_description">App Logo</string>
+
+    <!-- Monitoring Screen -->
+    <string name="monitoring_title" translatable="false">MONITORING</string>
+    <string name="common_version">VERSION</string>
+    <string name="monitoring_gate">GATE</string>
+    <string name="common_lamp">LAMP</string>
+    <string name="common_led">LED</string>
+    <string name="common_relay1">RELAY1</string>
+    <string name="common_relay2">RELAY2</string>
+    <string name="monitoring_sensors1">SENSORS1</string>
+    <string name="monitoring_sensors2">SENSORS2</string>
+    <string name="common_photo1">PHOTO1</string>
+    <string name="common_photo2">PHOTO2</string>
+    <string name="common_open1">OPEN1</string>
+    <string name="common_close1">CLOSE1</string>
+    <string name="common_open2">OPEN2</string>
+    <string name="common_close2">CLOSE2</string>
+    <string name="common_open3">OPEN3</string>
+    <string name="common_close3">CLOSE3</string>
+    <string name="common_loop_a">LOOP A</string>
+    <string name="common_loop_b">LOOP B</string>
+    <string name="monitoring_test_start_button">TEST START</string>
+    <string name="monitoring_test_stop_button">TEST STOP</string>
+    <string name="monitoring_config_button">CONFIG</string>
+    <string name="monitoring_board_test_button" translatable="false">BOARD TEST</string>
+    <string name="common_delay_time">DELAY TIME</string>
+
+
+    <!-- Configuration Screen -->
+    <string name="config_title">CONFIGURATION</string>
+    <string name="config_open_speed">OPEN SPEED</string>
+    <string name="config_close_speed">CLOSE SPEED</string>
+    <string name="config_buzzer">BUZZER</string>
+    <string name="config_lamp_on">LAMP ON</string>
+    <string name="config_lamp_off">LAMP OFF</string>
+    <string name="config_led_open">LED OPEN</string>
+    <string name="config_led_close">LED CLOSE</string>
+    <string name="config_relay_map_button">RELAY MAP</string>
+    <string name="config_load_config_button">LOAD CONFIG</string>
+    <string name="config_save_config_button">SAVE CONFIG</string>
+    <string name="config_factory_button">FACTORY</string>
+    <string name="config_relay_map_description">Relay Mode Map</string>
+
+    <!-- Board Test Screen -->
+    <string name="board_test_title">BOARD TEST</string>
+    <string name="board_test_output">OUTPUT</string>
+    <string name="board_test_input">INPUT</string>
+    <string name="board_test_sensors1">SENSORS1</string>
+    <string name="board_test_sensors2">SENSORS2</string>
+    <string name="common_off">OFF</string>
+    <string name="common_blue">BLUE</string>
+    <string name="common_green">GREEN</string>
+    <string name="common_red">RED</string>
+    <string name="common_white">WHITE</string>
+    <string name="common_position">POSITION</string>
+    <string name="common_open">OPEN</string>
+    <string name="common_close">CLOSE</string>
+    <string name="common_gate_opening">OPENING</string>
+    <string name="common_gate_opened">OPENED</string>
+    <string name="common_gate_closing">CLOSING</string>
+    <string name="common_gate_closed">CLOSED</string>
+    <string name="board_test_gate_open_button">GATE OPEN</string>
+    <string name="board_test_gate_close_button">GATE CLOSE</string>
+    <string name="board_test_open_stop_button">OPEN STOP</string>
+    <string name="board_test_close_stop_button">CLOSE STOP</string>
+
 </resources>
