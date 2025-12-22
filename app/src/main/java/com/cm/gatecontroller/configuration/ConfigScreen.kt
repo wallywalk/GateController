@@ -1,6 +1,5 @@
 package com.cm.gatecontroller.configuration
 
-import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -33,7 +32,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -51,10 +49,10 @@ import com.cm.gatecontroller.model.LedStatus
 import com.cm.gatecontroller.model.color
 import com.cm.gatecontroller.ui.theme.Gray400
 import com.cm.gatecontroller.ui.theme.White100
-import com.cm.gatecontroller.ui.theme.component.ControlButton
-import com.cm.gatecontroller.ui.theme.component.LabelAndValue
-import com.cm.gatecontroller.ui.theme.component.LabelSwitch
-import com.cm.gatecontroller.ui.theme.component.StatusBadge
+import com.cm.gatecontroller.ui.component.ControlButton
+import com.cm.gatecontroller.ui.component.LabelAndValue
+import com.cm.gatecontroller.ui.component.LabelSwitch
+import com.cm.gatecontroller.ui.component.StatusBadge
 import com.cm.gatecontroller.util.aspectRatioOr
 import kotlinx.coroutines.flow.collectLatest
 

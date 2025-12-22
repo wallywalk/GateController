@@ -42,7 +42,7 @@ import com.cm.gatecontroller.configuration.ConfigurationScreen
 import com.cm.gatecontroller.connection.ConnectionStatus
 import com.cm.gatecontroller.connection.ConnectionViewModel
 import com.cm.gatecontroller.monitoring.MonitoringScreen
-import com.cm.gatecontroller.ui.component.DebugView
+import com.cm.gatecontroller.debug.DebugView
 import com.cm.gatecontroller.user.UserViewModel
 import kotlinx.coroutines.launch
 

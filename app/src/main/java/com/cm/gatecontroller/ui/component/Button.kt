@@ -1,4 +1,4 @@
-package com.cm.gatecontroller.ui.theme.component
+package com.cm.gatecontroller.ui.component
 
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
