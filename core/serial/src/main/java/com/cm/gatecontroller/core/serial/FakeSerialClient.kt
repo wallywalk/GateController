@@ -1,5 +1,6 @@
 package com.cm.gatecontroller.core.serial
 
+import android.hardware.usb.UsbDevice
 import com.cm.gatecontroller.core.serial.model.DeviceItem
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -15,6 +16,22 @@ class FakeSerialClient : SerialClient {
     override val responses = _responses.asSharedFlow()
 
     private val scope = CoroutineScope(Dispatchers.IO)
+
+    override fun getAvailableDevices(): List<DeviceItem> {
+        return emptyList()
+    }
+
+    override fun requestPermission(device: UsbDevice) {
+        // No-op for fake client
+    }
+
+    override suspend fun connect(deviceItem: DeviceItem): Result<Unit> {
+        return Result.success(Unit)
+    }
+
+    override fun disconnect() {
+        // No-op for fake client
+    }
 
     override suspend fun sendCommand(command: String) {
         scope.launch {
@@ -32,17 +49,5 @@ class FakeSerialClient : SerialClient {
             }
             _responses.emit(response)
         }
-    }
-
-    override suspend fun connect(deviceItem: DeviceItem): Result<Unit> {
-        return Result.success(Unit)
-    }
-
-    override fun disconnect() {
-        // No-op for fake client
-    }
-
-    override fun getAvailableDevices(): List<DeviceItem> {
-        return emptyList()
     }
 }
