@@ -1,5 +1,6 @@
 package com.cm.gatecontroller.configuration
 
+import android.net.Uri
 import androidx.compose.runtime.Immutable
 import com.cm.gatecontroller.configuration.model.UsageStatus
 import com.cm.gatecontroller.model.GateStatus
@@ -23,7 +24,8 @@ data class ConfigUiState(
     val delayTime: Int = 0,
     val relay1: Int = 0,
     val relay2: Int = 0,
-    val isLoading: Boolean = true
+    val isLoading: Boolean = true,
+    val progressMessage: String? = null
 )
 
 sealed interface ConfigIntent {
@@ -45,11 +47,15 @@ sealed interface ConfigIntent {
     data class SetRelay2(val value: Int) : ConfigIntent
     data object FactoryReset : ConfigIntent
     data object SaveConfig : ConfigIntent
+    data class SaveConfigToUri(val uri: Uri) : ConfigIntent
     data object LoadConfig : ConfigIntent
+    data class LoadConfigFromUri(val uri: Uri) : ConfigIntent
     data object ShowRelayMap : ConfigIntent
 }
 
 sealed interface ConfigSideEffect {
     data class ShowSnackbar(val message: String) : ConfigSideEffect
     data object ShowRelayMapDialog : ConfigSideEffect
+    data object OpenFileForLoad : ConfigSideEffect
+    data class CreateFileForSave(val fileName: String) : ConfigSideEffect
 }

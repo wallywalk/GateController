@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface SerialClient {
     val responses: Flow<String>
+    val permissionEvents: Flow<Boolean>
     fun getAvailableDevices(): List<DeviceItem>
     fun requestPermission(device: UsbDevice)
     suspend fun connect(deviceItem: DeviceItem): Result<Unit>

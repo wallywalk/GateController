@@ -1,5 +1,8 @@
 package com.cm.gatecontroller.configuration
 
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -8,16 +11,17 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -47,16 +51,15 @@ import com.cm.gatecontroller.configuration.model.color
 import com.cm.gatecontroller.model.GateStatus
 import com.cm.gatecontroller.model.LedStatus
 import com.cm.gatecontroller.model.color
-import com.cm.gatecontroller.ui.theme.Gray400
-import com.cm.gatecontroller.ui.theme.White100
 import com.cm.gatecontroller.ui.component.ControlButton
 import com.cm.gatecontroller.ui.component.LabelAndValue
 import com.cm.gatecontroller.ui.component.LabelSwitch
 import com.cm.gatecontroller.ui.component.StatusBadge
+import com.cm.gatecontroller.ui.theme.Gray400
+import com.cm.gatecontroller.ui.theme.White100
 import com.cm.gatecontroller.util.aspectRatioOr
 import kotlinx.coroutines.flow.collectLatest
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ConfigurationScreen(
     navController: NavHostController,
@@ -65,6 +68,24 @@ fun ConfigurationScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     var showRelayMapDialog by remember { mutableStateOf(false) }
+
+    val loadConfigLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocument(),
+        onResult = { uri: Uri? ->
+            uri?.let {
+                viewModel.handleIntent(ConfigIntent.LoadConfigFromUri(it))
+            }
+        }
+    )
+
+    val saveConfigLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.CreateDocument("application/octet-stream"),
+        onResult = { uri: Uri? ->
+            uri?.let {
+                viewModel.handleIntent(ConfigIntent.SaveConfigToUri(it))
+            }
+        }
+    )
 
     LaunchedEffect(Unit) {
         viewModel.sideEffect.collectLatest { effect ->
@@ -76,44 +97,83 @@ fun ConfigurationScreen(
                 is ConfigSideEffect.ShowRelayMapDialog -> {
                     showRelayMapDialog = true
                 }
+
+                is ConfigSideEffect.OpenFileForLoad -> {
+                    loadConfigLauncher.launch(arrayOf("*/*"))
+                }
+
+                is ConfigSideEffect.CreateFileForSave -> {
+                    saveConfigLauncher.launch(effect.fileName)
+                }
             }
         }
     }
 
-    if (uiState.isLoading) {
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ) {
-            CircularProgressIndicator()
-        }
-    } else {
-        Column(
-            modifier = Modifier.fillMaxSize()
-        ) {
-            LazyColumn(
-                modifier = Modifier.weight(1f),
-                contentPadding = PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
+    Box(modifier = Modifier.fillMaxSize()) {
+        if (uiState.isLoading) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
             ) {
-                item {
-                    DeviceSettings(
-                        uiState = uiState,
-                        onIntent = viewModel::handleIntent
-                    )
-                }
+                CircularProgressIndicator()
             }
-            ControlButtons(
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp),
-                onIntent = viewModel::handleIntent
+        } else {
+            Column(
+                modifier = Modifier.fillMaxSize()
+            ) {
+                LazyColumn(
+                    modifier = Modifier.weight(1f),
+                    contentPadding = PaddingValues(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    item {
+                        DeviceSettings(
+                            uiState = uiState,
+                            onIntent = viewModel::handleIntent
+                        )
+                    }
+                }
+                ControlButtons(
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp),
+                    onIntent = viewModel::handleIntent
+                )
+            }
+        }
+
+        if (showRelayMapDialog) {
+            RelayMapDialog(onDismissRequest = { showRelayMapDialog = false })
+        }
+
+        uiState.progressMessage?.let {
+            ProgressView(it)
+        }
+    }
+}
+
+@Composable
+private fun ProgressView(message: String) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black.copy(alpha = 0.5f))
+            .clickable(enabled = false, onClick = {}),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            CircularProgressIndicator(color = Color.White)
+            Text(
+                text = message,
+                color = Color.White,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold
             )
         }
     }
-
-    if (showRelayMapDialog) {
-        RelayMapDialog(onDismissRequest = { showRelayMapDialog = false })
-    }
 }
+
 
 @Composable
 fun RelayMapDialog(onDismissRequest: () -> Unit) {

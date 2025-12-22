@@ -1,12 +1,15 @@
 package com.cm.gatecontroller.core.serial
 
 import android.app.PendingIntent
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.hardware.usb.UsbDevice
 import android.hardware.usb.UsbManager
-import com.cm.gatecontroller.core.serial.model.DeviceItem
+import androidx.core.content.ContextCompat
 import com.cm.gatecontroller.core.logger.Logger
+import com.cm.gatecontroller.core.serial.model.DeviceItem
 import com.hoho.android.usbserial.driver.Ch34xSerialDriver
 import com.hoho.android.usbserial.driver.ProbeTable
 import com.hoho.android.usbserial.driver.UsbSerialPort
@@ -38,19 +41,44 @@ class RealSerialClient @Inject constructor(
     private val _responses = MutableSharedFlow<String>()
     override val responses = _responses.asSharedFlow()
 
+    private val _permissionEvents = MutableSharedFlow<Boolean>()
+    override val permissionEvents = _permissionEvents.asSharedFlow()
+
+    private val permissionReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            if (intent?.action == ACTION_USB_PERMISSION) {
+                val granted = intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)
+                debugLogger.d(TAG, "Permission broadcast received. Granted: $granted")
+                scope.launch {
+                    _permissionEvents.emit(granted)
+                }
+            }
+        }
+    }
+
+    init {
+        debugLogger.d(TAG, "init - registering permission receiver.")
+        ContextCompat.registerReceiver(
+            context,
+            permissionReceiver,
+            IntentFilter(ACTION_USB_PERMISSION),
+            ContextCompat.RECEIVER_NOT_EXPORTED
+        )
+    }
+
     override fun getAvailableDevices(): List<DeviceItem> {
-        debugLogger.log(TAG, "getAvailableDevices() called")
+        debugLogger.d(TAG, "getAvailableDevices() called")
         val defaultProber = UsbSerialProber.getDefaultProber()
         val customTable = ProbeTable()
         customTable.addProduct(0x1A86, 0x7522, Ch34xSerialDriver::class.java)
         val customProber = UsbSerialProber(customTable)
 
-        debugLogger.log(TAG, "Enumerating connected USB devices...")
+        debugLogger.d(TAG, "Enumerating connected USB devices...")
         val deviceItems = mutableListOf<DeviceItem>()
         for (device in usbManager.deviceList.values) {
             val vid = device.vendorId
             val pid = device.productId
-            debugLogger.log(
+            debugLogger.d(
                 TAG,
                 "Checking device: ${device.deviceName} (VID: ${"0x%04X".format(vid)}, PID: ${
                     "0x%04X".format(pid)
@@ -59,14 +87,14 @@ class RealSerialClient @Inject constructor(
 
             var driver = defaultProber.probeDevice(device)
             if (driver != null) {
-                debugLogger.log(
+                debugLogger.d(
                     TAG,
                     "  -> Found driver with DefaultProber: ${driver.javaClass.simpleName}"
                 )
             } else {
                 driver = customProber.probeDevice(device)
                 if (driver != null) {
-                    debugLogger.log(
+                    debugLogger.d(
                         TAG,
                         "  -> Found driver with CustomProber: ${driver.javaClass.simpleName}"
                     )
@@ -77,103 +105,103 @@ class RealSerialClient @Inject constructor(
                 for (portNumber in 0 until driver.ports.size) {
                     val deviceItem = DeviceItem(driver.device, driver.ports[portNumber])
                     deviceItems.add(deviceItem)
-                    debugLogger.log(
+                    debugLogger.d(
                         TAG,
                         "  -> Added Device: ${deviceItem.device.deviceName}, Port: $portNumber"
                     )
                 }
             } else {
-                debugLogger.log(TAG, "  -> No compatible driver found for this device.")
+                debugLogger.d(TAG, "  -> No compatible driver found for this device.")
             }
         }
 
         if (deviceItems.isEmpty()) {
-            debugLogger.log(TAG, "No devices with compatible drivers found in total.")
+            debugLogger.d(TAG, "No devices with compatible drivers found in total.")
         }
         return deviceItems
     }
 
     override fun requestPermission(device: UsbDevice) {
-        debugLogger.log(TAG, "requestPermission() for ${device.deviceName}")
+        debugLogger.d(TAG, "requestPermission() for ${device.deviceName}")
         val intent = Intent(ACTION_USB_PERMISSION)
         intent.setPackage(context.packageName)
         val pendingIntent =
             PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_IMMUTABLE)
         usbManager.requestPermission(device, pendingIntent)
-        debugLogger.log(TAG, "usbManager.requestPermission() called.")
+        debugLogger.d(TAG, "usbManager.requestPermission() called.")
     }
 
     override suspend fun connect(deviceItem: DeviceItem): Result<Unit> {
-        debugLogger.log(TAG, "connect() called for device: ${deviceItem.device.deviceName}")
+        debugLogger.d(TAG, "connect() called for device: ${deviceItem.device.deviceName}")
         val device = deviceItem.device
         val port = deviceItem.port ?: run {
-            debugLogger.log(TAG, "Connection failed: No port found for device.")
+            debugLogger.d(TAG, "Connection failed: No port found for device.")
             return Result.failure(IOException("No port found"))
         }
 
-        debugLogger.log(TAG, "Checking USB permission.")
+        debugLogger.d(TAG, "Checking USB permission.")
         if (!usbManager.hasPermission(device)) {
-            debugLogger.log(TAG, "Permission not granted. Failing connect().")
+            debugLogger.d(TAG, "Permission not granted. Failing connect().")
             return Result.failure(SecurityException("USB permission not granted."))
         }
-        debugLogger.log(TAG, "Permission already granted.")
+        debugLogger.d(TAG, "Permission already granted.")
 
-        debugLogger.log(TAG, "Opening device...")
+        debugLogger.d(TAG, "Opening device...")
         val connection = usbManager.openDevice(device)
             ?: run {
-                debugLogger.log(TAG, "Connection failed: Could not open device.")
+                debugLogger.d(TAG, "Connection failed: Could not open device.")
                 return Result.failure(IOException("Failed to open device"))
             }
 
         return try {
-            debugLogger.log(TAG, "Opening port...")
+            debugLogger.d(TAG, "Opening port...")
             serialPort = port.apply {
                 open(connection)
-                debugLogger.log(TAG, "Port opened. Setting parameters...")
+                debugLogger.d(TAG, "Port opened. Setting parameters...")
                 setParameters(115200, 8, UsbSerialPort.STOPBITS_1, UsbSerialPort.PARITY_NONE)
-                debugLogger.log(TAG, "Parameters set.")
+                debugLogger.d(TAG, "Parameters set.")
             }
             ioManager = SerialInputOutputManager(serialPort, this).also {
-                debugLogger.log(TAG, "Starting IOManager.")
+                debugLogger.d(TAG, "Starting IOManager.")
                 it.start()
             }
-            debugLogger.log(TAG, "Connection successful.")
+            debugLogger.d(TAG, "Connection successful.")
             Result.success(Unit)
         } catch (e: IOException) {
-            debugLogger.log(TAG, "Connection failed during port setup: ${e.message}")
+            debugLogger.d(TAG, "Connection failed during port setup: ${e.message}")
             disconnect()
             Result.failure(e)
         }
     }
 
     override fun disconnect() {
-        debugLogger.log(TAG, "disconnect() called")
+        debugLogger.d(TAG, "disconnect() called")
         try {
             ioManager?.stop()
             serialPort?.close()
         } catch (e: IOException) {
-            debugLogger.log(TAG, "Error during disconnect: ${e.message}")
+            debugLogger.d(TAG, "Error during disconnect: ${e.message}")
             e.printStackTrace()
         }
         ioManager = null
         serialPort = null
-        debugLogger.log(TAG, "Disconnected.")
+        debugLogger.d(TAG, "Disconnected.")
     }
 
     override suspend fun sendCommand(command: String) {
-        debugLogger.log(TAG, "sendCommand: $command")
+        debugLogger.d(TAG, "sendCommand: $command")
         try {
             val data = (command + "\r\n").toByteArray()
             serialPort?.write(data, 2000)
         } catch (e: IOException) {
-            debugLogger.log(TAG, "Error sending command: ${e.message}")
+            debugLogger.d(TAG, "Error sending command: ${e.message}")
             e.printStackTrace()
         }
     }
 
     override fun onNewData(data: ByteArray) {
         val receivedStr = String(data)
-        debugLogger.log(
+        debugLogger.d(
             TAG,
             "onNewData: ${data.size} bytes\n - STR: $receivedStr - HEX: ${
                 data.joinToString(" ") {
@@ -197,7 +225,7 @@ class RealSerialClient @Inject constructor(
     }
 
     override fun onRunError(e: Exception) {
-        debugLogger.log(TAG, "onRunError: ${e.message}")
+        debugLogger.d(TAG, "onRunError: ${e.message}")
         disconnect()
     }
 

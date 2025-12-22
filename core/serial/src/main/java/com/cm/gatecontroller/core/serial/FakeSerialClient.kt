@@ -5,12 +5,13 @@ import com.cm.gatecontroller.core.serial.model.DeviceItem
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import kotlin.random.Random
 
-class FakeSerialClient : SerialClient {
+class FakeSerialClient(override val permissionEvents: Flow<Boolean>) : SerialClient {
 
     private val _responses = MutableSharedFlow<String>()
     override val responses = _responses.asSharedFlow()

@@ -29,9 +29,9 @@ fun DebugView(
     val listState = rememberLazyListState()
 
     LaunchedEffect(logs.size) {
-//        if (logs.isNotEmpty()) {
-//            listState.animateScrollToItem(logs.size - 1)
-//        }
+        if (logs.isNotEmpty()) {
+            listState.animateScrollToItem(logs.size - 1)
+        }
     }
 
     Column(modifier = modifier) {
