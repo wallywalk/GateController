@@ -62,17 +62,17 @@ import kotlinx.coroutines.flow.collectLatest
 @Composable
 fun ConfigurationScreen(
     navController: NavHostController,
-    viewModel: ConfigViewModel = hiltViewModel()
+    viewModel: ConfigViewModel = hiltViewModel(),
+    showSnackbar: (String) -> Unit,
 ) {
-    val context = LocalContext.current
     val uiState by viewModel.uiState.collectAsState()
     var showRelayMapDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         viewModel.sideEffect.collectLatest { effect ->
             when (effect) {
-                is ConfigSideEffect.ShowToast -> {
-                    Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
+                is ConfigSideEffect.ShowSnackbar -> {
+                    showSnackbar(effect.message)
                 }
 
                 is ConfigSideEffect.ShowRelayMapDialog -> {

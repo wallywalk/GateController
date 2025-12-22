@@ -34,5 +34,5 @@ sealed interface MonitoringIntent {
 }
 
 sealed interface MonitoringSideEffect {
-    data class ShowToast(val message: String) : MonitoringSideEffect
+    data class ShowSnackbar(val message: String) : MonitoringSideEffect
 }

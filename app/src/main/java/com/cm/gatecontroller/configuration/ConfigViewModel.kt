@@ -65,7 +65,7 @@ class ConfigViewModel @Inject constructor(
                 is ConfigIntent.FactoryReset -> serialRepository.factoryReset()
                 is ConfigIntent.SaveConfig, is ConfigIntent.LoadConfig -> {
                     viewModelScope.launch {
-                        _sideEffect.emit(ConfigSideEffect.ShowToast("Not implemented yet"))
+                        _sideEffect.emit(ConfigSideEffect.ShowSnackbar("Not implemented yet"))
                     }
                 }
 
@@ -97,7 +97,7 @@ class ConfigViewModel @Inject constructor(
                         FactoryResponse.OK -> "Factory reset success."
                         FactoryResponse.ERROR -> "Factory reset failed."
                     }
-                    _sideEffect.emit(ConfigSideEffect.ShowToast(message))
+                    _sideEffect.emit(ConfigSideEffect.ShowSnackbar(message))
                 }
         }
     }

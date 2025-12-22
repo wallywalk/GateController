@@ -50,6 +50,6 @@ sealed interface ConfigIntent {
 }
 
 sealed interface ConfigSideEffect {
-    data class ShowToast(val message: String) : ConfigSideEffect
+    data class ShowSnackbar(val message: String) : ConfigSideEffect
     data object ShowRelayMapDialog : ConfigSideEffect
 }
