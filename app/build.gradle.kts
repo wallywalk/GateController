@@ -56,7 +56,8 @@ android {
 }
 
 dependencies {
-    api(project(":core:serial"))
+    implementation(project(":core:serial"))
+    implementation(project(":core:logger"))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
@@ -66,8 +67,8 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     implementation(libs.androidx.lifecycle.runtime.ktx)
-    implementation(libs.androidx.lifecycle.runtimeCompose)
-    implementation(libs.androidx.lifecycle.viewModelCompose)
+    implementation(libs.androidx.lifecycle.runtime.compose)
+    implementation(libs.androidx.lifecycle.viewModel.compose)
 
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.coroutines.core)

@@ -1,19 +1,18 @@
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
-    alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.ksp)
-    alias(libs.plugins.hilt)
 }
 
 android {
-    namespace = "com.cm.gatecontroller.core.serial"
+    namespace = "com.cm.gatecontroller.core.logger"
     compileSdk = 36
 
     defaultConfig {
         minSdk = 28
-    }
 
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
@@ -24,13 +23,6 @@ android {
 }
 
 dependencies {
-    implementation(libs.androidx.core.ktx)
-    implementation(libs.kotlinx.serialization.json)
-    implementation(libs.coroutines.core)
-    implementation(libs.coroutines.android)
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
-    api(libs.usb.serial)
-    implementation(libs.timber)
-    implementation(project(":core:logger"))
 }
