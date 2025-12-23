@@ -1,7 +1,8 @@
 package com.cm.gatecontroller.model
 
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
-import com.cm.gatecontroller.ui.theme.Gray400
 import com.cm.gatecontroller.ui.theme.Yellow300
 
 enum class SwitchStatus {
@@ -9,8 +10,9 @@ enum class SwitchStatus {
     OFF
 }
 
-val SwitchStatus.color: Color
+val SwitchStatus.color: Color // TODO: 이렇게 쓰는게 맞을까?
+    @Composable
     get() = when (this) {
         SwitchStatus.ON -> Yellow300
-        SwitchStatus.OFF -> Gray400
+        SwitchStatus.OFF -> MaterialTheme.colorScheme.primary
     }

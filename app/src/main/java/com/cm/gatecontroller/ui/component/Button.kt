@@ -7,7 +7,6 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ButtonColors
@@ -20,15 +19,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
-import com.cm.gatecontroller.ui.theme.Blue600
 
 @Composable
 fun ControlButton(
@@ -37,10 +33,7 @@ fun ControlButton(
     fontSize: TextUnit = TextUnit.Unspecified,
     onClick: () -> Unit,
     enabled: Boolean = true,
-    colors: ButtonColors = ButtonDefaults.buttonColors(
-        containerColor = Blue600,
-        contentColor = Color.White
-    ),
+    colors: ButtonColors = ButtonDefaults.buttonColors(),
     shape: Shape = RoundedCornerShape(8.dp)
 ) {
     val interactionSource = remember { MutableInteractionSource() }
@@ -60,9 +53,7 @@ fun ControlButton(
     ).value
 
     Surface(
-        modifier = modifier
-            .height(60.dp)
-            .scale(scale),
+        modifier = modifier.scale(scale), // TODO: 버튼 높이
         shape = shape,
         color = colors.containerColor,
         contentColor = colors.contentColor,
@@ -85,7 +76,6 @@ fun ControlButton(
                 modifier = Modifier.fillMaxWidth(),
                 text = text,
                 fontSize = fontSize,
-                fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center
             )
         }

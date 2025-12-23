@@ -1,14 +1,14 @@
 package com.cm.gatecontroller.monitoring
 
 import androidx.compose.runtime.Immutable
-import com.cm.gatecontroller.monitoring.model.ChannelMode
+import com.cm.gatecontroller.R
 import com.cm.gatecontroller.model.LedStatus
 import com.cm.gatecontroller.model.SwitchStatus
 
 @Immutable
 data class MonitoringUiState(
     val version: String = "N/A",
-    val channelMode: ChannelMode = ChannelMode.CLOSE,
+    val gateModeRes: Int = R.string.common_close,
     val lamp: SwitchStatus = SwitchStatus.OFF,
     val led: LedStatus = LedStatus.OFF,
     val relay1: SwitchStatus = SwitchStatus.OFF,

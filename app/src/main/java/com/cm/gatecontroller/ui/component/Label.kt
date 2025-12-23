@@ -27,16 +27,19 @@ fun LabelAndValue(
     modifier: Modifier = Modifier
 ) {
     Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(8.dp))
-            .background(MaterialTheme.colorScheme.surfaceVariant)
-            .padding(horizontal = 16.dp, vertical = 12.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
+        modifier = modifier,
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(label, fontWeight = FontWeight.Bold, fontSize = 16.sp)
-        Text(value, fontSize = 16.sp)
+        Text(
+            modifier = Modifier
+                .weight(1f)
+                .padding(start = 12.dp),
+            text = label
+        )
+        StatusBadge(
+            modifier = Modifier.weight(2f),
+            text = value
+        )
     }
 }
 

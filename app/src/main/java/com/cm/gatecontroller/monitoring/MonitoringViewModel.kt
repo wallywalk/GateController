@@ -2,12 +2,12 @@ package com.cm.gatecontroller.monitoring
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.cm.gatecontroller.R
 import com.cm.gatecontroller.core.serial.SerialRepository
 import com.cm.gatecontroller.core.serial.model.GateControllerState
 import com.cm.gatecontroller.core.serial.model.LedColor
 import com.cm.gatecontroller.core.serial.model.SwitchState
 import com.cm.gatecontroller.core.serial.model.AccessMode
-import com.cm.gatecontroller.monitoring.model.ChannelMode
 import com.cm.gatecontroller.model.LedStatus
 import com.cm.gatecontroller.model.SwitchStatus
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -60,9 +60,9 @@ class MonitoringViewModel @Inject constructor(
     private fun GateControllerState.toMonitoringUiState(): MonitoringUiState {
         return MonitoringUiState( // TODO: copy 불가능?
             version = this.version,
-            channelMode = when (this.accessMode) {
-                AccessMode.OPEN -> ChannelMode.OPEN
-                else -> ChannelMode.CLOSE
+            gateModeRes = when (this.accessMode) {
+                AccessMode.OPEN -> R.string.common_open
+                else -> R.string.common_close
             },
             lamp = when (this.lampState) {
                 SwitchState.ON -> SwitchStatus.ON

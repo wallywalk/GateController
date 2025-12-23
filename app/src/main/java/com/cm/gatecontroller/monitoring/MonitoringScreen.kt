@@ -10,31 +10,26 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.cm.gatecontroller.MainTab
 import com.cm.gatecontroller.R
 import com.cm.gatecontroller.model.color
-import com.cm.gatecontroller.monitoring.model.color
-import com.cm.gatecontroller.ui.theme.Blue600
-import com.cm.gatecontroller.ui.theme.Red500
 import com.cm.gatecontroller.ui.component.ControlButton
 import com.cm.gatecontroller.ui.component.LabelAndValue
 import com.cm.gatecontroller.ui.component.StatusBadge
+import com.cm.gatecontroller.ui.theme.GateControllerTheme
 import kotlinx.coroutines.flow.collectLatest
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -68,23 +63,10 @@ fun MonitoringScreen(
                 LabelAndValue(stringResource(R.string.common_version), uiState.version)
             }
             item {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        modifier = Modifier.weight(1f),
-                        text = stringResource(R.string.monitoring_gate),
-                        fontWeight = FontWeight.Bold
-                    )
-                    TwoStatusBadgesRow(
-                        modifier = Modifier.weight(2f),
-                        label1 = stringResource(R.string.common_close),
-                        backgroundColor1 = uiState.channelMode.color,
-                        label2 = stringResource(R.string.common_open),
-                        backgroundColor2 = uiState.channelMode.color
-                    )
-                }
+                LabelAndValue(
+                    stringResource(R.string.monitoring_gate),
+                    stringResource(uiState.gateModeRes)
+                )
             }
             item {
                 TwoStatusBadgesRow(
@@ -145,9 +127,9 @@ fun MonitoringScreen(
             item {
                 TwoStatusBadgesRow(
                     label1 = uiState.mainPower,
-                    backgroundColor1 = MaterialTheme.colorScheme.surfaceVariant,
+                    backgroundColor1 = MaterialTheme.colorScheme.primary,
                     label2 = uiState.testCount.toString(),
-                    backgroundColor2 = MaterialTheme.colorScheme.surfaceVariant
+                    backgroundColor2 = MaterialTheme.colorScheme.primary
                 )
             }
             item {
@@ -170,10 +152,6 @@ fun MonitoringScreen(
                 modifier = Modifier.weight(1f),
                 text = if (uiState.isTestRunning) stringResource(R.string.monitoring_test_stop_button) else stringResource(
                     R.string.monitoring_test_start_button
-                ),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = if (uiState.isTestRunning) Red500 else Blue600,
-                    contentColor = Color.White
                 ),
                 onClick = { viewModel.handleIntent(MonitoringIntent.ToggleTest) }
             )
@@ -209,6 +187,17 @@ private fun TwoStatusBadgesRow(
             modifier = Modifier.weight(1f),
             text = label2,
             backgroundColor = backgroundColor2
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun MonitoringScreenPreview() {
+    GateControllerTheme {
+        MonitoringScreen(
+            navController = androidx.navigation.compose.rememberNavController(),
+            showSnackbar = {}
         )
     }
 }
