@@ -14,9 +14,10 @@ import com.cm.gatecontroller.model.LedStatus
 import com.cm.gatecontroller.model.SwitchStatus
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -30,13 +31,20 @@ class BoardTestViewModel @Inject constructor(
     private val _sideEffect = Channel<BoardTestSideEffect>()
     val sideEffect = _sideEffect.receiveAsFlow()
 
-    val uiState: StateFlow<BoardTestUiState> = serialRepository.deviceStatus
-        .map { it.toBoardTestUiState() }
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = BoardTestUiState(isLoading = true)
+    private val _gateState = MutableStateFlow(true)
+
+    val uiState: StateFlow<BoardTestUiState> = combine(
+        serialRepository.deviceStatus,
+        _gateState // TODO: combine 말고 다른 방법은?
+    ) { deviceStatus, isGateOpen ->
+        deviceStatus.toBoardTestUiState().copy(
+            isGateOpen = isGateOpen
         )
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = BoardTestUiState(isLoading = true)
+    )
 
     init {
         handleIntent(BoardTestIntent.Initialize)
@@ -63,8 +71,15 @@ class BoardTestViewModel @Inject constructor(
 
                 is BoardTestIntent.SelectLed -> serialRepository.setControlLed(intent.color.name)
                 is BoardTestIntent.RequestPosition -> serialRepository.requestPosition()
-                is BoardTestIntent.ToggleGateOpen -> serialRepository.openGateTest()
-                is BoardTestIntent.ToggleGateClose -> serialRepository.closeGateTest()
+                is BoardTestIntent.ToggleGate -> {
+                    if (_gateState.value) {
+                        serialRepository.openGateTest()
+                    } else {
+                        serialRepository.closeGateTest()
+                    }
+                    _gateState.value = !_gateState.value
+                }
+
                 is BoardTestIntent.ToggleGateStop -> serialRepository.stopGateTest()
             }
         }

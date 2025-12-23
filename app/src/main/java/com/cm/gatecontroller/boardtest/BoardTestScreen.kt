@@ -21,9 +21,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -33,17 +30,15 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.cm.gatecontroller.R
-import com.cm.gatecontroller.model.GateStatus
 import com.cm.gatecontroller.model.LedStatus
 import com.cm.gatecontroller.model.SwitchStatus
 import com.cm.gatecontroller.model.color
-import com.cm.gatecontroller.ui.theme.Blue600
-import com.cm.gatecontroller.ui.theme.Gray400
-import com.cm.gatecontroller.ui.theme.Red500
 import com.cm.gatecontroller.ui.component.ControlButton
 import com.cm.gatecontroller.ui.component.LabelAndButton
 import com.cm.gatecontroller.ui.component.LabelAndValue
 import com.cm.gatecontroller.ui.component.StatusBadge
+import com.cm.gatecontroller.ui.theme.Blue600
+import com.cm.gatecontroller.ui.theme.Gray400
 import kotlinx.coroutines.flow.collectLatest
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -83,7 +78,7 @@ fun BoardTestScreen(
             )
         }
         ControlButtons(
-            gateStatus = uiState.gateStatus,
+            isGateOpen = uiState.isGateOpen,
             onIntent = viewModel::handleIntent
         )
     }
@@ -242,18 +237,14 @@ private fun InputBadgeRow(items: List<Pair<String, SwitchStatus>>) {
 
 @Composable
 private fun ControlButtons(
-    gateStatus: GateStatus,
+    isGateOpen: Boolean,
     onIntent: (BoardTestIntent) -> Unit
 ) {
-    var isOpen by remember(gateStatus) { mutableStateOf(gateStatus == GateStatus.OPENING || gateStatus == GateStatus.OPENED) }
-    var isClose by remember(gateStatus) {
-        mutableStateOf(gateStatus == GateStatus.CLOSING || gateStatus == GateStatus.CLOSED)
+    val buttonText = if (isGateOpen) {
+        stringResource(R.string.board_test_gate_open_button)
+    } else {
+        stringResource(R.string.board_test_gate_close_button)
     }
-
-    val openText =
-        if (isOpen) stringResource(R.string.board_test_open_stop_button) else stringResource(R.string.board_test_gate_open_button)
-    val closeText =
-        if (isClose) stringResource(R.string.board_test_close_stop_button) else stringResource(R.string.board_test_gate_close_button)
 
     Row(
         modifier = Modifier
@@ -263,27 +254,12 @@ private fun ControlButtons(
     ) {
         ControlButton(
             modifier = Modifier.weight(1f),
-            text = openText,
+            text = buttonText,
             colors = ButtonDefaults.buttonColors(
-                containerColor = if (isOpen) Red500 else Blue600,
+                containerColor = Blue600,
                 contentColor = Color.White
             ),
-            onClick = {
-                isOpen = !isOpen
-                onIntent(BoardTestIntent.ToggleGateOpen)
-            }
-        )
-        ControlButton(
-            modifier = Modifier.weight(1f),
-            text = closeText,
-            colors = ButtonDefaults.buttonColors(
-                containerColor = if (isClose) Red500 else Blue600,
-                contentColor = Color.White
-            ),
-            onClick = {
-                isClose = !isClose
-                onIntent(BoardTestIntent.ToggleGateClose)
-            }
+            onClick = { onIntent(BoardTestIntent.ToggleGate) }
         )
     }
 }

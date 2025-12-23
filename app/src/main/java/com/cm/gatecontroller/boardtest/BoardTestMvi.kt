@@ -27,6 +27,7 @@ data class BoardTestUiState(
     val close3: SwitchStatus = SwitchStatus.OFF,
     val closeSwitch: SwitchStatus = SwitchStatus.OFF,
     val gateStatus: GateStatus = GateStatus.STOP,
+    val isGateOpen: Boolean = true,
     val isLoading: Boolean = false,
 )
 
@@ -36,8 +37,7 @@ sealed interface BoardTestIntent {
     data object ToggleRelay1 : BoardTestIntent
     data object ToggleRelay2 : BoardTestIntent
     data class SelectLed(val color: LedStatus) : BoardTestIntent
-    data object ToggleGateOpen : BoardTestIntent
-    data object ToggleGateClose : BoardTestIntent
+    data object ToggleGate : BoardTestIntent
     data object ToggleGateStop : BoardTestIntent
     data object RequestPosition : BoardTestIntent
 }
