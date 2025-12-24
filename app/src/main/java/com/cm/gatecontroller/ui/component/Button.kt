@@ -22,6 +22,7 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
@@ -76,6 +77,7 @@ fun ControlButton(
                 modifier = Modifier.fillMaxWidth(),
                 text = text,
                 fontSize = fontSize,
+                fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center
             )
         }

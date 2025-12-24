@@ -55,7 +55,7 @@ sealed class AtCommand(val key: String) {
     object InClose3 : AtCommand("AT+INCLOSE3")
     object SwOpen : AtCommand("AT+SWOPEN")
     object SwClose : AtCommand("AT+SWCLOSE")
-    object StAge : AtCommand("AT+STAGE")
+    object Stage : AtCommand("AT+STAGE")
 
     companion object {
         fun fromKey(key: String): AtCommand? {
@@ -114,7 +114,7 @@ sealed class AtCommand(val key: String) {
                 InClose3.key -> InClose3
                 SwOpen.key -> SwOpen
                 SwClose.key -> SwClose
-                StAge.key -> StAge
+                Stage.key -> Stage
                 else -> null
             }
         }

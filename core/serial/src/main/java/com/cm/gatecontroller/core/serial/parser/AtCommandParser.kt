@@ -233,7 +233,7 @@ class AtCommandParser @Inject constructor() {
                 swClose = currentState.swClose.orParsed<SwitchState>(value)
             )
 
-            AtCommand.StAge -> currentState.copy(
+            AtCommand.Stage -> currentState.copy(
                 gateState = currentState.gateState.orParsed<GateState>(value)
             )
         }
