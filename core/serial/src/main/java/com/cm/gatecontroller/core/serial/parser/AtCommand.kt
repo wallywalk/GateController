@@ -18,9 +18,9 @@ sealed class AtCommand(val key: String) {
     object StClose : AtCommand("AT+STCLOSE")
     object StLoopA : AtCommand("AT+STLOOPA")
     object StLoopB : AtCommand("AT+STLOOPB")
-    object StMpwr : AtCommand("AT+STMPWR")
+    object StMPwr : AtCommand("AT+STMPWR")
     object CurrTestCount : AtCommand("curr_testcount")
-    object StDelatTime : AtCommand("AT+STDELATTIME")
+    object StDelayTime : AtCommand("AT+DELAYTIME")
     object TestStart : AtCommand("AT+TESTSTART")
     object CurrLevelOpen : AtCommand("curr_levelOpen")
     object CurrLevelClose : AtCommand("curr_levelClose")
@@ -77,9 +77,9 @@ sealed class AtCommand(val key: String) {
                 StClose.key -> StClose
                 StLoopA.key -> StLoopA
                 StLoopB.key -> StLoopB
-                StMpwr.key -> StMpwr
+                StMPwr.key -> StMPwr
                 CurrTestCount.key -> CurrTestCount
-                StDelatTime.key -> StDelatTime
+                StDelayTime.key -> StDelayTime
                 TestStart.key -> TestStart
                 CurrLevelOpen.key -> CurrLevelOpen
                 CurrLevelClose.key -> CurrLevelClose

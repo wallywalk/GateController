@@ -89,11 +89,11 @@ class AtCommandParser @Inject constructor() {
                 stLoopB = currentState.stLoopB.orParsed<SwitchState>(value)
             )
 
-            AtCommand.StMpwr -> currentState.copy(mainPower = "${value}V")
+            AtCommand.StMPwr -> currentState.copy(mainPower = "${value}V")
 
             AtCommand.CurrTestCount -> currentState.copy(testCount = value)
 
-            AtCommand.StDelatTime -> currentState.copy(stDelayTime = "${value}sec")
+            AtCommand.StDelayTime -> currentState.copy(stDelayTime = "${value}sec")
 
             AtCommand.TestStart -> currentState.copy(
                 isTestRunning = value.equals("START", ignoreCase = true)
