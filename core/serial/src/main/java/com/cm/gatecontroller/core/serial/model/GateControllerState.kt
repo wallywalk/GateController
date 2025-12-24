@@ -70,10 +70,10 @@ data class GateControllerState(
     val inOpen1: SwitchState? = null,
     val inOpen2: SwitchState? = null,
     val inOpen3: SwitchState? = null,
+    val swOpen: SwitchState? = null,
     val inClose1: SwitchState? = null,
     val inClose2: SwitchState? = null,
     val inClose3: SwitchState? = null,
-    val swOpen: SwitchState? = null,
     val swClose: SwitchState? = null,
     val gateState: GateState? = null
 )

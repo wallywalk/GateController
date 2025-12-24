@@ -102,18 +102,18 @@ class BoardTestViewModel @Inject constructor(
                 PositionState.LEFT -> PositionStatus.LEFT
                 else -> PositionStatus.RIGHT
             },
-            photo1 = if (this.stPhoto1 == SwitchState.ON) SwitchStatus.ON else SwitchStatus.OFF,
-            photo2 = if (this.stPhoto2 == SwitchState.ON) SwitchStatus.ON else SwitchStatus.OFF,
+            photo1 = if (this.inPhoto1 == SwitchState.ON) SwitchStatus.ON else SwitchStatus.OFF,
+            photo2 = if (this.inPhoto2 == SwitchState.ON) SwitchStatus.ON else SwitchStatus.OFF,
             loopA = if (this.inLoopA == SwitchState.ON) SwitchStatus.ON else SwitchStatus.OFF,
             loopB = if (this.inLoopB == SwitchState.ON) SwitchStatus.ON else SwitchStatus.OFF,
-            open1 = if (this.stOpen1 == SwitchState.ON) SwitchStatus.ON else SwitchStatus.OFF,
-            open2 = if (this.stOpen2 == SwitchState.ON) SwitchStatus.ON else SwitchStatus.OFF,
-            open3 = if (this.stOpen3 == SwitchState.ON) SwitchStatus.ON else SwitchStatus.OFF,
-            openSwitch = if (this.swOpen == SwitchState.ON) SwitchStatus.ON else SwitchStatus.OFF,
-            close1 = if (this.stClose1 == SwitchState.ON) SwitchStatus.ON else SwitchStatus.OFF,
-            close2 = if (this.stClose2 == SwitchState.ON) SwitchStatus.ON else SwitchStatus.OFF,
-            close3 = if (this.stClose3 == SwitchState.ON) SwitchStatus.ON else SwitchStatus.OFF,
-            closeSwitch = if (this.swClose == SwitchState.ON) SwitchStatus.ON else SwitchStatus.OFF,
+            open1 = if (this.inOpen1 == SwitchState.ON) SwitchStatus.ON else SwitchStatus.OFF,
+            open2 = if (this.inOpen2 == SwitchState.ON) SwitchStatus.ON else SwitchStatus.OFF,
+            open3 = if (this.inOpen3 == SwitchState.ON) SwitchStatus.ON else SwitchStatus.OFF,
+            swOpen = if (this.swOpen == SwitchState.ON) SwitchStatus.ON else SwitchStatus.OFF,
+            close1 = if (this.inClose1 == SwitchState.ON) SwitchStatus.ON else SwitchStatus.OFF,
+            close2 = if (this.inClose2 == SwitchState.ON) SwitchStatus.ON else SwitchStatus.OFF,
+            close3 = if (this.inClose3 == SwitchState.ON) SwitchStatus.ON else SwitchStatus.OFF,
+            swClose = if (this.swClose == SwitchState.ON) SwitchStatus.ON else SwitchStatus.OFF,
             gateStatus = when (this.gateState) {
                 GateState.OPENING -> GateStatus.OPENING
                 GateState.OPENED -> GateStatus.OPENED
