@@ -2,9 +2,11 @@ package com.cm.gatecontroller.monitoring
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -27,7 +29,7 @@ import com.cm.gatecontroller.MainTab
 import com.cm.gatecontroller.R
 import com.cm.gatecontroller.model.color
 import com.cm.gatecontroller.ui.component.ControlButton
-import com.cm.gatecontroller.ui.component.LabelAndValue
+import com.cm.gatecontroller.ui.component.LabelAndBadge
 import com.cm.gatecontroller.ui.component.StatusBadge
 import com.cm.gatecontroller.ui.theme.GateControllerTheme
 import kotlinx.coroutines.flow.collectLatest
@@ -60,12 +62,17 @@ fun MonitoringScreen(
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             item {
-                LabelAndValue(stringResource(R.string.common_version), uiState.version)
+                LabelAndBadge(
+                    label = stringResource(R.string.common_version),
+                    badgeModifier = Modifier.weight(2f),
+                    badgeText = uiState.version
+                )
             }
             item {
-                LabelAndValue(
-                    stringResource(R.string.monitoring_gate),
-                    stringResource(uiState.gateModeRes)
+                LabelAndBadge(
+                    label = stringResource(R.string.monitoring_gate),
+                    badgeModifier = Modifier.weight(2f),
+                    badgeText = stringResource(uiState.gateModeRes)
                 )
             }
             item {
@@ -131,35 +138,43 @@ fun MonitoringScreen(
                 )
             }
             item {
-                LabelAndValue(
+                LabelAndBadge(
                     label = stringResource(R.string.common_delay_time),
-                    value = "${uiState.delayTime}sec"
+                    badgeModifier = Modifier.weight(2f),
+                    badgeText = "${uiState.delayTime}sec"
                 )
             }
             item {
                 Spacer(modifier = Modifier.height(8.dp))
             }
         }
-        Row(
+        Row( // TODO: 하단 버튼 뷰 통합
             modifier = Modifier
                 .fillMaxWidth()
+                .height(IntrinsicSize.Min)
                 .padding(horizontal = 16.dp, vertical = 16.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             ControlButton(
-                modifier = Modifier.weight(1f),
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight(),
                 text = if (uiState.isTestRunning) stringResource(R.string.monitoring_test_stop_button) else stringResource(
                     R.string.monitoring_test_start_button
                 ),
                 onClick = { viewModel.handleIntent(MonitoringIntent.ToggleTest) }
             )
             ControlButton(
-                modifier = Modifier.weight(1f),
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight(),
                 text = stringResource(R.string.monitoring_config_button),
                 onClick = { navController.navigate(MainTab.Configuration.route) }
             )
             ControlButton(
-                modifier = Modifier.weight(1f),
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight(),
                 text = stringResource(R.string.monitoring_board_test_button),
                 onClick = { navController.navigate(MainTab.BoardTest.route) }
             )
@@ -175,7 +190,10 @@ private fun TwoStatusBadgesRow(
     label2: String,
     backgroundColor2: Color = MaterialTheme.colorScheme.inversePrimary,
 ) {
-    Row(modifier = modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
         StatusBadge(
             modifier = Modifier.weight(1f),
             text = label1,

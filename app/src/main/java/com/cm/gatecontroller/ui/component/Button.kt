@@ -7,6 +7,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ButtonColors
@@ -59,7 +60,9 @@ fun ControlButton(
     ).value
 
     Surface(
-        modifier = modifier.scale(scale), // TODO: 버튼 높이
+        modifier = modifier
+            .scale(scale)
+            .heightIn(min = 60.dp),
         shape = shape,
         color = colors.containerColor,
         contentColor = colors.contentColor,
@@ -79,7 +82,6 @@ fun ControlButton(
             contentAlignment = Alignment.Center
         ) {
             Text(
-                modifier = Modifier.fillMaxWidth(),
                 text = text,
                 fontSize = fontSize,
                 fontWeight = FontWeight.Bold,

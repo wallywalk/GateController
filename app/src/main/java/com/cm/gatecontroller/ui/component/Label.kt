@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -20,26 +19,34 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.cm.gatecontroller.ui.theme.Purple700
 
 @Composable
-fun LabelAndValue(
+fun LabelAndBadge(
+    modifier: Modifier = Modifier,
     label: String,
-    value: String,
-    modifier: Modifier = Modifier
+    badgeModifier: Modifier = Modifier,
+    badgeText: String,
+    badgeBackgroundColor: Color? = null,
+    onClickBadge: (() -> Unit)? = null
 ) {
     Row(
         modifier = modifier,
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         Text(
-            modifier = Modifier
-                .weight(1f)
-                .padding(start = 12.dp),
-            text = label
+            modifier = Modifier.weight(1f),
+            text = label,
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Bold,
+            color = Purple700
         )
         StatusBadge(
-            modifier = Modifier.weight(2f),
-            text = value
+            modifier = badgeModifier,
+            text = badgeText,
+            backgroundColor = badgeBackgroundColor ?: MaterialTheme.colorScheme.inversePrimary,
+            onClick = onClickBadge
         )
     }
 }
@@ -64,43 +71,18 @@ fun LabelAndButton(
             modifier = Modifier.weight(1f), // TODO: wrapContent...
             text = label,
             fontWeight = FontWeight.Bold,
-            fontSize = 16.sp
+            fontSize = 18.sp
         )
         Spacer(modifier = Modifier.width(16.dp))
         ControlButton(
             modifier = Modifier.weight(1f),
             text = value,
-            fontSize = 14.sp,
+            fontSize = 18.sp,
             onClick = onClick,
             colors = ButtonDefaults.buttonColors(
                 containerColor = Color.White,
                 contentColor = Color.Black
             )
-        )
-    }
-}
-
-@Composable
-fun LabelSwitch(
-    label: String,
-    checked: Boolean,
-    modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-    onCheckedChange: (Boolean) -> Unit = {}
-) {
-    Row(
-        modifier = modifier
-            .clip(RoundedCornerShape(8.dp))
-            .background(MaterialTheme.colorScheme.surfaceVariant)
-            .padding(horizontal = 16.dp, vertical = 4.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        Text(label, fontWeight = FontWeight.Bold, fontSize = 16.sp)
-        Switch(
-            checked = checked,
-            onCheckedChange = onCheckedChange,
-            enabled = enabled
         )
     }
 }

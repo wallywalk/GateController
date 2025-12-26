@@ -9,14 +9,16 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
@@ -39,24 +41,19 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.cm.gatecontroller.R
-import com.cm.gatecontroller.configuration.model.UsageStatus
 import com.cm.gatecontroller.configuration.model.color
-import com.cm.gatecontroller.model.GateStatus
 import com.cm.gatecontroller.model.LedStatus
 import com.cm.gatecontroller.model.color
 import com.cm.gatecontroller.ui.component.ControlButton
-import com.cm.gatecontroller.ui.component.LabelAndValue
-import com.cm.gatecontroller.ui.component.LabelSwitch
+import com.cm.gatecontroller.ui.component.LabelAndBadge
 import com.cm.gatecontroller.ui.component.StatusBadge
-import com.cm.gatecontroller.ui.theme.Gray400
-import com.cm.gatecontroller.ui.theme.White100
+import com.cm.gatecontroller.ui.theme.Purple700
 import com.cm.gatecontroller.util.aspectRatioOr
 import kotlinx.coroutines.flow.collectLatest
 
@@ -69,7 +66,7 @@ fun ConfigurationScreen(
     val uiState by viewModel.uiState.collectAsState()
     var showRelayMapDialog by remember { mutableStateOf(false) }
 
-    val loadConfigLauncher = rememberLauncherForActivityResult(
+    val loadConfigLauncher = rememberLauncherForActivityResult( // TODO: Activity로 위임
         contract = ActivityResultContracts.OpenDocument(),
         onResult = { uri: Uri? ->
             uri?.let {
@@ -78,7 +75,7 @@ fun ConfigurationScreen(
         }
     )
 
-    val saveConfigLauncher = rememberLauncherForActivityResult(
+    val saveConfigLauncher = rememberLauncherForActivityResult( // TODO: Activity로 위임
         contract = ActivityResultContracts.CreateDocument("application/octet-stream"),
         onResult = { uri: Uri? ->
             uri?.let {
@@ -124,7 +121,7 @@ fun ConfigurationScreen(
                 LazyColumn(
                     modifier = Modifier.weight(1f),
                     contentPadding = PaddingValues(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     item {
                         DeviceSettings(
@@ -174,7 +171,6 @@ private fun ProgressView(message: String) {
     }
 }
 
-
 @Composable
 fun RelayMapDialog(onDismissRequest: () -> Unit) {
     Dialog(onDismissRequest = onDismissRequest) {
@@ -184,7 +180,7 @@ fun RelayMapDialog(onDismissRequest: () -> Unit) {
             modifier = Modifier
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(8.dp))
-                .background(Color.White)
+                .background(MaterialTheme.colorScheme.surface)
                 .clickable { onDismissRequest() }
                 .padding(12.dp)
         ) {
@@ -203,15 +199,19 @@ fun RelayMapDialog(onDismissRequest: () -> Unit) {
 @Composable
 private fun DeviceSettings(uiState: ConfigUiState, onIntent: (ConfigIntent) -> Unit) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        LabelAndValue(stringResource(R.string.common_version), uiState.version)
+        LabelAndBadge(
+            label = stringResource(R.string.common_version),
+            badgeModifier = Modifier.weight(2f),
+            badgeText = uiState.version
+        )
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             IntDropdownSettingRow(
                 modifier = Modifier.weight(1f),
                 label = stringResource(R.string.config_open_speed),
-                valueText = uiState.levelOpen.toString(),
+                badgeText = uiState.levelOpen.toString(),
                 options = (1..5).toList(),
                 onValueChange = {
                     onIntent(ConfigIntent.SetLevelOpen(it))
@@ -220,84 +220,73 @@ private fun DeviceSettings(uiState: ConfigUiState, onIntent: (ConfigIntent) -> U
             IntDropdownSettingRow(
                 modifier = Modifier.weight(1f),
                 label = stringResource(R.string.config_close_speed),
-                valueText = uiState.levelClose.toString(),
+                badgeText = uiState.levelClose.toString(),
                 options = (1..5).toList(),
                 onValueChange = {
                     onIntent(ConfigIntent.SetLevelClose(it))
                 }
             )
         }
-        TwoLabelSwitchRow(
+        TwoLabelBadgeRow(
             label1 = stringResource(R.string.common_lamp),
-            checked1 = uiState.lamp == UsageStatus.USE,
-            onCheckedChange1 = { onIntent(ConfigIntent.SetLamp(it)) },
+            badgeText1 = uiState.lamp.name,
+            badgeBackgroundColor1 = uiState.lamp.color,
+            onClickBadge1 = { onIntent(ConfigIntent.SetLamp) },
             label2 = stringResource(R.string.config_buzzer),
-            checked2 = uiState.buzzer == UsageStatus.USE,
-            onCheckedChange2 = { onIntent(ConfigIntent.SetBuzzer(it)) }
+            badgeText2 = uiState.buzzer.name,
+            badgeBackgroundColor2 = uiState.buzzer.color,
+            onClickBadge2 = { onIntent(ConfigIntent.SetBuzzer) }
         )
-        TwoLabelSwitchRow(
+        TwoLabelBadgeRow(
             label1 = stringResource(R.string.config_lamp_on),
-            checked1 = uiState.lampPosOn == GateStatus.OPENING,
-            onCheckedChange1 = {
-                onIntent(ConfigIntent.SetLampPosOn(it))
-            },
+            badgeText1 = uiState.lampPosOn.name,
+            onClickBadge1 = { onIntent(ConfigIntent.SetLampPosOn) },
             label2 = stringResource(R.string.config_lamp_off),
-            checked2 = uiState.lampPosOff == GateStatus.CLOSING,
-            onCheckedChange2 = {
-                onIntent(ConfigIntent.SetLampPosOff(it))
-            }
+            badgeText2 = uiState.lampPosOff.name,
+            onClickBadge2 = { onIntent(ConfigIntent.SetLampPosOff) }
         )
         LedSettingRow(
             label = stringResource(R.string.config_led_open),
             ledStatus = uiState.ledOpenColor,
-            gateStatus = uiState.ledOpenPos,
+            gateText = uiState.ledOpenPos.name,
             onLedStatusChange = { onIntent(ConfigIntent.SetLedOpen(it)) },
-            onGateStatusChange = { onIntent(ConfigIntent.SetLedOpenPos(it)) }
+            onGateStatusChange = { onIntent(ConfigIntent.SetLedOpenPos) }
         )
         LedSettingRow(
             label = stringResource(R.string.config_led_close),
             ledStatus = uiState.ledCloseColor,
-            gateStatus = uiState.ledClosePos,
+            gateText = uiState.ledClosePos.name,
             onLedStatusChange = { onIntent(ConfigIntent.SetLedClose(it)) },
-            onGateStatusChange = { onIntent(ConfigIntent.SetLedClosePos(it)) }
+            onGateStatusChange = { onIntent(ConfigIntent.SetLedClosePos) }
         )
-        TwoLabelBadgeRow(
-            label1 = stringResource(R.string.common_loop_a),
+        TwoBadgeRow(
+            text1 = stringResource(R.string.common_loop_a),
             background1 = uiState.loopA.color,
-            label2 = stringResource(R.string.common_loop_b),
+            text2 = stringResource(R.string.common_loop_b),
             background2 = uiState.loopB.color,
         )
-
-        val enabled = uiState.loopB != UsageStatus.UNUSE
-        val backgroundColor = if (enabled) MaterialTheme.colorScheme.surfaceVariant else Gray400
-
         IntDropdownSettingRow(
-            modifier = Modifier.background(backgroundColor),
             label = stringResource(R.string.common_delay_time),
-            valueText = "${uiState.delayTime} sec",
+            badgeText = "${uiState.delayTime} sec",
             options = (1..6).map { it * 10 },
-            onValueChange = {
-                onIntent(ConfigIntent.SetDelayTime(it))
-            },
-            enabled = enabled
+            onValueChange = { onIntent(ConfigIntent.SetDelayTime(it)) }
         )
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             IntDropdownSettingRow(
                 modifier = Modifier.weight(1f),
                 label = stringResource(R.string.common_relay1),
-                valueText = uiState.relay1.toString(),
+                badgeText = uiState.relay1.toString(),
                 options = (1..12).toList(),
-                onValueChange = {
-                    onIntent(ConfigIntent.SetRelay1(it))
-                }
+                onValueChange = { onIntent(ConfigIntent.SetRelay1(it)) }
             )
             IntDropdownSettingRow(
                 modifier = Modifier.weight(1f),
                 label = stringResource(R.string.common_relay2),
-                valueText = uiState.relay2.toString(),
+                badgeText = uiState.relay2.toString(),
                 options = (1..12).toList(),
                 onValueChange = {
                     onIntent(ConfigIntent.SetRelay2(it))
@@ -311,26 +300,29 @@ private fun DeviceSettings(uiState: ConfigUiState, onIntent: (ConfigIntent) -> U
 private fun IntDropdownSettingRow(
     modifier: Modifier = Modifier,
     label: String,
-    valueText: String,
+    badgeText: String,
     options: List<Int>,
     onValueChange: (Int) -> Unit,
-    enabled: Boolean = true,
 ) {
     var expanded by remember { mutableStateOf(false) }
 
     Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(8.dp))
-            .background(MaterialTheme.colorScheme.surfaceVariant)
-            .clickable(enabled = enabled) { expanded = true }
-            .padding(horizontal = 16.dp, vertical = 12.dp),
+        modifier = modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        Text(label, fontWeight = FontWeight.Bold, fontSize = 16.sp)
-        Box {
-            Text(valueText, fontSize = 16.sp)
+        Text(
+            text = label,
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Bold,
+            color = Purple700
+        )
+        Box(modifier = Modifier.weight(1f)) {
+            StatusBadge(
+                modifier = Modifier.fillMaxWidth(),
+                text = badgeText,
+                onClick = { expanded = true }
+            )
             DropdownMenu(
                 expanded = expanded,
                 onDismissRequest = { expanded = false }
@@ -350,145 +342,125 @@ private fun IntDropdownSettingRow(
 }
 
 @Composable
-fun TwoLabelSwitchRow(
+private fun TwoLabelBadgeRow(
     modifier: Modifier = Modifier,
     label1: String,
-    checked1: Boolean,
-    onCheckedChange1: (Boolean) -> Unit,
+    badgeText1: String,
+    badgeBackgroundColor1: Color = MaterialTheme.colorScheme.inversePrimary,
+    onClickBadge1: () -> Unit,
     label2: String,
-    checked2: Boolean,
-    onCheckedChange2: (Boolean) -> Unit
+    badgeText2: String,
+    badgeBackgroundColor2: Color = MaterialTheme.colorScheme.inversePrimary,
+    onClickBadge2: () -> Unit
 ) {
-    Row(modifier = modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        LabelSwitch(
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        LabelAndBadge(
             modifier = Modifier.weight(1f),
             label = label1,
-            checked = checked1,
-            onCheckedChange = onCheckedChange1
+            badgeModifier = Modifier.weight(1f),
+            badgeText = badgeText1,
+            badgeBackgroundColor = badgeBackgroundColor1,
+            onClickBadge = onClickBadge1
         )
-        LabelSwitch(
+        LabelAndBadge(
             modifier = Modifier.weight(1f),
             label = label2,
-            checked = checked2,
-            onCheckedChange = onCheckedChange2
+            badgeModifier = Modifier.weight(1f),
+            badgeText = badgeText2,
+            badgeBackgroundColor = badgeBackgroundColor2,
+            onClickBadge = onClickBadge2
         )
     }
 }
 
 @Composable
-fun LedSettingRow(
+private fun LedSettingRow(
     label: String,
     ledStatus: LedStatus,
-    gateStatus: GateStatus,
+    gateText: String,
     onLedStatusChange: (LedStatus) -> Unit,
-    onGateStatusChange: (Boolean) -> Unit
+    onGateStatusChange: () -> Unit
 ) {
     var ledExpanded by remember { mutableStateOf(false) }
 
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(8.dp))
-            .background(MaterialTheme.colorScheme.surfaceVariant)
-            .padding(horizontal = 16.dp, vertical = 4.dp),
+        modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         Text(
-            modifier = Modifier.weight(2f),
+            modifier = Modifier.weight(1f),
             text = label,
+            fontSize = 18.sp,
             fontWeight = FontWeight.Bold,
-            fontSize = 16.sp
+            color = Purple700
         )
-        Box(modifier = Modifier.weight(1.5f)) {
-            ColorBadge(
-                modifier = Modifier.clickable { ledExpanded = true },
-                color = ledStatus.color,
-                colorName = stringResourceForLedStatus(ledStatus)
-            )
-            DropdownMenu(
-                expanded = ledExpanded,
-                onDismissRequest = { ledExpanded = false }
+        Row(
+            modifier = Modifier.weight(3f),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Box(
+                modifier = Modifier.weight(1f),
+                contentAlignment = Alignment.Center
             ) {
-                LedStatus.entries.forEach { status ->
-                    DropdownMenuItem(
-                        text = { Text(stringResourceForLedStatus(status)) },
-                        onClick = {
-                            onLedStatusChange(status)
-                            ledExpanded = false
-                        }
-                    )
+                StatusBadge(
+                    modifier = Modifier.widthIn(min = 100.dp, max = 120.dp),
+                    text = stringResourceForLedStatus(ledStatus),
+                    backgroundColor = ledStatus.color,
+                    onClick = { ledExpanded = true }
+                )
+                DropdownMenu(
+                    expanded = ledExpanded,
+                    onDismissRequest = { ledExpanded = false }
+                ) {
+                    LedStatus.entries.forEach { status ->
+                        DropdownMenuItem(
+                            text = { Text(stringResourceForLedStatus(status)) },
+                            onClick = {
+                                onLedStatusChange(status)
+                                ledExpanded = false
+                            }
+                        )
+                    }
                 }
             }
-        }
-
-        val configLedOpenLabel = stringResource(R.string.config_led_open)
-        val configLedCloseLabel = stringResource(R.string.config_led_close)
-
-        val isChecked = when (label) { // TODO: 하드코딩 제거
-            configLedOpenLabel -> gateStatus == GateStatus.OPENING
-            configLedCloseLabel -> gateStatus == GateStatus.CLOSING
-            else -> false
-        }
-
-        LabelSwitch(
-            modifier = Modifier.weight(1.5f),
-            label = "",
-            checked = isChecked,
-            onCheckedChange = {
-                when (label) {
-                    configLedOpenLabel -> onGateStatusChange(it)
-                    configLedCloseLabel -> onGateStatusChange(it)
-                }
+            Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
+                StatusBadge(
+                    modifier = Modifier.widthIn(min = 100.dp, max = 120.dp),
+                    text = gateText,
+                    onClick = onGateStatusChange
+                )
             }
-        )
+        }
     }
 }
 
 @Composable
-fun ColorBadge(modifier: Modifier = Modifier, color: Color, colorName: String) {
-    Box(
-        modifier = modifier
-            .clip(RoundedCornerShape(50))
-            .background(color)
-            .padding(horizontal = 16.dp, vertical = 8.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(
-            text = colorName,
-            color = White100,
-            fontWeight = FontWeight.Bold,
-            textAlign = TextAlign.Center
-        )
-    }
-}
-
-@Composable
-fun TwoLabelBadgeRow(
+private fun TwoBadgeRow(
     modifier: Modifier = Modifier,
-    label1: String,
+    text1: String,
     background1: Color,
-    label2: String,
+    text2: String,
     background2: Color,
-    textColor: Color = Color.Black
 ) {
     Row(
         modifier = modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         StatusBadge(
             modifier = Modifier.weight(1f),
-            text = label1,
-            textColor = textColor,
-            backgroundColor = background1,
-            shape = RoundedCornerShape(24.dp)
+            text = text1,
+            backgroundColor = background1
         )
         StatusBadge(
             modifier = Modifier.weight(1f),
-            text = label2,
-            textColor = textColor,
-            backgroundColor = background2,
-            shape = RoundedCornerShape(24.dp)
+            text = text2,
+            backgroundColor = background2
         )
     }
 }
@@ -499,26 +471,36 @@ private fun ControlButtons(
     onIntent: (ConfigIntent) -> Unit
 ) {
     Row(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier
+            .fillMaxWidth()
+            .height(IntrinsicSize.Min),
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         ControlButton(
-            modifier = Modifier.weight(1f),
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxHeight(),
             text = stringResource(R.string.config_relay_map_button),
             onClick = { onIntent(ConfigIntent.ShowRelayMap) }
         )
         ControlButton(
-            modifier = Modifier.weight(1f),
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxHeight(),
             text = stringResource(R.string.config_load_config_button),
             onClick = { onIntent(ConfigIntent.LoadConfig) }
         )
         ControlButton(
-            modifier = Modifier.weight(1f),
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxHeight(),
             text = stringResource(R.string.config_save_config_button),
             onClick = { onIntent(ConfigIntent.SaveConfig) }
         )
         ControlButton(
-            modifier = Modifier.weight(1f),
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxHeight(),
             text = stringResource(R.string.config_factory_button),
             onClick = { onIntent(ConfigIntent.FactoryReset) }
         )
@@ -526,7 +508,7 @@ private fun ControlButtons(
 }
 
 @Composable
-fun stringResourceForLedStatus(ledStatus: LedStatus): String {
+private fun stringResourceForLedStatus(ledStatus: LedStatus): String { // TODO: 함수 통합
     return when (ledStatus) {
         LedStatus.OFF -> stringResource(R.string.common_off)
         LedStatus.BLUE -> stringResource(R.string.common_blue)

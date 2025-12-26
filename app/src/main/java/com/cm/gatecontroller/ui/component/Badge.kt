@@ -3,7 +3,6 @@ package com.cm.gatecontroller.ui.component
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
@@ -25,6 +24,7 @@ fun StatusBadge(
 ) {
     Box(
         modifier = modifier
+            .clip(RoundedCornerShape(24.dp))
             .then(
                 if (onClick != null) {
                     Modifier.clickable { onClick() }
@@ -32,7 +32,6 @@ fun StatusBadge(
                     Modifier
                 }
             )
-            .clip(RoundedCornerShape(24.dp))
             .background(backgroundColor)
             .padding(horizontal = 12.dp, vertical = 8.dp),
         contentAlignment = Alignment.Center
@@ -41,7 +40,6 @@ fun StatusBadge(
             text = text,
             color = MaterialTheme.colorScheme.onPrimary,
             textAlign = TextAlign.Center,
-            modifier = Modifier.fillMaxWidth()
         )
     }
 }
