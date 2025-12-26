@@ -1,14 +1,21 @@
 package com.cm.gatecontroller
 
+import android.service.controls.Control
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
@@ -32,7 +39,10 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
@@ -45,6 +55,7 @@ import com.cm.gatecontroller.connection.ConnectionStatus
 import com.cm.gatecontroller.connection.ConnectionViewModel
 import com.cm.gatecontroller.debug.DebugView
 import com.cm.gatecontroller.monitoring.MonitoringScreen
+import com.cm.gatecontroller.ui.component.ControlButton
 import com.cm.gatecontroller.ui.theme.Purple700
 import com.cm.gatecontroller.user.UserViewModel
 import kotlinx.coroutines.launch
@@ -80,6 +91,7 @@ fun MainScreen(
                             onClick = { /* No-op */ },
                             onLongClick = { debugViewVisible = !debugViewVisible }),
                         text = title,
+                        fontWeight = FontWeight.Bold,
                         color = Purple700
                     )
                 },
@@ -94,18 +106,22 @@ fun MainScreen(
                     }
                 },
                 actions = {
-                    TextButton(
-                        onClick = { userViewModel.logout() }, // TODO: handleIntent
-                        content = {
-                            Text(stringResource(R.string.common_logout))
-                        }
-                    )
-                    Spacer(modifier = Modifier.width(6.dp))
                     ConnectionStatus(
                         status = connectionUiState.status,
                         deviceName = connectionUiState.connectedDeviceName,
                         onConnectClick = { connectionViewModel.connectToFirstDevice() }
                     )
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(24.dp))
+                            .clickable { userViewModel.logout() } // TODO: handleIntent
+                            .background(MaterialTheme.colorScheme.surface)
+                            .padding(horizontal = 12.dp, vertical = 6.dp),
+                        text = stringResource(R.string.common_logout),
+                        color = Purple700
+                    )
+                    Spacer(modifier = Modifier.width(12.dp))
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
@@ -175,16 +191,29 @@ private fun ConnectionStatus(
     Row(
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(status.label, color = status.color)
-        Spacer(modifier = Modifier.width(6.dp))
+        val imagePainter = if (status == ConnectionStatus.CONNECTED) {
+            painterResource(id = R.drawable.usb_connected)
+        } else {
+            painterResource(id = R.drawable.usb_disconnected)
+        }
 
-        if (status == ConnectionStatus.DISCONNECTED || status == ConnectionStatus.ERROR) {
-            Button(
-                modifier = Modifier.padding(horizontal = 6.dp),
-                onClick = onConnectClick
-            ) {
-                Text(stringResource(R.string.common_connect))
-            }
+        Image(
+            painter = imagePainter,
+            contentDescription = stringResource(R.string.connection_status_icon_description),
+            modifier = Modifier.size(24.dp)
+        )
+        Spacer(modifier = Modifier.width(12.dp))
+
+        if (status != ConnectionStatus.CONNECTED) {
+            Text(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(24.dp))
+                    .clickable { onConnectClick.invoke() }
+                    .background(MaterialTheme.colorScheme.surface)
+                    .padding(horizontal = 12.dp, vertical = 6.dp),
+                text = stringResource(R.string.common_connect),
+                color = Purple700
+            )
         }
     }
 }

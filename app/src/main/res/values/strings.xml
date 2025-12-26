@@ -14,6 +14,7 @@
     <string name="common_connect">Connect</string>
     <string name="common_back">Back</string>
     <string name="common_logo_description">App Logo</string>
+    <string name="connection_status_icon_description">Connection Status Icon</string>
 
     <!-- Monitoring Screen -->
     <string name="monitoring_title" translatable="false">MONITORING</string>
