@@ -1,8 +1,9 @@
 package com.cm.gatecontroller.configuration.model
 
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
-import com.cm.gatecontroller.ui.theme.Gray400
-import com.cm.gatecontroller.ui.theme.Yellow300
+import com.cm.gatecontroller.ui.theme.Purple700
 
 enum class UsageStatus {
     USE,
@@ -10,7 +11,8 @@ enum class UsageStatus {
 }
 
 val UsageStatus.color: Color
+    @Composable
     get() = when (this) {
-        UsageStatus.USE -> Yellow300
-        UsageStatus.UNUSE -> Gray400
+        UsageStatus.USE -> Purple700
+        UsageStatus.UNUSE -> MaterialTheme.colorScheme.inversePrimary
     }

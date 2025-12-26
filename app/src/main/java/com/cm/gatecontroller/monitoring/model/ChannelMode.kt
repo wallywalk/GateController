@@ -1,8 +1,9 @@
 package com.cm.gatecontroller.monitoring.model
 
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
-import com.cm.gatecontroller.ui.theme.Gray400
-import com.cm.gatecontroller.ui.theme.Yellow300
+import com.cm.gatecontroller.ui.theme.Purple700
 
 enum class ChannelMode {
     OPEN,
@@ -10,7 +11,8 @@ enum class ChannelMode {
 }
 
 val ChannelMode.color: Color
+    @Composable
     get() = when (this) {
-        ChannelMode.OPEN -> Yellow300
-        ChannelMode.CLOSE -> Gray400
+        ChannelMode.OPEN -> Purple700
+        ChannelMode.CLOSE -> MaterialTheme.colorScheme.inversePrimary
     }

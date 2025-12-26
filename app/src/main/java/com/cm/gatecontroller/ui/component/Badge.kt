@@ -20,7 +20,7 @@ import androidx.compose.ui.unit.dp
 fun StatusBadge(
     modifier: Modifier = Modifier,
     text: String,
-    backgroundColor: Color = MaterialTheme.colorScheme.primary,
+    backgroundColor: Color = MaterialTheme.colorScheme.inversePrimary,
     onClick: (() -> Unit)? = null,
 ) {
     Box(

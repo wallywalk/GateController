@@ -127,9 +127,7 @@ fun MonitoringScreen(
             item {
                 TwoStatusBadgesRow(
                     label1 = uiState.mainPower,
-                    backgroundColor1 = MaterialTheme.colorScheme.primary,
-                    label2 = uiState.testCount.toString(),
-                    backgroundColor2 = MaterialTheme.colorScheme.primary
+                    label2 = uiState.testCount.toString()
                 )
             }
             item {
@@ -171,11 +169,11 @@ fun MonitoringScreen(
 
 @Composable
 private fun TwoStatusBadgesRow(
+    modifier: Modifier = Modifier,
     label1: String,
-    backgroundColor1: Color,
+    backgroundColor1: Color = MaterialTheme.colorScheme.inversePrimary,
     label2: String,
-    backgroundColor2: Color,
-    modifier: Modifier = Modifier
+    backgroundColor2: Color = MaterialTheme.colorScheme.inversePrimary,
 ) {
     Row(modifier = modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         StatusBadge(

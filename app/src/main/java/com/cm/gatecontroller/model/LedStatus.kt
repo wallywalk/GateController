@@ -23,5 +23,5 @@ val LedStatus.color: Color
         LedStatus.GREEN -> Green500
         LedStatus.BLUE -> Blue600
         LedStatus.WHITE -> White100
-        LedStatus.OFF -> MaterialTheme.colorScheme.primary
+        LedStatus.OFF -> MaterialTheme.colorScheme.inversePrimary
     }

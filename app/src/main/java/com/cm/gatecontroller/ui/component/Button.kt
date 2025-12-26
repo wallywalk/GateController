@@ -19,6 +19,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
@@ -26,6 +27,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
+import com.cm.gatecontroller.ui.theme.Purple700
 
 @Composable
 fun ControlButton(
@@ -34,7 +36,10 @@ fun ControlButton(
     fontSize: TextUnit = TextUnit.Unspecified,
     onClick: () -> Unit,
     enabled: Boolean = true,
-    colors: ButtonColors = ButtonDefaults.buttonColors(),
+    colors: ButtonColors = ButtonDefaults.buttonColors(
+        containerColor = Purple700,
+        contentColor = Color.White
+    ),
     shape: Shape = RoundedCornerShape(8.dp)
 ) {
     val interactionSource = remember { MutableInteractionSource() }

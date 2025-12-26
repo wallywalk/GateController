@@ -2,6 +2,7 @@ package com.cm.gatecontroller.core.serial.model
 
 enum class SwitchState { ON, OFF }
 enum class LedColor { OFF, BLUE, GREEN, RED, WHITE }
+enum class GateState { OPENING, OPENED, CLOSING, CLOSED, STOP }
 
 // Monitoring States
 enum class AccessMode { OPEN, CLOSE }
@@ -12,11 +13,11 @@ enum class FactoryResponse { OK, ERROR }
 
 // Board Test States
 enum class PositionState { LEFT, RIGHT }
-enum class GateState { OPENING, OPENED, CLOSING, CLOSED, STOP }
 
 data class GateControllerState(
     // Common
     val version: String = "N/A",
+    val message: String = "",
 
     // Monitoring State
     val accessMode: AccessMode? = null,
