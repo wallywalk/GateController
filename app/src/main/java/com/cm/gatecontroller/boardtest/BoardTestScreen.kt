@@ -1,6 +1,5 @@
 package com.cm.gatecontroller.boardtest
 
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,8 +11,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -25,8 +22,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.cm.gatecontroller.R
@@ -34,11 +31,9 @@ import com.cm.gatecontroller.model.LedStatus
 import com.cm.gatecontroller.model.SwitchStatus
 import com.cm.gatecontroller.model.color
 import com.cm.gatecontroller.ui.component.ControlButton
-import com.cm.gatecontroller.ui.component.LabelAndButton
-import com.cm.gatecontroller.ui.component.LabelAndValue
+import com.cm.gatecontroller.ui.component.LabelAndBadge
 import com.cm.gatecontroller.ui.component.StatusBadge
-import com.cm.gatecontroller.ui.theme.Blue600
-import com.cm.gatecontroller.ui.theme.Gray400
+import com.cm.gatecontroller.ui.theme.GateControllerTheme
 import kotlinx.coroutines.flow.collectLatest
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -93,43 +88,36 @@ private fun BoardTestContent(
     LazyColumn(
         modifier = modifier.fillMaxSize(),
         contentPadding = PaddingValues(16.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         item {
-            LabelAndValue(stringResource(R.string.common_version), uiState.version)
+            LabelAndBadge(
+                label = stringResource(R.string.common_version),
+                badgeText = uiState.version
+            )
         }
         item {
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(48.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                ControlButton(
+                StatusBadge(
                     modifier = Modifier.weight(1f),
                     text = stringResource(R.string.common_lamp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = uiState.lamp.color,
-                        contentColor = Color.Black
-                    ),
+                    backgroundColor = uiState.lamp.color,
                     onClick = { onIntent(BoardTestIntent.ToggleLamp) }
                 )
-                ControlButton(
+                StatusBadge(
                     modifier = Modifier.weight(1f),
                     text = stringResource(R.string.common_relay1),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = uiState.relay1.color,
-                        contentColor = Color.Black
-                    ),
+                    backgroundColor = uiState.relay1.color,
                     onClick = { onIntent(BoardTestIntent.ToggleRelay1) }
                 )
-                ControlButton(
+                StatusBadge(
                     modifier = Modifier.weight(1f),
                     text = stringResource(R.string.common_relay2),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = uiState.relay2.color,
-                        contentColor = Color.Black
-                    ),
+                    backgroundColor = uiState.relay2.color,
                     onClick = { onIntent(BoardTestIntent.ToggleRelay2) }
                 )
             }
@@ -141,10 +129,10 @@ private fun BoardTestContent(
             )
         }
         item {
-            LabelAndButton(
+            LabelAndBadge(
                 label = stringResource(R.string.common_position),
-                value = uiState.position.name,
-                onClick = { onIntent(BoardTestIntent.RequestPosition) }
+                badgeText = uiState.position.name,
+                onClickBadge = { onIntent(BoardTestIntent.RequestPosition) }
             )
         }
         item { Spacer(modifier = Modifier.height(16.dp)) }
@@ -164,7 +152,7 @@ private fun BoardTestContent(
                     stringResource(R.string.common_open1) to uiState.open1,
                     stringResource(R.string.common_open2) to uiState.open2,
                     stringResource(R.string.common_open3) to uiState.open3,
-                    stringResource(R.string.common_open) to uiState.openSwitch
+                    stringResource(R.string.common_open) to uiState.swOpen
                 )
             )
         }
@@ -174,7 +162,7 @@ private fun BoardTestContent(
                     stringResource(R.string.common_close1) to uiState.close1,
                     stringResource(R.string.common_close2) to uiState.close2,
                     stringResource(R.string.common_close3) to uiState.close3,
-                    stringResource(R.string.common_close) to uiState.closeSwitch
+                    stringResource(R.string.common_close) to uiState.swClose
                 )
             )
         }
@@ -185,22 +173,17 @@ private fun BoardTestContent(
 @Composable
 private fun LedSelectRow(selectedLed: LedStatus, onSelect: (LedStatus) -> Unit) {
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(48.dp),
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         LedStatus.entries.forEach { led ->
             val isSelected = selectedLed == led
+            val currentTextColor =
+                if (led == LedStatus.WHITE && isSelected) Color.Black else MaterialTheme.colorScheme.onPrimary
 
-            ControlButton(
-                modifier = Modifier
-                    .weight(1f)
-                    .border(
-                        width = if (isSelected) 2.dp else 0.dp,
-                        color = if (isSelected) MaterialTheme.colorScheme.outline else Color.Transparent,
-                        shape = RoundedCornerShape(8.dp)
-                    ),
+            StatusBadge(
+                modifier = Modifier.weight(1f),
                 text = when (led) {
                     LedStatus.OFF -> stringResource(R.string.common_off)
                     LedStatus.BLUE -> stringResource(R.string.common_blue)
@@ -208,12 +191,9 @@ private fun LedSelectRow(selectedLed: LedStatus, onSelect: (LedStatus) -> Unit) 
                     LedStatus.RED -> stringResource(R.string.common_red)
                     LedStatus.WHITE -> stringResource(R.string.common_white)
                 },
-                fontSize = 12.sp,
+                textColor = currentTextColor,
                 onClick = { onSelect(led) },
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = if (isSelected) led.color else Gray400,
-                    contentColor = if (led == LedStatus.WHITE && isSelected) Color.Black else Color.White
-                )
+                backgroundColor = if (isSelected) led.color else MaterialTheme.colorScheme.inversePrimary
             )
         }
     }
@@ -223,7 +203,8 @@ private fun LedSelectRow(selectedLed: LedStatus, onSelect: (LedStatus) -> Unit) 
 private fun InputBadgeRow(items: List<Pair<String, SwitchStatus>>) {
     Row(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         items.forEach { (label, status) ->
             StatusBadge(
@@ -241,25 +222,33 @@ private fun ControlButtons(
     onIntent: (BoardTestIntent) -> Unit
 ) {
     val buttonText = if (isGateOpen) {
-        stringResource(R.string.board_test_gate_open_button)
-    } else {
         stringResource(R.string.board_test_gate_close_button)
+    } else {
+        stringResource(R.string.board_test_gate_open_button)
     }
 
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 16.dp),
-        horizontalArrangement = Arrangement.spacedBy(16.dp)
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         ControlButton(
             modifier = Modifier.weight(1f),
             text = buttonText,
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Blue600,
-                contentColor = Color.White
-            ),
             onClick = { onIntent(BoardTestIntent.ToggleGate) }
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun BoardTestScreenPreview() {
+    GateControllerTheme {
+        BoardTestScreen(
+            navController = androidx.navigation.compose.rememberNavController(),
+            showSnackbar = {}
         )
     }
 }

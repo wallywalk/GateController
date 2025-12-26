@@ -15,12 +15,14 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -41,8 +43,9 @@ import com.cm.gatecontroller.boardtest.BoardTestScreen
 import com.cm.gatecontroller.configuration.ConfigurationScreen
 import com.cm.gatecontroller.connection.ConnectionStatus
 import com.cm.gatecontroller.connection.ConnectionViewModel
-import com.cm.gatecontroller.monitoring.MonitoringScreen
 import com.cm.gatecontroller.debug.DebugView
+import com.cm.gatecontroller.monitoring.MonitoringScreen
+import com.cm.gatecontroller.ui.theme.Purple700
 import com.cm.gatecontroller.user.UserViewModel
 import kotlinx.coroutines.launch
 
@@ -75,11 +78,9 @@ fun MainScreen(
                     Text(
                         modifier = Modifier.combinedClickable(
                             onClick = { /* No-op */ },
-                            onLongClick = {
-                                debugViewVisible = !debugViewVisible
-                            }
-                        ),
-                        text = title
+                            onLongClick = { debugViewVisible = !debugViewVisible }),
+                        text = title,
+                        color = Purple700
                     )
                 },
                 navigationIcon = {
@@ -105,7 +106,11 @@ fun MainScreen(
                         deviceName = connectionUiState.connectedDeviceName,
                         onConnectClick = { connectionViewModel.connectToFirstDevice() }
                     )
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    navigationIconContentColor = Purple700
+                )
             )
         },
         snackbarHost = { SnackbarHost(snackbarHostState) }

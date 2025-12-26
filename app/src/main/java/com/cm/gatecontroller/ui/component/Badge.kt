@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.dp
 fun StatusBadge(
     modifier: Modifier = Modifier,
     text: String,
+    textColor: Color = MaterialTheme.colorScheme.onPrimary,
     backgroundColor: Color = MaterialTheme.colorScheme.inversePrimary,
     onClick: (() -> Unit)? = null,
 ) {
@@ -38,7 +39,7 @@ fun StatusBadge(
     ) {
         Text(
             text = text,
-            color = MaterialTheme.colorScheme.onPrimary,
+            color = textColor,
             textAlign = TextAlign.Center,
         )
     }

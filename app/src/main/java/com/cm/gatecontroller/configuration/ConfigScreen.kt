@@ -18,7 +18,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
@@ -172,7 +171,7 @@ private fun ProgressView(message: String) {
 }
 
 @Composable
-fun RelayMapDialog(onDismissRequest: () -> Unit) {
+private fun RelayMapDialog(onDismissRequest: () -> Unit) {
     Dialog(onDismissRequest = onDismissRequest) {
         val painter = painterResource(id = R.drawable.relay_mode_map)
 
@@ -408,7 +407,7 @@ private fun LedSettingRow(
                 contentAlignment = Alignment.Center
             ) {
                 StatusBadge(
-                    modifier = Modifier.widthIn(min = 100.dp, max = 120.dp),
+                    modifier = Modifier.fillMaxWidth(),
                     text = stringResourceForLedStatus(ledStatus),
                     backgroundColor = ledStatus.color,
                     onClick = { ledExpanded = true }
@@ -430,7 +429,7 @@ private fun LedSettingRow(
             }
             Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
                 StatusBadge(
-                    modifier = Modifier.widthIn(min = 100.dp, max = 120.dp),
+                    modifier = Modifier.fillMaxWidth(),
                     text = gateText,
                     onClick = onGateStatusChange
                 )
