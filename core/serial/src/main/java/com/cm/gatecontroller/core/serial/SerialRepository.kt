@@ -8,7 +8,7 @@ interface SerialRepository {
     val deviceStatus: StateFlow<GateControllerState>
 
     suspend fun requestVersion()
-    suspend fun refreshStatus()
+    suspend fun refreshMonitoring()
     suspend fun startTest()
     suspend fun stopTest()
     suspend fun refreshConfiguration()
@@ -35,5 +35,4 @@ interface SerialRepository {
     suspend fun requestPosition()
     suspend fun openGateTest()
     suspend fun closeGateTest()
-    suspend fun stopGateTest()
 }

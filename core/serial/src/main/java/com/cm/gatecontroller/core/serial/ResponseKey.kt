@@ -1,0 +1,65 @@
+package com.cm.gatecontroller.core.serial
+
+enum class ResponseKey(val key: String) {
+    CURR_VERSION("curr_version"),
+    MESSAGE("AT+MSG"), // TODO: 팝업창
+    ST_GATE("AT+STGATE"),
+    ST_LAMP("AT+STLAMP"),
+    ST_LED("AT+STLED"),
+    ST_RELAY1("AT+STRELAY1"),
+    ST_RELAY2("AT+STRELAY2"),
+    ST_PHOTO1("AT+STPHOTO1"),
+    ST_PHOTO2("AT+STPHOTO2"),
+    ST_OPEN1("AT+STOPEN1"),
+    ST_OPEN2("AT+STOPEN2"),
+    ST_OPEN3("AT+STOPEN3"),
+    ST_CLOSE1("AT+STCLOSE1"),
+    ST_CLOSE2("AT+STCLOSE2"),
+    ST_CLOSE3("AT+STCLOSE3"),
+    ST_LOOP_A("AT+STLOOPA"),
+    ST_LOOP_B("AT+STLOOPB"),
+    ST_M_PWR("AT+STMPWR"),
+    CURR_TEST_COUNT("curr_testcount"),
+    ST_DELAY_TIME("AT+STDELAYTIME"),
+    TEST_START("AT+TESTSTART"),
+    CURR_LEVEL_OPEN("curr_levelOpen"),
+    CURR_LEVEL_CLOSE("curr_levelClose"),
+    CURR_LAMP("curr_lamp"),
+    CURR_BUZZER("curr_buzzer"),
+    CURR_LAMP_POS_ON("curr_lampPosOn"),
+    CURR_LAMP_POS_OFF("curr_lampPosOff"),
+    CURR_LED_OPEN("curr_ledOpen"),
+    CURR_LED_OPEN_POS("curr_ledOpenPos"),
+    CURR_LED_CLOSE("curr_ledClose"),
+    CURR_LED_CLOSE_POS("curr_ledClosePos"),
+    CURR_LOOP_A("curr_loopa"),
+    CURR_LOOP_B("curr_loopb"),
+    CURR_DELAY_TIME("curr_delayTime"),
+    CURR_RELAY1("curr_relay1"),
+    CURR_RELAY2("curr_relay2"),
+    ST_POS("AT+STPOSITION"),
+    CTRL_LAMP("AT+CTRLLAMP"),
+    CTRL_RELAY1("AT+CTRLRELAY1"),
+    CTRL_RELAY2("AT+CTRLRELAY2"),
+    CTRL_LED("AT+CTRLLED"),
+    IN_POS("AT+INPOSITION"),
+    IN_PHOTO1("AT+INPHOTO1"),
+    IN_PHOTO2("AT+INPHOTO2"),
+    IN_LOOP_A("AT+INLOOPA"),
+    IN_LOOP_B("AT+INLOOPB"),
+    IN_OPEN1("AT+INOPEN1"),
+    IN_OPEN2("AT+INOPEN2"),
+    IN_OPEN3("AT+INOPEN3"),
+    IN_CLOSE1("AT+INCLOSE1"),
+    IN_CLOSE2("AT+INCLOSE2"),
+    IN_CLOSE3("AT+INCLOSE3"),
+    SW_OPEN("AT+SWOPEN"),
+    SW_CLOSE("AT+SWCLOSE"),
+    STAGE("AT+STAGE");
+
+    companion object {
+        private val map: Map<String, ResponseKey> = entries.associateBy { it.key }
+
+        fun fromKey(key: String): ResponseKey? = map[key]
+    }
+}

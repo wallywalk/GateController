@@ -37,7 +37,7 @@ class MonitoringViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            serialRepository.refreshStatus()
+            serialRepository.refreshMonitoring()
         }
     }
 

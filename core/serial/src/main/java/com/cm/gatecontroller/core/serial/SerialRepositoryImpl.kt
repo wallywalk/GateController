@@ -2,9 +2,12 @@ package com.cm.gatecontroller.core.serial
 
 import com.cm.gatecontroller.core.serial.model.GateControllerState
 import com.cm.gatecontroller.core.serial.model.GateState
+import com.cm.gatecontroller.core.serial.model.SwitchState
+import com.cm.gatecontroller.core.serial.model.UsageState
 import com.cm.gatecontroller.core.serial.parser.AtCommandParser
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -18,11 +21,13 @@ class SerialRepositoryImpl @Inject constructor(
     private val parser: AtCommandParser
 ) : SerialRepository {
 
+    private val repositoryScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+
     private val _deviceStatus = MutableStateFlow(GateControllerState())
     override val deviceStatus: StateFlow<GateControllerState> = _deviceStatus.asStateFlow()
 
     init {
-        CoroutineScope(Dispatchers.IO).launch {
+        repositoryScope.launch {
             serialClient.responses.collect { response ->
                 val newState = parser.parse(response, _deviceStatus.value)
                 _deviceStatus.value = newState
@@ -31,164 +36,162 @@ class SerialRepositoryImpl @Inject constructor(
     }
 
     override suspend fun requestVersion() {
-        serialClient.sendCommand("AT+CONFIG=VERSION")
+        serialClient.sendCommand(Command.RequestVersion.value)
     }
 
     // TODO: ViewModel 의존성 제거
-    override suspend fun refreshStatus() {
-        serialClient.sendCommand("AT+CONFIG=VERSION")
-        serialClient.sendCommand("AT+STGATE")
-        serialClient.sendCommand("AT+STLAMP")
-        serialClient.sendCommand("AT+STLED")
-        serialClient.sendCommand("AT+STRELAY1")
-        serialClient.sendCommand("AT+STRELAY2")
-        serialClient.sendCommand("AT+STPHOTO1")
-        serialClient.sendCommand("AT+STPHOTO2")
-        serialClient.sendCommand("AT+STOPEN1")
-        serialClient.sendCommand("AT+STCLOSE1")
-        serialClient.sendCommand("AT+STOPEN2")
-        serialClient.sendCommand("AT+STCLOSE2")
-        serialClient.sendCommand("AT+STOPEN3")
-        serialClient.sendCommand("AT+STCLOSE3")
-        serialClient.sendCommand("AT+STLOOPA")
-        serialClient.sendCommand("AT+STLOOPB")
-        serialClient.sendCommand("AT+STMPWR")
-        serialClient.sendCommand("AT+TESTCNT")
-        serialClient.sendCommand("AT+STDELATTIME")
+    override suspend fun refreshMonitoring() {
+        serialClient.sendCommand(Command.RequestVersion.value)
+        serialClient.sendCommand(Command.RequestGate.value)
+        serialClient.sendCommand(Command.RequestLamp.value)
+        serialClient.sendCommand(Command.RequestLed.value)
+        serialClient.sendCommand(Command.RequestRelay1.value)
+        serialClient.sendCommand(Command.RequestRelay2.value)
+        serialClient.sendCommand(Command.RequestPhoto1.value)
+        serialClient.sendCommand(Command.RequestPhoto2.value)
+        serialClient.sendCommand(Command.RequestOpen1.value)
+        serialClient.sendCommand(Command.RequestOpen2.value)
+        serialClient.sendCommand(Command.RequestOpen3.value)
+        serialClient.sendCommand(Command.RequestOpen.value)
+        serialClient.sendCommand(Command.RequestClose1.value)
+        serialClient.sendCommand(Command.RequestClose2.value)
+        serialClient.sendCommand(Command.RequestClose3.value)
+        serialClient.sendCommand(Command.RequestClose.value)
+        serialClient.sendCommand(Command.RequestLoopA.value)
+        serialClient.sendCommand(Command.RequestLoopB.value)
+        serialClient.sendCommand(Command.RequestMainPower.value)
+        serialClient.sendCommand(Command.RequestTestCount.value)
+        serialClient.sendCommand(Command.RequestDelayTime.value)
     }
 
     override suspend fun startTest() {
-        serialClient.sendCommand("AT+TESTSTART")
+        serialClient.sendCommand(Command.StartTest.value)
     }
 
     override suspend fun stopTest() {
-        serialClient.sendCommand("AT+TESTSTOP")
+        serialClient.sendCommand(Command.StopTest.value)
     }
 
     // TODO: ViewModel 의존성 제거
     override suspend fun refreshConfiguration() {
-        serialClient.sendCommand("AT+CONFIG=VERSION")
-        serialClient.sendCommand("AT+CONFIG=LEVELOPEN")
-        serialClient.sendCommand("AT+CONFIG=LEVELCLOSE")
-        serialClient.sendCommand("AT+CONFIG=LAMP")
-        serialClient.sendCommand("AT+CONFIG=BUZZER")
-        serialClient.sendCommand("AT+CONFIG=LAMPPOSON")
-        serialClient.sendCommand("AT+CONFIG=LAMPPOSOFF")
-        serialClient.sendCommand("AT+CONFIG=LEDOPEN")
-        serialClient.sendCommand("AT+CONFIG=LEDOPENPOS")
-        serialClient.sendCommand("AT+CONFIG=LEDCLOSE")
-        serialClient.sendCommand("AT+CONFIG=LEDCLOSEPOS")
-        serialClient.sendCommand("AT+CONFIG=LOOPA")
-        serialClient.sendCommand("AT+CONFIG=LOOPB")
-        serialClient.sendCommand("AT+CONFIG=DELAYTIME")
-        serialClient.sendCommand("AT+CONFIG=RELAY1")
-        serialClient.sendCommand("AT+CONFIG=RELAY2")
+        serialClient.sendCommand(Command.RequestVersion.value)
+        serialClient.sendCommand(Command.RequestConfigLevelOpen.value)
+        serialClient.sendCommand(Command.RequestConfigLevelClose.value)
+        serialClient.sendCommand(Command.RequestConfigLamp.value)
+        serialClient.sendCommand(Command.RequestConfigBuzzer.value)
+        serialClient.sendCommand(Command.RequestConfigLampPosOn.value)
+        serialClient.sendCommand(Command.RequestConfigLampPosOff.value)
+        serialClient.sendCommand(Command.RequestConfigLedOpen.value)
+        serialClient.sendCommand(Command.RequestConfigLedOpenPos.value)
+        serialClient.sendCommand(Command.RequestConfigLedClose.value)
+        serialClient.sendCommand(Command.RequestConfigLedClosePos.value)
+        serialClient.sendCommand(Command.RequestConfigLoopA.value)
+        serialClient.sendCommand(Command.RequestConfigLoopB.value)
+        serialClient.sendCommand(Command.RequestConfigDelayTime.value)
+        serialClient.sendCommand(Command.RequestConfigRelay1.value)
+        serialClient.sendCommand(Command.RequestConfigRelay2.value)
     }
 
     override suspend fun setOpenLevel(level: Int) {
-        serialClient.sendCommand("AT+SETLEVELOPEN=$level")
+        serialClient.sendCommand(Command.SetOpenLevel(level).value)
     }
 
     override suspend fun setCloseLevel(level: Int) {
-        serialClient.sendCommand("AT+SETLEVELCLOSE=$level")
+        serialClient.sendCommand(Command.SetCloseLevel(level).value)
     }
 
     override suspend fun setLampUsage(use: Boolean) {
-        val value = if (use) "USE" else "UNUSE"
-        serialClient.sendCommand("AT+SETLAMP=$value")
+        val state = if (use) UsageState.USE.name else UsageState.UNUSE.name
+        serialClient.sendCommand(Command.SetLampUsage(state).value)
     }
 
     override suspend fun setBuzzerUsage(use: Boolean) {
-        val value = if (use) "USE" else "UNUSE"
-        serialClient.sendCommand("AT+SETBUZZER=$value")
+        val state = if (use) UsageState.USE.name else UsageState.UNUSE.name
+        serialClient.sendCommand(Command.SetBuzzerUsage(state).value)
     }
 
     override suspend fun setLampOnPosition(on: Boolean) {
-        val value = if (on) GateState.OPENING else GateState.OPENED
-        serialClient.sendCommand("AT+SETLAMPON=$value")
+        val state = if (on) GateState.OPENING.name else GateState.OPENED.name
+        serialClient.sendCommand(Command.SetLampOnPosition(state).value)
     }
 
     override suspend fun setLampOffPosition(on: Boolean) {
-        val value = if (on) GateState.CLOSING else GateState.CLOSED
-        serialClient.sendCommand("AT+SETLAMPOFF=$value")
+        val state = if (on) GateState.CLOSING.name else GateState.CLOSED.name
+        serialClient.sendCommand(Command.SetLampOffPosition(state).value)
     }
 
     override suspend fun setLedOpenColor(color: String) {
-        serialClient.sendCommand("AT+SETLEDOPEN=$color")
+        serialClient.sendCommand(Command.SetLedOpenColor(color).value)
     }
 
     override suspend fun setLedOpenPosition(on: Boolean) {
-        val value = if (on) GateState.OPENING else GateState.OPENED
-        serialClient.sendCommand("AT+SETLEDOPENPOS=$value")
+        val state = if (on) GateState.OPENING.name else GateState.OPENED.name
+        serialClient.sendCommand(Command.SetLedOpenPosition(state).value)
     }
 
     override suspend fun setLedCloseColor(color: String) {
-        serialClient.sendCommand("AT+SETLEDCLOSE=$color")
+        serialClient.sendCommand(Command.SetLedCloseColor(color).value)
     }
 
     override suspend fun setLedClosePosition(on: Boolean) {
-        val value = if (on) GateState.CLOSING else GateState.CLOSED
-        serialClient.sendCommand("AT+SETLEDCLOSEPOS=$value")
+        val state = if (on) GateState.CLOSING.name else GateState.CLOSED.name
+        serialClient.sendCommand(Command.SetLedClosePosition(state).value)
     }
 
     override suspend fun setLoopAUsage(use: Boolean) {
-        val value = if (use) "USE" else "UNUSE"
-        serialClient.sendCommand("AT+SETLOOPA=$value")
+        val state = if (use) UsageState.USE.name else UsageState.UNUSE.name
+        serialClient.sendCommand(Command.SetLoopAUsage(state).value)
     }
 
     override suspend fun setLoopBUsage(use: Boolean) {
-        val value = if (use) "USE" else "UNUSE"
-        serialClient.sendCommand("AT+SETLOOPB=$value")
+        val state = if (use) UsageState.USE.name else UsageState.UNUSE.name
+        serialClient.sendCommand(Command.SetLoopBUsage(state).value)
     }
 
     override suspend fun setDelayTime(time: Int) {
-        serialClient.sendCommand("AT+SETDELAY=$time")
+        serialClient.sendCommand(Command.SetDelayTime(time).value)
     }
 
     override suspend fun setRelay1Mode(mode: Int) {
-        serialClient.sendCommand("AT+SETRELAY1=$mode")
+        serialClient.sendCommand(Command.SetRelay1Mode(mode).value)
     }
 
     override suspend fun setRelay2Mode(mode: Int) {
-        serialClient.sendCommand("AT+SETRELAY2=$mode")
+        serialClient.sendCommand(Command.SetRelay2Mode(mode).value)
     }
 
     override suspend fun factoryReset() {
-        serialClient.sendCommand("AT+FACTORY")
+        serialClient.sendCommand(Command.FactoryReset.value)
     }
 
     override suspend fun setControlLamp(on: Boolean) {
-        val value = if (on) "ON" else "OFF"
-        serialClient.sendCommand("AT+CTRLLAMP=$value")
+        val state = if (on) SwitchState.ON.name else SwitchState.OFF.name
+        serialClient.sendCommand(Command.SetControlLamp(state).value)
     }
 
     override suspend fun setControlRelay1(on: Boolean) {
-        val value = if (on) "ON" else "OFF"
-        serialClient.sendCommand("AT+CTRLRELAY1=$value")
+        val state = if (on) SwitchState.ON.name else SwitchState.OFF.name
+        serialClient.sendCommand(Command.SetControlRelay1(state).value)
     }
 
     override suspend fun setControlRelay2(on: Boolean) {
-        val value = if (on) "ON" else "OFF"
-        serialClient.sendCommand("AT+CTRLRELAY2=$value")
+        val state = if (on) SwitchState.ON.name else SwitchState.OFF.name
+        serialClient.sendCommand(Command.SetControlRelay2(state).value)
     }
 
     override suspend fun setControlLed(color: String) {
-        serialClient.sendCommand("AT+CTRLLED=$color")
+        serialClient.sendCommand(Command.SetControlLed(color).value)
     }
 
     override suspend fun requestPosition() {
-        serialClient.sendCommand("AT+STPOS")
+        serialClient.sendCommand(Command.RequestPosition.value)
     }
 
     override suspend fun openGateTest() {
-        serialClient.sendCommand("AT+OPEN")
+        serialClient.sendCommand(Command.OpenGateTest.value)
     }
 
     override suspend fun closeGateTest() {
-        serialClient.sendCommand("AT+CLOSE")
-    }
-
-    override suspend fun stopGateTest() {
-        serialClient.sendCommand("AT+STOP")
+        serialClient.sendCommand(Command.CloseGateTest.value)
     }
 }
